@@ -1,0 +1,83 @@
+<%- include("../../views/partials/admin/header") %>
+ <!-- Customer Table -->
+ <div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4><strong>Customers</strong></h4>
+      <form class="d-flex gap-2" method="get" action="/admin/users">
+        <input type="text" name="search" class="form-control form-control-sm"
+               placeholder="Search by name/email" value="<%= search || '' %>">
+        
+        <button class="btn btn-dark btn-sm">Search</button>
+      
+        <% if (search) { %>
+          <a href="/admin/users" class="btn btn-outline-secondary btn-sm">Clear</a>
+        <% } %>
+      </form>
+      
+    </div>
+  
+    <div class="table-responsive bg-white p-3 rounded shadow-sm">
+      <table class="table align-middle table-hover">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Customer ID</th>
+            <th>Orders</th>
+            <th>Balance</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (data.length === 0) { %>
+            <tr>
+              <td colspan="7" class="text-center">No customers found</td>
+            </tr>
+          <% } %>
+          <% data.forEach((user) => { %>
+            <tr>
+              <td><img src="<%= user.profilePicture || 'https://i.pravatar.cc/30?u=' + user._id %>" class="rounded-circle me-2" alt="">
+                <%= user.name %></td>
+              <td><%= user.email %></td>
+              <td><%= user._id.toString().slice(-6).toUpperCase() %></td>
+              <td><%= user.orderHistory.length %></td>
+              <td>$<%= user.wallet.toFixed(2) %></td>
+              <td>
+                <% if (user.isBlocked) { %>
+                  <span class="status-blocked">Blocked</span>
+                <% } else { %>
+                  <span class="status-active">Active</span>
+                <% } %>
+              </td>
+              <td class="action-icons">
+                <% if (!user.isBlocked) { %>
+                  <a href="/admin/blockCustomer?id=<%= user._id %>" title="Block"><i class="fas fa-ban text-danger"></i></a>
+                <% } else { %>
+                  <a href="/admin/unBlockCustomer?id=<%= user._id %>" title="Unblock"><i class="fas fa-check text-success"></i></a>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+  
+      <!-- Pagination -->
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>Page <%= currentPage %> of <%= totalPages %></div>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= i == currentPage ? 'active' : '' %>">
+                <a class="page-link" href="/admin/users?page=<%= i %><%= search ? '&search=' + search : '' %>"><%= i %></a>
+              </li>
+            <% } %>
+          </ul>
+        </nav>
+      </div>
+    </div> 
+  </div>
+  
+</main>
+  <%- include("../../views/partials/admin/footer") %>
+  

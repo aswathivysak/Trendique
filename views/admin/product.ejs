@@ -1,0 +1,119 @@
+<%- include("../../views/partials/admin/header") %>
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Poppins', sans-serif;
+    }
+    .form-section {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    .form-label {
+      font-weight: 500;
+    }
+    .form-control, .form-select {
+      border-radius: 8px;
+    }
+    .image-upload {
+      border: 2px dashed #ccc;
+      padding: 30px;
+      text-align: center;
+      border-radius: 10px;
+      background: #f8f9fa;
+      cursor: pointer;
+    }
+    .image-upload i {
+      font-size: 32px;
+      color: #6c757d;
+    }
+    .image-preview img {
+      height: 60px;
+      border-radius: 6px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container my-5">
+    <h2 class="mb-4">Add New Product</h2>
+    <form action="/admin/addProduct" method="POST" enctype="multipart/form-data" class="form-section">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <label class="form-label">Product Name</label>
+          <input type="text" name="name" class="form-control" required />
+
+          <label class="form-label mt-3">Description</label>
+          <textarea name="description" class="form-control" rows="3" required></textarea>
+
+          <label class="form-label mt-3">Brand</label>
+          <input type="text" name="brand" class="form-control" required />
+
+          <label class="form-label mt-3">Category</label>
+          <select name="category" class="form-select" required>
+            <option value="">Select category</option>
+            <% categories.forEach(category => { %>
+              <option value="<%= category._id %>"><%= category.name %></option>
+            <% }) %>
+          </select>
+
+          <label class="form-label mt-3">Gender</label>
+          <select name="gender" class="form-select" required>
+            <option value="Men">Men</option>
+            <option value="Women">Women</option>
+          </select>
+
+          <label class="form-label mt-3">Color</label>
+          <input type="text" name="color" class="form-control" placeholder="e.g. Red, Black" required />
+
+          <label class="form-label mt-3">Size</label>
+          <input type="text" name="size" class="form-control" placeholder="e.g. S, M, L" required />
+
+          <label class="form-label mt-3">Fit</label>
+          <input type="text" name="fit" class="form-control" placeholder="e.g. Regular" />
+
+          <label class="form-label mt-3">Material</label>
+          <input type="text" name="material" class="form-control" placeholder="e.g. Cotton" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Stock Quantity</label>
+          <input type="number" name="stock" class="form-control" min="0" required />
+
+          <label class="form-label mt-3">Base Price</label>
+          <input type="number" name="price" class="form-control" step="0.01" required />
+
+          <label class="form-label mt-3">Discount (%)</label>
+          <input type="number" name="discount" class="form-control" placeholder="0-100" />
+
+          <label class="form-label mt-3">Final Price</label>
+          <input type="number" name="finalPrice" class="form-control" step="0.01" required />
+
+          <label class="form-label mt-3">Product Gallery</label>
+          <div class="image-upload">
+            <i class="fas fa-upload"></i>
+            <p class="mt-2">Drop your images or click to upload</p>
+            <input type="file" name="images" class="form-control mt-2" multiple required />
+          </div>
+
+          <label class="form-label mt-3">Status</label>
+          <select name="status" class="form-select">
+            <option value="available">Available</option>
+            <option value="out of stock">Out of Stock</option>
+            <option value="Discontinued">Discontinued</option>
+          </select>
+
+          <div class="d-flex justify-content-between mt-4">
+            <button type="reset" class="btn btn-outline-secondary">Cancel</button>
+            <button type="submit" class="btn btn-dark">Save</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <%- include("../../views/partials/admin/footer") %>
+
+

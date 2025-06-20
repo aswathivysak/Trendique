@@ -1,0 +1,156 @@
+
+<%- include("../../views/partials/admin/header") %>
+  <style>
+    .form-section {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    }
+    .image-preview-wrapper {
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      padding: 30px;
+      min-height: 300px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+      background-color: #f9f9f9;
+    }
+    .image-preview-wrapper img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      margin: 8px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .color-dots {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .color-dot {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      border: 2px solid #ddd;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="container mt-5">
+  <h3 class="mb-4">Add New Product</h3>
+  <form class="row g-4 form-section" method="POST" action="/admin/addProduct" enctype="multipart/form-data">
+
+    <div class="col-md-6">
+      <label class="form-label">Product Name</label>
+      <input type="text" class="form-control" name="name" required>
+
+      <label class="form-label mt-3">Description</label>
+      <textarea class="form-control" name="description" rows="4" required></textarea>
+
+      <label class="form-label mt-3">Category</label>
+      <select class="form-select" name="category" required>
+        <option selected disabled>Select Category</option>
+      </select>
+
+      <label class="form-label mt-3">Brand</label>
+      <input type="text" class="form-control" name="brand" required>
+
+      <div class="row mt-3">
+        <div class="col">
+          <label class="form-label">Price</label>
+          <input type="number" class="form-control" name="price" required>
+        </div>
+        <div class="col">
+          <label class="form-label">Discount (%)</label>
+          <input type="number" class="form-control" name="discount">
+        </div>
+      </div>
+
+      <label class="form-label mt-3">Final Price</label>
+      <input type="number" class="form-control" name="finalPrice" required>
+
+      <label class="form-label mt-3">Stock Quantity</label>
+      <input type="number" class="form-control" name="stock" required>
+
+      <label class="form-label mt-3">Color (comma separated)</label>
+      <input type="text" class="form-control" name="color" id="colorInput" oninput="renderColorDots(this.value)">
+      <div class="color-dots" id="colorDots"></div>
+
+      <label class="form-label mt-3">Size (comma separated)</label>
+      <input type="text" class="form-control" name="size">
+
+      <div class="row mt-3">
+        <div class="col">
+          <label class="form-label">Fit</label>
+          <select class="form-select" name="fit">
+            <option value="Regular">Regular</option>
+            <option value="Slim">Slim</option>
+            <option value="Loose">Loose</option>
+          </select>
+        </div>
+        <div class="col">
+          <label class="form-label">Material</label>
+          <input type="text" class="form-control" name="material">
+        </div>
+      </div>
+
+      <label class="form-label mt-3">Offer Description</label>
+      <input type="text" class="form-control" name="offer">
+
+      <label class="form-label mt-3">Offer Valid Until</label>
+      <input type="date" class="form-control" name="offerValidUntil">
+
+      <label class="form-label mt-3">Status</label>
+      <select class="form-select" name="status">
+        <option value="available">Available</option>
+        <option value="out of stock">Out of Stock</option>
+        <option value="Discontinued">Discontinued</option>
+      </select>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Product Gallery</label>
+      <input type="file" class="form-control" name="images" accept="image/*" multiple onchange="previewImages(event)">
+      <div class="image-preview-wrapper mt-3" id="image-preview-container"></div>
+    </div>
+
+    <div class="col-12 d-flex justify-content-end">
+      <button type="reset" class="btn btn-outline-secondary me-2">Cancel</button>
+      <button type="submit" class="btn btn-dark">Save</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function previewImages(event) {
+    const container = document.getElementById("image-preview-container");
+    container.innerHTML = "";
+    Array.from(event.target.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement("img");
+        img.src = e.target.result;
+        container.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderColorDots(colorString) {
+    const colors = colorString.split(',').map(c => c.trim()).filter(Boolean);
+    const container = document.getElementById("colorDots");
+    container.innerHTML = "";
+    colors.forEach(color => {
+      const dot = document.createElement("div");
+      dot.className = "color-dot";
+      dot.style.backgroundColor = color;
+      container.appendChild(dot);
+    });
+  }
+</script>
+<%- include("../../views/partials/admin/footer") %>
