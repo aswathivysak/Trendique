@@ -92,7 +92,7 @@ const addCategory = async (req, res) => {
       const totalCategories = await Category.countDocuments(query);
       const totalPages = Math.ceil(totalCategories / limit);
   
-      res.render("category", {
+      res.render("categoryPage", {
         cat: categoryData,
         currentPage: page,
         totalPages,

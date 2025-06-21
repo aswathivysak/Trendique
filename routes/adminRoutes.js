@@ -31,6 +31,14 @@ router.delete('/deleteCategory/:id', adminAuth, categoryController.deleteCategor
 
 //Product Management
 router.get("/addProducts", adminAuth, productController.getProductAddPage);
+router.post("/saveImage", adminAuth, upload.single('image'), productController.saveImage);
+router.post("/addProducts", adminAuth, upload.fields([
+    { name: 'image1', maxCount: 1 },
+    { name: 'image2', maxCount: 1 },
+    { name: 'image3', maxCount: 1 },
+    { name: 'image4', maxCount: 1 }
+]), productController.addProducts);
+
 
 
 module.exports = router;

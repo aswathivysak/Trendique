@@ -196,6 +196,16 @@ const loadLoginPage = async (req, res) => {
         res.redirect('/pagenotfound')
     }
 }
+const about = async (req, res) => {
+    try {
+    
+        return res.render('about', { user: req.session.user || null });
+    } catch (error) {
+        console.error(error);
+        res.redirect('/pagenotfound');
+    }
+};
+
 
 const login = async (req, res) => {
     try {
@@ -257,5 +267,6 @@ module.exports={
     loadLoginPage,
     login,
     logout,
+    about
 }
 

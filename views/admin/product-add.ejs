@@ -1,51 +1,46 @@
 
 <%- include("../../views/partials/admin/header") %>
-  <style>
-    .form-section {
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-    }
-    .image-preview-wrapper {
-      border: 2px dashed #ccc;
-      border-radius: 10px;
-      padding: 30px;
-      min-height: 300px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: flex-start;
-      background-color: #f9f9f9;
-    }
-    .image-preview-wrapper img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      margin: 8px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-    .color-dots {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .color-dot {
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      border: 2px solid #ddd;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
+
+<style>
+  .form-section {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  }
+  .preview-container {
+    margin-top: 10px;
+    display: none;
+  }
+  .image-preview {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  .color-dots {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .color-dot {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+  }
+</style>
+
 <div class="container mt-5">
   <h3 class="mb-4">Add New Product</h3>
-  <form class="row g-4 form-section" method="POST" action="/admin/addProduct" enctype="multipart/form-data">
+  <form id="productForm" class="row g-4 form-section" enctype="multipart/form-data">
 
     <div class="col-md-6">
+      <!-- Text Inputs -->
       <label class="form-label">Product Name</label>
       <input type="text" class="form-control" name="name" required>
 
@@ -54,7 +49,10 @@
 
       <label class="form-label mt-3">Category</label>
       <select class="form-select" name="category" required>
-        <option selected disabled>Select Category</option>
+        <option value="" disabled selected>Select Category</option>
+        <% for (let i = 0; i < cat.length; i++) { %>
+          <option value="<%= cat[i]._id %>"><%= cat[i].name %></option>
+        <% } %>
       </select>
 
       <label class="form-label mt-3">Brand</label>
@@ -63,11 +61,11 @@
       <div class="row mt-3">
         <div class="col">
           <label class="form-label">Price</label>
-          <input type="number" class="form-control" name="price" required>
+          <input type="number" class="form-control" name="regularPrice" required>
         </div>
         <div class="col">
           <label class="form-label">Discount (%)</label>
-          <input type="number" class="form-control" name="discount">
+          <input type="number" class="form-control" name="salePrice">
         </div>
       </div>
 
@@ -75,10 +73,10 @@
       <input type="number" class="form-control" name="finalPrice" required>
 
       <label class="form-label mt-3">Stock Quantity</label>
-      <input type="number" class="form-control" name="stock" required>
+      <input type="number" class="form-control" name="quantity" required>
 
       <label class="form-label mt-3">Color (comma separated)</label>
-      <input type="text" class="form-control" name="color" id="colorInput" oninput="renderColorDots(this.value)">
+      <input type="text" class="form-control" name="color" id="colorInput">
       <div class="color-dots" id="colorDots"></div>
 
       <label class="form-label mt-3">Size (comma separated)</label>
@@ -113,44 +111,126 @@
       </select>
     </div>
 
+    <!-- Image Upload Section -->
     <div class="col-md-6">
-      <label class="form-label">Product Gallery</label>
-      <input type="file" class="form-control" name="images" accept="image/*" multiple onchange="previewImages(event)">
-      <div class="image-preview-wrapper mt-3" id="image-preview-container"></div>
+      <h4>Product Images</h4>
+      <% for (let i = 1; i <= 4; i++) { %>
+        <div class="form-group mb-3">
+          <label for="image<%= i %>">Image <%= i %></label>
+          <% const index = i; %>
+          <input type="file" class="form-control" id="image<%= i %>" accept="image/*" required  onchange="previewImage(event, <%= index %>)">
+          <div class="preview-container">
+            <img id="preview<%= i %>" class="image-preview" src="#" alt="Preview">
+          </div>
+        </div>
+      <% } %>
     </div>
 
     <div class="col-12 d-flex justify-content-end">
-      <button type="reset" class="btn btn-outline-secondary me-2">Cancel</button>
+      <button type="reset" class="btn btn-outline-secondary me-2" id="resetBtn">Cancel</button>
       <button type="submit" class="btn btn-dark">Save</button>
     </div>
   </form>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
 <script>
-  function previewImages(event) {
-    const container = document.getElementById("image-preview-container");
-    container.innerHTML = "";
-    Array.from(event.target.files).forEach(file => {
+  let croppers = {};
+
+  function previewImage(event, index) {
+    const input = event.target;
+    const preview = document.getElementById(`preview${index}`);
+    const previewContainer = preview.parentElement;
+
+    if (croppers[index]) {
+      croppers[index].destroy();
+    }
+
+    if (input.files && input.files[0]) {
       const reader = new FileReader();
-      reader.onload = e => {
-        const img = document.createElement("img");
-        img.src = e.target.result;
-        container.appendChild(img);
+      reader.onload = function (e) {
+        preview.src = e.target.result;
+        preview.onload = function () {
+          previewContainer.style.display = 'block';
+          croppers[index] = new Cropper(preview, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 1
+          });
+        };
       };
-      reader.readAsDataURL(file);
-    });
+      reader.readAsDataURL(input.files[0]);
+    }
   }
 
-  function renderColorDots(colorString) {
-    const colors = colorString.split(',').map(c => c.trim()).filter(Boolean);
-    const container = document.getElementById("colorDots");
-    container.innerHTML = "";
-    colors.forEach(color => {
-      const dot = document.createElement("div");
-      dot.className = "color-dot";
-      dot.style.backgroundColor = color;
-      container.appendChild(dot);
-    });
-  }
+  document.getElementById('productForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    let isValid = true;
+
+    const stock = parseInt(formData.get('quantity'));
+    const price = parseFloat(formData.get('price'));
+    const finalPrice = parseFloat(formData.get('finalPrice'));
+
+    if (stock < 0 || price <= 0 || finalPrice <= 0 || finalPrice > price) {
+      isValid = false;
+      Swal.fire('Invalid Input', 'Please check price or stock values.', 'error');
+      return;
+    }
+
+    for (let i = 1; i <= 4; i++) {
+      const fileInput = document.getElementById(`image${i}`);
+      if (fileInput.files.length > 0) {
+        await new Promise(resolve => {
+          croppers[i].getCroppedCanvas().toBlob(blob => {
+            formData.set(`image${i}`, blob, `image${i}.jpg`);
+            resolve();
+          }, 'image/jpeg');
+        });
+      } else {
+        isValid = false;
+        Swal.fire('Missing Image', `Image ${i} is required`, 'error');
+        return;
+      }
+    }
+
+    if (isValid) {
+      fetch('/admin/addProducts', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire('Success!', 'Product added successfully!', 'success').then(() => {
+            window.location.href = '/admin/addProducts';
+          });
+        } else {
+          Swal.fire('Error!', data.message || 'An error occurred', 'error');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        Swal.fire('Error!', 'Something went wrong', 'error');
+      });
+    }
+  });
+
+  // Reset button logic
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    for (let i = 1; i <= 4; i++) {
+      const preview = document.getElementById(`preview${i}`);
+      preview.src = '#';
+      preview.parentElement.style.display = 'none';
+      document.getElementById(`image${i}`).value = '';
+      if (croppers[i]) {
+        croppers[i].destroy();
+        delete croppers[i];
+      }
+    }
+  });
 </script>
 <%- include("../../views/partials/admin/footer") %>
