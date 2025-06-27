@@ -1,6 +1,7 @@
 const User = require('../../models/userSchema')
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema")
+const Brand = require("../../models/brandSchema")
 const env = require('dotenv').config();
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
@@ -254,6 +255,54 @@ const login = async (req, res) => {
         
     }
 }
+// const loadShoppingPage = async (req, res) => {
+//     try {
+        
+//         const products = await Product.find({ isBlocked: false, stock: { $gt: 0 } }).lean();
+    
+//         res.render('shop', {
+//           user: req.session.user || null,
+//           products: products
+//         });
+//       } catch (error) {
+//         console.error('Error loading shop page:', error);
+//         res.redirect('/pagenotfound');
+//       }
+//   }
+const loadShoppingPage = async (req, res) => {
+    try {
+        const user = req.session.user;
+        const userData = user ? await User.findOne({ _id: user }) : null;
+        const categories = await Category.find({ isListed: true });
+        const categoryIds = categories.map(category => category._id.toString());
+        const page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
+        const products = await Product.find({
+            isBlocked:false,
+            category:{$in:categoryIds},
+            stock:{$gt:0}
+        }).sort({createdAt:-1}).skip(skip).limit(limit);
+             // Get total number of products for pagination
+        const totalProducts = await Product.countDocuments({isBlocked:false,category:{$in:categoryIds},stock:{$gt:0}}  );
+        const totalPages = Math.ceil(totalProducts / limit);
+        const brands= await Brand.find({isBlocked:false})
+        const catgoriesWithIds = categories.map(category=>({_id:category._id,name:category.name}))
+        res.render('shop', {
+          user: req.session.user || null,
+          products: products,
+          category:categoriesWithIds,
+          brand: brands,
+          totalProducts:totalProducts,
+          currentPage:page,
+          totalPages:totalPages
+        });
+      } catch (error) {
+        console.error('Error loading shop page:', error);
+        res.redirect('/pagenotfound');
+      }
+  }
+  
 const logout = async (req, res) => {
     try {
         req.session.destroy((err)=>{
@@ -283,6 +332,7 @@ module.exports={
     loadLoginPage,
     login,
     logout,
-    about
+    about,
+    loadShoppingPage,
 }
 
