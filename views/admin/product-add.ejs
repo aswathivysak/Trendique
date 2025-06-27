@@ -1,4 +1,3 @@
-
 <%- include("../../views/partials/admin/header") %>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
@@ -33,6 +32,11 @@
     border: 2px solid #ddd;
     cursor: pointer;
   }
+  .text-danger {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 2px;
+  }
 </style>
 
 <div class="container mt-5">
@@ -40,96 +44,107 @@
   <form id="productForm" class="row g-4 form-section" enctype="multipart/form-data">
 
     <div class="col-md-6">
-      <!-- Text Inputs -->
       <label class="form-label">Product Name</label>
-      <input type="text" class="form-control" name="name" required>
+      <input type="text" id="name" name="name" class="form-control" required>
+      <div id="name-error" class="text-danger"></div>
 
       <label class="form-label mt-3">Description</label>
-      <textarea class="form-control" name="description" rows="4" required></textarea>
+      <textarea id="description" name="description" class="form-control" rows="4" required></textarea>
+      <div id="description-error" class="text-danger"></div>
 
-      <label class="form-label mt-3">Category</label>
-      <select class="form-select" name="category" required>
-        <option value="" disabled selected>Select Category</option>
-        <% for (let i = 0; i < cat.length; i++) { %>
-          <option value="<%= cat[i]._id %>"><%= cat[i].name %></option>
-        <% } %>
-      </select>
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <label class="form-label">Category</label>
+          <select id="category" name="category" class="form-select" required>
+            <option value="" disabled selected>Select Category</option>
+            <% for (let i = 0; i < cat.length; i++) { %>
+              <option value="<%= cat[i]._id %>"><%= cat[i].name %></option>
+            <% } %>
+          </select>
+          <div id="category-error" class="text-danger"></div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Subcategory</label>
+          <select id="subcategory" name="subcategory" class="form-select" required>
+            <option value="" disabled selected>Select Subcategory</option>
+            <% for (let i = 0; i < subcat.length; i++) { %>
+              <option value="<%= subcat[i]._id %>"><%= subcat[i].name %></option>
+            <% } %>
+          </select>
+          <div id="subcategory-error" class="text-danger"></div>
+        </div>
+      </div>
 
       <label class="form-label mt-3">Brand</label>
-      <input type="text" class="form-control" name="brand" required>
+      <select id="brand" name="brand" class="form-select" required>
+        <option value="" disabled selected>Select Brand</option>
+        <% for (let i = 0; i < brands.length; i++) { %>
+          <option value="<%= brands[i]._id %>"><%= brands[i].brandName %></option>
+        <% } %>
+      </select>
+      <div id="brand-error" class="text-danger"></div>
 
       <div class="row mt-3">
         <div class="col">
           <label class="form-label">Price</label>
-          <input type="number" class="form-control" name="regularPrice" required>
-        </div>
-        <div class="col">
-          <label class="form-label">Discount (%)</label>
-          <input type="number" class="form-control" name="salePrice">
+          <input type="number" id="regularPrice" name="regularPrice" class="form-control" required>
+          <div id="regularPrice-error" class="text-danger"></div>
         </div>
       </div>
 
       <label class="form-label mt-3">Final Price</label>
-      <input type="number" class="form-control" name="finalPrice" required>
+      <input type="number" id="finalPrice" name="finalPrice" class="form-control" required>
+      <div id="finalPrice-error" class="text-danger"></div>
 
       <label class="form-label mt-3">Stock Quantity</label>
-      <input type="number" class="form-control" name="quantity" required>
+      <input type="number" id="quantity" name="quantity" class="form-control" required>
+      <div id="quantity-error" class="text-danger"></div>
 
       <label class="form-label mt-3">Color (comma separated)</label>
-      <input type="text" class="form-control" name="color" id="colorInput">
-      <div class="color-dots" id="colorDots"></div>
+      <input type="text" id="color" name="color" class="form-control" >
+      <div id="color-error" class="text-danger"></div>
 
       <label class="form-label mt-3">Size (comma separated)</label>
-      <input type="text" class="form-control" name="size">
+      <input type="text" id="size" name="size" class="form-control" >
+      <div id="size-error" class="text-danger"></div>
 
-      <div class="row mt-3">
-        <div class="col">
-          <label class="form-label">Fit</label>
-          <select class="form-select" name="fit">
-            <option value="Regular">Regular</option>
-            <option value="Slim">Slim</option>
-            <option value="Loose">Loose</option>
-          </select>
-        </div>
-        <div class="col">
-          <label class="form-label">Material</label>
-          <input type="text" class="form-control" name="material">
-        </div>
-      </div>
+      <label class="form-label mt-3">Fit</label>
+      <input type="text" id="fit" name="fit" class="form-control" >
+      <div id="fit-error" class="text-danger"></div>
 
-      <label class="form-label mt-3">Offer Description</label>
-      <input type="text" class="form-control" name="offer">
-
-      <label class="form-label mt-3">Offer Valid Until</label>
-      <input type="date" class="form-control" name="offerValidUntil">
+      <label class="form-label mt-3">Material</label>
+      <input type="text" id="material" name="material" class="form-control" >
+      <div id="material-error" class="text-danger"></div>
 
       <label class="form-label mt-3">Status</label>
-      <select class="form-select" name="status">
-        <option value="available">Available</option>
-        <option value="out of stock">Out of Stock</option>
-        <option value="Discontinued">Discontinued</option>
-      </select>
+      <input type="text" id="status" name="status" class="form-control" >
+      <div id="status-error" class="text-danger"></div>
     </div>
 
-    <!-- Image Upload Section -->
     <div class="col-md-6">
       <h4>Product Images</h4>
+
       <% for (let i = 1; i <= 4; i++) { %>
         <div class="form-group mb-3">
           <label for="image<%= i %>">Image <%= i %></label>
-          <% const index = i; %>
-          <input type="file" class="form-control" id="image<%= i %>" accept="image/*" required  onchange="previewImage(event, <%= index %>)">
+          <% const index = i %>
+          <input type="file" id="image<%= i %>" name="image<%= i %>" class="form-control" accept="image/*" required onchange="previewImage(event, <%= index %>)">
           <div class="preview-container">
             <img id="preview<%= i %>" class="image-preview" src="#" alt="Preview">
           </div>
+          <div id="image<%= i %>-error" class="text-danger"></div>
+          <!-- Hidden input to store cropped image -->
+          <input type="hidden" id="croppedImage<%= i %>" name="croppedImage<%= i %>">
         </div>
       <% } %>
+
     </div>
 
     <div class="col-12 d-flex justify-content-end">
       <button type="reset" class="btn btn-outline-secondary me-2" id="resetBtn">Cancel</button>
       <button type="submit" class="btn btn-dark">Save</button>
     </div>
+
   </form>
 </div>
 
@@ -142,81 +157,221 @@
 
   function previewImage(event, index) {
     const input = event.target;
+    const previewContainer = input.parentElement.querySelector('.preview-container');
     const preview = document.getElementById(`preview${index}`);
-    const previewContainer = preview.parentElement;
+    const errorDiv = document.getElementById(`image${index}-error`);
 
+    // Reset previous preview and errors
+    previewContainer.style.display = 'none';
+    if (errorDiv) errorDiv.textContent = '';
     if (croppers[index]) {
       croppers[index].destroy();
+      delete croppers[index];
     }
 
     if (input.files && input.files[0]) {
+      const file = input.files[0];
+
+      // Validate file type and size
+      const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+
+      if (!validImageTypes.includes(file.type)) {
+        if (errorDiv) errorDiv.textContent = 'Please select a valid image file (JPEG, PNG, GIF, BMP, or WebP)';
+        input.value = '';
+        return;
+      }
+
+      if (file.size > maxSize) {
+        if (errorDiv) errorDiv.textContent = 'Image file size must be less than 5MB';
+        input.value = '';
+        return;
+      }
+
+      // Load image and initialize cropper
       const reader = new FileReader();
-      reader.onload = function (e) {
+      reader.onload = function(e) {
         preview.src = e.target.result;
-        preview.onload = function () {
-          previewContainer.style.display = 'block';
-          croppers[index] = new Cropper(preview, {
-            aspectRatio: 1,
-            viewMode: 1,
-            autoCropArea: 1
-          });
-        };
+        previewContainer.style.display = 'block';
+        croppers[index] = new Cropper(preview, {
+          aspectRatio: 1,
+          viewMode: 1,
+          autoCropArea: 1,
+          ready: function() {
+            this.cropper.crop();
+          }
+        });
       };
-      reader.readAsDataURL(input.files[0]);
+      reader.readAsDataURL(file);
     }
   }
 
-  document.getElementById('productForm').addEventListener('submit', async function (e) {
+  document.getElementById('productForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const formData = new FormData(this);
+
     let isValid = true;
+    const requiredFields = ['name', 'description', 'brand', 'regularPrice', 'finalPrice', 'quantity', 'color', 'size', 'status', 'category', 'subcategory'];
 
-    const stock = parseInt(formData.get('quantity'));
-    const price = parseFloat(formData.get('price'));
-    const finalPrice = parseFloat(formData.get('finalPrice'));
+    // Clear previous error messages
+    requiredFields.forEach(field => {
+      const errorElem = document.getElementById(`${field}-error`);
+      if (errorElem) errorElem.textContent = '';
+    });
 
-    if (stock < 0 || price <= 0 || finalPrice <= 0 || finalPrice > price) {
+    // Validate required fields
+    requiredFields.forEach(field => {
+      const input = document.getElementById(field);
+      if (!input || !input.value.trim()) {
+        isValid = false;
+        const errorElem = document.getElementById(`${field}-error`);
+        if (errorElem) errorElem.textContent = 'This field is required.';
+      }
+    });
+
+    // Get numeric values
+    const quantity = parseInt(document.getElementById('quantity').value);
+    const regularPrice = parseFloat(document.getElementById('regularPrice').value);
+    const finalPrice = parseFloat(document.getElementById('finalPrice').value);
+
+    // Validate quantity
+    if (quantity < 0) {
       isValid = false;
-      Swal.fire('Invalid Input', 'Please check price or stock values.', 'error');
+      Swal.fire({
+        title: 'Invalid Quantity!',
+        text: 'Quantity cannot be less than zero',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      const errorElem = document.getElementById('quantity-error');
+      if (errorElem) errorElem.textContent = 'Quantity cannot be less than zero';
       return;
     }
 
+    // Validate regular price
+    if (regularPrice <= 0) {
+      isValid = false;
+      Swal.fire({
+        title: 'Invalid Regular Price!',
+        text: 'Regular price must be greater than zero',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      const errorElem = document.getElementById('regularPrice-error');
+      if (errorElem) errorElem.textContent = 'Regular price must be greater than zero';
+      return;
+    }
+
+    // Validate final price
+    if (finalPrice <= 0) {
+      isValid = false;
+      Swal.fire({
+        title: 'Invalid Final Price!',
+        text: 'Final price must be greater than zero',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      const errorElem = document.getElementById('finalPrice-error');
+      if (errorElem) errorElem.textContent = 'Final price must be greater than zero';
+      return;
+    }
+
+    // Final price cannot be higher than regular price
+    if (finalPrice > regularPrice) {
+      isValid = false;
+      Swal.fire({
+        title: 'Invalid Price!',
+        text: 'Final price cannot be higher than regular price',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      const errorElem = document.getElementById('finalPrice-error');
+      if (errorElem) errorElem.textContent = 'Final price cannot be higher than regular price';
+      return;
+    }
+
+    // Check if all 4 images are uploaded
+    let imageCount = 0;
     for (let i = 1; i <= 4; i++) {
-      const fileInput = document.getElementById(`image${i}`);
-      if (fileInput.files.length > 0) {
-        await new Promise(resolve => {
-          croppers[i].getCroppedCanvas().toBlob(blob => {
-            formData.set(`image${i}`, blob, `image${i}.jpg`);
-            resolve();
-          }, 'image/jpeg');
-        });
-      } else {
-        isValid = false;
-        Swal.fire('Missing Image', `Image ${i} is required`, 'error');
-        return;
+      if (document.getElementById(`image${i}`).files.length > 0) {
+        imageCount++;
+
+        if (croppers[i]) {
+          const croppedDataUrl = croppers[i].getCroppedCanvas().toDataURL('image/jpeg');
+          document.getElementById(`croppedImage${i}`).value = croppedDataUrl;
+        }
       }
+    }
+    if (imageCount < 4) {
+      isValid = false;
+      Swal.fire({
+        title: 'Images Required!',
+        text: 'Please upload all 4 product images',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      return;
     }
 
     if (isValid) {
+      const formData = new FormData(this);
       fetch('/admin/addProducts', {
         method: 'POST',
         body: formData
       })
-      .then(res => res.json())
+      .then(response => response.json())
       .then(data => {
         if (data.success) {
-          Swal.fire('Success!', 'Product added successfully!', 'success').then(() => {
-            window.location.href = '/admin/addProducts';
+          Swal.fire({
+            title: 'Success!',
+            text: 'Product added successfully',
+            icon: 'success',
+            confirmButtonText: 'OK'
+          }).then(result => {
+            if (result.isConfirmed) {
+              window.location.href = '/admin/products';
+            }
           });
         } else {
-          Swal.fire('Error!', data.message || 'An error occurred', 'error');
+          Swal.fire({
+            title: 'Error!',
+            text: data.message || 'An error occurred while adding the product',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
         }
       })
-      .catch(err => {
-        console.error(err);
-        Swal.fire('Error!', 'Something went wrong', 'error');
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+          title: 'Error!',
+          text: 'An unexpected error occurred',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       });
     }
+  });
+
+  // Real-time validation listeners
+  ['quantity', 'regularPrice', 'finalPrice'].forEach(id => {
+    document.getElementById(id).addEventListener('input', function () {
+      const val = this.value.trim();
+      const num = parseFloat(val);
+      const errorElem = document.getElementById(`${id}-error`);
+      if (!val || isNaN(num) || num <= 0) {
+        if (errorElem) errorElem.textContent = `${this.name || id} must be greater than zero`;
+      } else {
+        if (errorElem) errorElem.textContent = '';
+      }
+
+      if (id === 'finalPrice') {
+        // Check if finalPrice > regularPrice
+        const regularPriceVal = parseFloat(document.getElementById('regularPrice').value);
+        if (!isNaN(regularPriceVal) && num > regularPriceVal) {
+          if (errorElem) errorElem.textContent = 'Final price cannot be higher than regular price';
+        }
+      }
+    });
   });
 
   // Reset button logic
@@ -230,7 +385,11 @@
         croppers[i].destroy();
         delete croppers[i];
       }
+      // Clear hidden cropped images
+      const hiddenInput = document.getElementById(`croppedImage${i}`);
+      if (hiddenInput) hiddenInput.value = '';
     }
   });
 </script>
+
 <%- include("../../views/partials/admin/footer") %>

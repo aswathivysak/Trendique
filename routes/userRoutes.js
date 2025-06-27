@@ -2,10 +2,11 @@ const express = require("express")
 const router = express.Router();
 const passport = require('passport');
 const userController=require("../controllers/user/userController")
-
+const profileController = require("../controllers/user/profileController")
+//Error management
 router.get('/pagenotfound', userController.pageNotFound);
-router.get('/', userController.loadHomePage);
 
+//Signup management
 router.get('/signup', userController.loadSignUpPage);
 router.post('/signup', userController.signup);
 router.post('/verify-otp', userController.verifyOtp);
@@ -20,10 +21,23 @@ router.get('/auth/google/callback', passport.authenticate('google', { failureRed
         res.redirect('/signup');
     }
 });
+
+//Login Management
 router.get('/login',userController.loadLoginPage);
 router.post('/login',userController.login);
 router.get('/logout', userController.logout);
+
+//Home management
+router.get('/', userController.loadHomePage);
 router.get('/about', userController.about);
+
+//Profile management
+router.get("/forgot-password",profileController.getForgotPassPage )
+router.post("/forgot-email-valid",profileController.forgotEmailValid)
+router.post("/verify-passForgot-otp",profileController.verifyForgotPassOtp)
+router.get("/reset-password",profileController.getResetPassPage)
+router.post("/resend-forgot-otp",profileController.resendOtp);
+router.post("/reset-password",profileController.postNewPassword);
 
 
 

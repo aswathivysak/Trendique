@@ -66,17 +66,17 @@ const productSchema = new Schema({
     ref: 'Category',
     required: true
   },
-
-  // salePrice: {
-  //   type: Number,
-  //   required: true
-  // },
-  
-  brand: {
-    type: String,
+  subcategory: {
+    type: String, 
     required: true,
-
+     
   },
+  brand: {
+    type: Schema.Types.ObjectId,
+    ref: 'Brand',
+    required: true
+  },
+  
 
   images: [{
     type: String ,// Image filenames or URLs
@@ -113,7 +113,7 @@ const productSchema = new Schema({
 
   offer: {
     type: String,
-    default : 0 // Optional: '20% Off', 'BOGO', 'Flat ₹200 Off'
+    default : '' // Optional: '20% Off', 'BOGO', 'Flat ₹200 Off'
   },
 
   offerValidUntil: {
@@ -129,9 +129,17 @@ const productSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 },{timestamps: true});
 
 const Product = mongoose.model('Product', productSchema);
 
-module.exports = Product;
+
+
+module.exports = Product
+
+

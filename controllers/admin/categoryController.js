@@ -24,7 +24,8 @@ const addCategory = async (req, res) => {
       });
   
       await newCategory.save();
-      res.redirect('/admin/category');
+      res.status(200).json({ success: true, message: "Category added successfully" });
+     // res.redirect('/admin/category');
     } catch (error) {
       console.error("Add Category Error:", error);
       res.status(500).json({ message: "Server Error" });
@@ -69,11 +70,12 @@ const addCategory = async (req, res) => {
       res.status(500).json({ status: false, message: "Internal Server Error" });
     }
   };
-  
+
+  //Category list
   const categoryInfo = async (req, res) => {
     try {
       const page = parseInt(req.query.page) || 1;
-      const limit = 12;
+      const limit = 5;
       const skip = (page - 1) * limit;
   
       const searchQuery = req.query.search ? req.query.search.trim() : '';
@@ -92,7 +94,7 @@ const addCategory = async (req, res) => {
       const totalCategories = await Category.countDocuments(query);
       const totalPages = Math.ceil(totalCategories / limit);
   
-      res.render("categoryPage", {
+      res.render("category", {
         cat: categoryData,
         currentPage: page,
         totalPages,
@@ -108,7 +110,7 @@ const addCategory = async (req, res) => {
   const removeCategoryOffer = async (req, res) => {
     try {
       const categoryId = req.body.categoryId;
-      const category = await Category.findById(categoryId);
+      const category =  await Category.findById(categoryId);
       if (!category) {
         return res.status(404).json({ status: false, message: "Category not found" });
       }
@@ -122,9 +124,7 @@ const addCategory = async (req, res) => {
           }
         }
       );
-      
-  
-      // Update all products in this category
+    // Update all products in this category
       const products = await Product.find({ category: categoryId });
       for (const product of products) {
         product.finalPrice = await calculateEffectivePrice(product);
@@ -200,7 +200,7 @@ const addCategory = async (req, res) => {
     }
   };
 
-  
+
 
   
 module.exports={
