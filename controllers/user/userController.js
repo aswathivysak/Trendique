@@ -1,4 +1,6 @@
 const User = require('../../models/userSchema')
+const Category = require("../../models/categorySchema");
+const Product = require("../../models/productSchema")
 const env = require('dotenv').config();
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
@@ -16,12 +18,26 @@ const loadHomePage = async (req, res) => {
     try {
       const userId = req.session.user;
       let userData = null;
+      const categories = await Category.find({isListed:true})
+        let productData = await Product.find({
+            isBlocked:false,
+            category:{$in:categories.map(category=>category._id)},
+            stock:{$gt:0},
+        })
+     console.log(productData,categories)
+        productData.sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt))
+        productData = productData.slice(0,12);
+
+
   
       if (userId) {
         userData = await User.findById(userId);
+        res.render('home',{user:userData, products:productData})
+      }else{
+        res.render('home',{  user: null,products:productData,req:req});
       }
   
-      res.render('home', { user: userData }); // Always pass `user`
+      // Always pass `user`
     } catch (error) {
       console.log('Home Page Not Found', error);
       res.status(500).send('Server Error');
