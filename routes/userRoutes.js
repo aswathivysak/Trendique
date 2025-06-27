@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const userController=require("../controllers/user/userController")
 const profileController = require("../controllers/user/profileController")
+const productController = require("../controllers/user/productController")
 //Error management
 router.get('/pagenotfound', userController.pageNotFound);
 
@@ -30,6 +31,8 @@ router.get('/logout', userController.logout);
 //Home management
 router.get('/', userController.loadHomePage);
 router.get('/about', userController.about);
+// router.get("/shop",userController.loadShoppingPage);
+router.get("/productDetails",productController.productDetails);
 
 //Profile management
 router.get("/forgot-password",profileController.getForgotPassPage )
