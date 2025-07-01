@@ -18,21 +18,15 @@ const productSchema = new Schema({
     required: true
   },
 
+  finalPrice: {
+    type: Number,
+    required: true,
+  },
   discount: {
-    type: Number, // Product-level discount (%)
+    type: Number, 
     default: 0
   },
 
-  finalPrice: {
-    type: Number,
-    required: true, // Final price after discount (can be calculated or saved)
-  },
-
-  stock: {
-    type: Number,
-    required: true,
-    min: 0
-  },
   color: {
     type: [String],// example: ["Red", "Black"]
     required:true,

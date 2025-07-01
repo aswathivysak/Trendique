@@ -32,6 +32,7 @@ router.get('/logout', userController.logout);
 router.get('/', userController.loadHomePage);
 router.get('/about', userController.about);
 router.get("/shop",userController.loadShoppingPage);
+router.get("/filter",userController.filterProduct);
 router.get("/productDetails",productController.productDetails);
 
 //Profile management

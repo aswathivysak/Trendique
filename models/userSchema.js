@@ -56,10 +56,10 @@ const userSchema = new Schema({
         type: Number,
         default: 0
     },
-    wishlist:[{
-        type: Schema.Types.ObjectId,
-        ref: 'Product'
-    }],
+    // wishlist:[{
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'Product'
+    // }],
     orderHistory:[{
         type: Schema.Types.ObjectId,
         ref: 'Order'

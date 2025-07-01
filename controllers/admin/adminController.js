@@ -10,7 +10,7 @@ const pageError = async (req, res) => {
     res.render('admin-error')
 }
 
-const loadLogin = (req, res) => {
+const loadLogin =async (req, res) => {
     if(req.session.admin){
         return res.redirect('/admin')
     }
