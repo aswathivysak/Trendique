@@ -1,0 +1,302 @@
+<%- include('../partials/user/header') %>
+
+<style>
+  .container-profile {
+    display: flex;
+    max-width: 1000px;
+    margin: 40px auto;
+    background: #fff;
+    box-shadow: 6px 6px 20px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    padding: 40px;
+  }
+  .sidebar {
+    width: 220px;
+    border-right: 1px solid #ddd;
+    padding-right: 20px;
+    background-color: #f9f9f9;
+  }
+  .user-greeting {
+    background: black;
+    color: white;
+    padding: 18px 16px;
+    font-weight: 700;
+    border-radius: 5px;
+    margin-bottom: 40px;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+  .sidebar .nav-link {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    color: #333;
+    display: block;
+    padding: 14px 16px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  .sidebar .nav-link:hover,
+  .sidebar .nav-link.active {
+    border-color: #665bea;
+    color: #665bea;
+  }
+  .profile-main {
+    flex: 1;
+    padding-left: 40px;
+  }
+  .profile-title {
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: 0.05em;
+    margin-bottom: 14px;
+  }
+  .underline {
+    border-bottom: 1.5px solid #bbb;
+    width: 140px;
+    margin-bottom: 48px;
+  }
+  .input-wrapper {
+    position: relative;
+    margin-bottom: 36px;
+    max-width: 400px;
+  }
+  .input-wrapper input.form-control {
+    background-color: #f5f5f5;
+    border: none;
+    color: #666;
+    padding-right: 48px;
+    cursor: not-allowed;
+    font-size: 1.1rem;
+    padding: 14px 16px;
+    border-radius: 6px;
+    width: 100%;
+  }
+  .input-wrapper svg.edit-icon {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    fill: #444;
+    cursor: pointer;
+  }
+  .gender-group {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 56px;
+    display: flex;
+    align-items: center;
+    gap: 36px;
+  }
+  .gender-group label {
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+  }
+  .gender-group input[type="radio"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+  }
+  .buttons {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+  }
+  button.change-pass {
+    background: black;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+  button.change-pass svg {
+    width: 20px;
+    height: 20px;
+    fill: white;
+  }
+  button.cancel {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 1.1rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button.save {
+    background: #d9534f;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border: none;
+    padding: 14px 34px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+</style>
+
+<div class="container-profile">
+  <!-- Sidebar -->
+  <nav class="sidebar nav flex-column" aria-label="User Navigation">
+    <div class="user-greeting">Hello <%= user ? user.name : 'Guest' %></div>
+    <a href="#" class="nav-link active">Profile</a>
+    <a href="#" class="nav-link">My Orders</a>
+    <a href="#" class="nav-link">Wallet</a>
+    <a href="#" class="nav-link">Address</a>
+    <a href="#" class="nav-link">Delete Account</a>
+    <a href="#" class="nav-link">Logout</a>
+  </nav>
+
+  <!-- Profile main content -->
+  <section class="profile-main" aria-label="User Profile Form">
+    <h2 class="profile-title">PROFILE</h2>
+    <div class="underline"></div>
+
+    <form>
+      <div class="input-wrapper">
+        <label for="firstName">First Name</label>
+        <input
+          type="text"
+          id="firstName"
+          class="form-control"
+          value="<%= user ? user.name : '' %>"
+          readonly
+        />
+        <svg
+          class="edit-icon"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          title="Edit"
+          aria-label="Edit icon"
+          role="img"
+        >
+          <path
+            d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.004 1.004 0 0 0 0-1.42l-2.34-2.34a1.004 1.004 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"
+          />
+        </svg>
+      </div>
+
+      <div class="input-wrapper">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          class="form-control"
+          value="<%= user ? user.email : '' %>"
+          readonly
+        />
+        <svg
+          class="edit-icon"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          title="Edit"
+          aria-label="Edit icon"
+          role="img"
+        >
+          <path
+            d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.004 1.004 0 0 0 0-1.42l-2.34-2.34a1.004 1.004 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"
+          />
+        </svg>
+      </div>
+
+      <div class="input-wrapper">
+        <label for="phone">Phone Number</label>
+        <input
+          type="tel"
+          id="phone"
+          class="form-control"
+          value="<%= user ? user.phone : '' %>"
+          readonly
+        />
+        <svg
+          class="edit-icon"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          title="Edit"
+          aria-label="Edit icon"
+          role="img"
+        >
+          <path
+            d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.004 1.004 0 0 0 0-1.42l-2.34-2.34a1.004 1.004 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"
+          />
+        </svg>
+      </div>
+
+      <div
+        class="gender-group"
+        role="radiogroup"
+        aria-labelledby="gender-label"
+      >
+        <span
+          id="gender-label"
+          class="me-4 fw-bold"
+          style="font-size:1.1rem;"
+          >Your Gender</span
+        >
+        <label class="me-4"
+          ><input
+            type="radio"
+            name="gender"
+            value="male"
+            <%= user && user.gender === 'male' ? 'checked' : '' %> /> Male</label
+        >
+        <label
+          ><input
+            type="radio"
+            name="gender"
+            value="female"
+            <%= user && user.gender === 'female' ? 'checked' : '' %> /> Female</label
+        >
+      </div>
+
+      <div class="buttons">
+        <button
+          type="button"
+          class="change-pass btn btn-dark d-flex align-items-center gap-2"
+        >
+          Change password
+          <svg
+            width="20"
+            height="20"
+            fill="white"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm6-7h-1V7a5 5 0 0 0-10 0v3H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zm-6-3a3 3 0 0 1 3 3v3H9v-3a3 3 0 0 1 3-3z"
+            />
+          </svg>
+        </button>
+        <button
+          type="reset"
+          class="cancel btn btn-link text-secondary fw-normal fs-5"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="save btn btn-danger fw-bold fs-5 px-4"
+        >
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </section>
+</div>
+
+<%- include('../partials/user/footer') %>

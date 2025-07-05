@@ -1,0 +1,285 @@
+<%- include("../../views/partials/admin/header") %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
+
+<style>
+  .form-section {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+  }
+  .preview-container {
+    margin-top: 10px;
+  }
+  .image-preview {
+    width: 100%;
+    max-width: 150px;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-top: 8px;
+  }
+  .image-upload-container {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .image-upload-item {
+    flex: 1 1 calc(50% - 15px);
+    max-width: calc(50% - 15px);
+    box-sizing: border-box;
+  }
+  @media (max-width: 576px) {
+    .image-upload-item {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
+  }
+</style>
+
+<div class="container mt-5">
+  <h3 class="mb-4">Edit Product</h3>
+  <form id="editProductForm" data-product-id="<%= product._id %>" class="row g-4 form-section" enctype="multipart/form-data" method="POST" action="/admin/editProduct/<%= product._id %>/edit">
+    <div class="col-md-6">
+      <label class="form-label">Product Name</label>
+      <input type="text" id="name" name="name" class="form-control" required value="<%= product.name %>">
+      <div id="name-error" class="text-danger"></div>
+
+      <label class="form-label mt-3">Description</label>
+      <textarea id="description" name="description" class="form-control" rows="4" required><%= product.description %></textarea>
+      <div id="description-error" class="text-danger"></div>
+
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <label class="form-label">Category</label>
+          <select id="category" name="category" class="form-select" required>
+            <option value="" disabled>Select Category</option>
+            <% for (let i = 0; i < cat.length; i++) { %>
+              <option value="<%= cat[i]._id %>" <%= product.category && product.category._id.toString() === cat[i]._id.toString() ? 'selected' : '' %>><%= cat[i].name %></option>
+            <% } %>
+          </select>
+          <div id="category-error" class="text-danger"></div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Subcategory</label>
+          <select id="subcategory" name="subcategory" class="form-select" required>
+            <option value="" disabled>Select Subcategory</option>
+          </select>
+          <div id="subcategory-error" class="text-danger"></div>
+        </div>
+      </div>
+
+      <label class="form-label mt-3">Brand</label>
+      <select id="brand" name="brand" class="form-select" required>
+        <option value="" disabled>Select Brand</option>
+        <% for (let i = 0; i < brands.length; i++) { %>
+          <option value="<%= brands[i]._id %>" <%= product.brand && product.brand._id.toString() === brands[i]._id.toString() ? 'selected' : '' %>><%= brands[i].brandName %></option>
+        <% } %>
+      </select>
+      <div id="brand-error" class="text-danger"></div>
+
+      <label class="form-label mt-3">Regular Price</label>
+      <input type="number" id="regularPrice" name="regularPrice" class="form-control" required value="<%= product.price %>">
+      <div id="regularPrice-error" class="text-danger"></div>
+
+      <label class="form-label mt-3">Final Price</label>
+      <input type="number" id="finalPrice" name="finalPrice" class="form-control" required value="<%= product.finalPrice %>">
+      <div id="finalPrice-error" class="text-danger"></div>
+
+      <label class="form-label mt-3">Material</label>
+      <input type="text" id="material" name="material" class="form-control" value="<%= product.material %>">
+      <div id="material-error" class="text-danger"></div>
+
+      <label class="form-label mt-3">Status</label>
+      <input type="text" id="status" name="status" class="form-control" value="<%= product.status %>">
+      <div id="status-error" class="text-danger"></div>
+    </div>
+
+    <div class="col-md-6">
+      <h4>Product Images</h4>
+      <div class="image-upload-container">
+        <% for (let i = 0; i < 4; i++) { %>
+          <div class="image-upload-item">
+            <label for="image<%= i+1 %>">Image <%= i+1 %></label>
+            <input type="file" id="image<%= i+1 %>" name="image<%= i+1 %>" class="form-control" accept="image/*" onchange="previewImage(event, <%= i+1 %>)">
+            <div class="preview-container" style="<%= product.images[i] ? 'display:block' : 'display:none' %>">
+              <img id="preview<%= i+1 %>" class="image-preview" src="<%= product.images[i] ? '/' + product.images[i] : '#' %>" alt="Preview">
+            </div>
+            <input type="hidden" id="croppedImage<%= i+1 %>" name="croppedImage<%= i+1 %>">
+            <% if (product.images[i]) { %>
+              <input type="hidden" name="oldImage<%= i+1 %>" value="<%= product.images[i] %>">
+            <% } %>
+            <div id="image<%= i+1 %>-error" class="text-danger"></div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="col-12 d-flex justify-content-end">
+      <button type="reset" class="btn btn-outline-secondary me-2" id="resetBtn">Cancel</button>
+      <button type="submit" class="btn btn-dark">Update</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+<script>
+  // Categories data from server
+  const categories = <%- JSON.stringify(cat) %>;
+
+  const categorySelect = document.getElementById('category');
+  const subcategorySelect = document.getElementById('subcategory');
+
+  // Populate subcategories when page loads or category changes
+  function populateSubcategories(selectedCatId, selectedSubcatId) {
+    subcategorySelect.innerHTML = '<option value="" disabled>Select Subcategory</option>';
+    if (!selectedCatId) return;
+
+    const selectedCategory = categories.find(cat => cat._id === selectedCatId);
+    if (selectedCategory && selectedCategory.subcategories) {
+      selectedCategory.subcategories.forEach(subcat => {
+        const option = document.createElement('option');
+        option.value = subcat._id;
+        option.textContent = subcat.name;
+        if (selectedSubcatId && subcat._id === selectedSubcatId) {
+          option.selected = true;
+        }
+        subcategorySelect.appendChild(option);
+      });
+    }
+  }
+
+  window.onload = function() {
+    populateSubcategories('<%= product.category._id.toString() %>', '<%= product.subcategory.toString() %>');
+  };
+
+  categorySelect.addEventListener('change', function() {
+    populateSubcategories(this.value);
+  });
+
+  // CropperJS & Image Preview Logic
+  let croppers = {};
+
+  function previewImage(event, index) {
+    const input = event.target;
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const previewContainer = input.parentElement.querySelector('.preview-container');
+        previewContainer.style.display = 'block';
+
+        const preview = document.getElementById(`preview${index}`);
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+
+        if (croppers[index]) {
+          croppers[index].destroy();
+        }
+
+        croppers[index] = new Cropper(preview, {
+          aspectRatio: 1,
+          viewMode: 1,
+          ready: function() {
+            this.cropper.crop();
+          }
+        });
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Form submission & validation
+  const form = document.getElementById('editProductForm');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    let isValid = true;
+    const requiredFields = ['name', 'category', 'subcategory', 'brand', 'regularPrice', 'finalPrice', 'material', 'status'];
+
+    // Clear errors
+    requiredFields.forEach(field => {
+      const errElem = document.getElementById(`${field}-error`);
+      if (errElem) errElem.textContent = '';
+    });
+
+    // Validate required fields
+    requiredFields.forEach(field => {
+      const input = document.getElementsByName(field)[0];
+      if (!input || !input.value.trim()) {
+        isValid = false;
+        const errorEl = document.getElementById(`${field}-error`);
+        if (errorEl) errorEl.textContent = 'This field is required.';
+      }
+    });
+
+    // Validate prices
+    const regularPrice = parseFloat(document.querySelector('input[name="regularPrice"]').value);
+    const finalPrice = parseFloat(document.querySelector('input[name="finalPrice"]').value);
+
+    if (isNaN(regularPrice) || regularPrice <= 0) {
+      Swal.fire('Invalid Regular Price!', 'Regular price must be greater than zero', 'error');
+      return;
+    }
+    if (isNaN(finalPrice) || finalPrice <= 0) {
+      Swal.fire('Invalid Final Price!', 'Final price must be greater than zero', 'error');
+      return;
+    }
+    if (finalPrice > regularPrice) {
+      Swal.fire('Invalid Price!', 'Final price cannot be higher than regular price', 'error');
+      return;
+    }
+
+    // Check images count (cropped / uploaded / existing)
+    const existingImages = <%- JSON.stringify(product.images) %>;
+    let imageCount = 0;
+    for (let i = 0; i < 4; i++) {
+      const imgInput = document.getElementById(`image${i+1}`);
+      const croppedInput = document.getElementById(`croppedImage${i+1}`);
+      const hasNewUpload = imgInput && imgInput.files.length > 0;
+      const hasCropped = croppedInput && croppedInput.value;
+      const hasExisting = existingImages[i] && existingImages[i] !== "";
+
+      if (hasNewUpload || hasCropped || hasExisting) imageCount++;
+    }
+    if (imageCount < 4) {
+      Swal.fire('Images Required!', 'Please upload all 4 product images', 'error');
+      return;
+    }
+
+    // Assign cropped images base64 to hidden inputs
+    for (let i = 0; i < 4; i++) {
+      if (croppers[i+1]) {
+        const base64 = croppers[i+1].getCroppedCanvas().toDataURL('image/jpeg');
+        const hiddenInput = document.getElementById(`croppedImage${i+1}`);
+        if (hiddenInput) hiddenInput.value = base64;
+      }
+    }
+
+    const formData = new FormData(this);
+    const productId = this.dataset.productId;
+
+    fetch(`/admin/editProduct/${productId}/edit`, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        Swal.fire('Success!', 'Product updated successfully', 'success')
+          .then(() => window.location.href = '/admin/products');
+      } else {
+        Swal.fire('Error!', data.message || 'Failed to update product', 'error');
+      }
+    })
+    .catch(() => {
+      Swal.fire('Error!', 'An unexpected error occurred', 'error');
+    });
+  });
+</script>
+
+<%- include("../../views/partials/admin/footer") %>

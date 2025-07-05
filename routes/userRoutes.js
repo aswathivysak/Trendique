@@ -4,6 +4,7 @@ const passport = require('passport');
 const userController=require("../controllers/user/userController")
 const profileController = require("../controllers/user/profileController")
 const productController = require("../controllers/user/productController")
+const {userAuth} = require("../middlewares/auth")
 //Error management
 router.get('/pagenotfound', userController.pageNotFound);
 
@@ -42,6 +43,7 @@ router.post("/verify-passForgot-otp",profileController.verifyForgotPassOtp)
 router.get("/reset-password",profileController.getResetPassPage)
 router.post("/resend-forgot-otp",profileController.resendOtp);
 router.post("/reset-password",profileController.postNewPassword);
+router.get('/userProfile',userAuth,profileController.userProfile);
 
 
 

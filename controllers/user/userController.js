@@ -15,46 +15,90 @@ const pageNotFound = async (req, res) => {
         res.redirect('/pagenotfound')
     }
 }
-const loadHomePage = async (req, res) => {
-    try {
-      const userId = req.session.user;
-      let userData = null;
-      const categories = await Category.find({isListed:true})
-        let productData = await Product.find({
-            isBlocked:false,
-            category:{$in:categories.map(category=>category._id)},
-            stock:{$gt:0},
-        })
-     console.log(productData,categories)
-        productData.sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt))
-        productData = productData.slice(0,12);
+// const loadHomePage = async (req, res) => {
+//     try {
+//       const userId = req.session.user;
+//       let userData = null;
+//       const categories = await Category.find({isListed:true})
+//         let productData = await Product.find({
+//             isBlocked:false,
+//             category:{$in:categories.map(category=>category._id)},
+//             stock:{$gt:0},
+//         })
+//      console.log(productData,categories)
+//         productData.sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt))
+//         productData = productData.slice(0,12);
 
 
   
-      if (userId) {
-        userData = await User.findById(userId);
-        if(userData && userData.isBlocked)
+//       if (userId) {
+//         userData = await User.findById(userId);
+//         if(userData && userData.isBlocked)
+//         {
+//             req.session.destroy(err => {
+//                 if (err) {
+//                   console.error("Session destruction error:", err);
+//                 }
+//                 return res.redirect('/login');
+//             });
+//         return; 
+//         }
+//         res.render('home',{user:userData, products:productData})
+//       }else{
+//         res.render('home',{  user: null,products:productData,req:req});
+//       }
+  
+//       // Always pass `user`
+//     } catch (error) {
+//       console.log('Home Page Not Found', error);
+//       res.status(500).send('Server Error');
+//     }
+//   };
+  const loadHomePage=async (req,res)=>{
+    try{
+        const userId=req.session.user;
+        let userData=null;
+        if(userId)
         {
-            req.session.destroy(err => {
-                if (err) {
-                  console.error("Session destruction error:", err);
-                }
-                return res.redirect('/login');
-            });
-        return; 
+            userData=await User.findById(userId);
+            if(userData && userData.isBlocked)
+            {
+              req.session.destroy((err)=>
+              { if(err){
+                console.error("Session destruction error:", err);
+              }
+              return req.redirect('/login');
+              })
+              return
+            }
         }
-        res.render('home',{user:userData, products:productData})
-      }else{
-        res.render('home',{  user: null,products:productData,req:req});
-      }
-  
-      // Always pass `user`
-    } catch (error) {
-      console.log('Home Page Not Found', error);
-      res.status(500).send('Server Error');
+        const categories=await Category.find({isListed:true})
+        const categoryIds=categories.map(category=>category._id)
+        let products = await Product.find({
+            isBlocked:false,
+            category:{$in:categoryIds}
+        }).lean()
+        products=products.filter(product=>{
+            const totalQuantity=product.variants?product.variants.reduce((sum,v)=>sum+(v.quantity || 0),0) : 0
+            return totalQuantity>0;
+        })
+        products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        products = products.slice(0, 12);
+        console.log(userData,products)
+         // New Arrivals - latest products
+            const newArrivals = await Product.find({ isBlocked: false })
+            .sort({ createdAt: -1 })
+            .limit(12)
+            .lean();
+
+        res.render('home', { user: userData, products ,newArrivals});
+      
+
+    }catch (err){
+        console.error('Home Page Not Found', error);
+        res.status(500).send('Server Error');
     }
-  };
-  
+  }
 
 const loadSignUpPage = async (req, res) => {
     try {
@@ -291,15 +335,20 @@ const loadShoppingPage = async (req, res) => {
         const products = await Product.find({
             isBlocked:false,
             category:{$in:categoryIds},
-            stock:{$gt:0}
+            variants: { $elemMatch: { quantity: { $gt: 0 } } }
+            
         }).sort({createdAt:-1}).skip(skip).limit(limit);
+        products.forEach(product => {
+            product.totalQuantity = product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0);
+          });
+       
              // Get total number of products for pagination
-        const totalProducts = await Product.countDocuments({isBlocked:false,category:{$in:categoryIds},stock:{$gt:0}}  );
+        const totalProducts = await Product.countDocuments({isBlocked:false,category:{$in:categoryIds} ,variants:{ $elemMatch: { quantity: { $gt: 0 } } } });
         const totalPages = Math.ceil(totalProducts / limit);
         const brands= await Brand.find({isBlocked:false})
         const catgoriesWithIds = categories.map(category=>({_id:category._id,name:category.name}))
         res.render('shop', {
-          user: req.session.user || null,
+          user: userData,
           products: products,
           category:catgoriesWithIds,
           brands: brands,
@@ -323,7 +372,7 @@ const loadShoppingPage = async (req, res) => {
         const brands= await Brand.find({}).lean();
          const query={
             isBlocked :false,
-            stock:{$gt:0},
+            variants: { $elemMatch: { quantity: { $gt: 0 } } }
          }
          if (findCategory) {
             query.category = findCategory._id;

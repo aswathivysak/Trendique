@@ -22,6 +22,17 @@
   .badge-discontinued {
     background-color: #dc3545;
   }
+  .table td,
+  .table th {
+  min-width: 120px; /* make columns wider */
+  }
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+  -webkit-overflow-scrolling: touch; 
+  }
+  
+  
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
@@ -48,20 +59,24 @@
 
 <div class="card rounded">
   <div class="card-body p-0">
-    <table class="table table-hover mb-0">
+    <div  class="table-responsive">
+    <table class="table table-hover mb-0" style="min-width: 1200px;">
       <thead class="table-dark">
         <tr>
           <th>SL NO</th>
+          <!-- <th>Product ID</th> -->
           <th>Product Name</th>
           <th>Images</th>
           <th style="text-align: center;">Brand</th>
           <th>Category</th>
-          <!-- <th>Subcategory</th> -->
+          <th>Subcategory</th>
+          <th>Regular Price</th>
           <th>Final Price</th>
+           <th>Material</th>
           <th>Status</th>
-          <th>Quantity</th>
           <th>Actions</th>
           <th>Edit</th>
+          <th>Varient</th>
         </tr>
       </thead>
       <tbody>
@@ -71,6 +86,7 @@
           <% products.forEach((product, index) => { %>
             <tr>
               <td><%= index + 1 + (currentPage - 1) * pageSize %></td>
+              <!-- <td><%= product._id %></td> -->
               <td><%= product.name %></td>
               <td>
                 <% if (product.images && product.images.length > 0) { %>
@@ -89,8 +105,11 @@
               </td>
               <td><%= product.brand?.brandName || 'N/A' %></td>
               <td><%= product.category?.name || 'N/A' %></td>
-              <!-- <td><%= product.subcategory?.name || 'N/A' %></td> -->
+              <td><%= product.subCategoryDetails && product.subCategoryDetails.name ? product.subCategoryDetails.name : 'N/A' %></td>
+
+              <td>$<%= product.price.toFixed(2) %></td>
               <td>$<%= product.finalPrice.toFixed(2) %></td>
+              <td><%= product.material %></td>
               <td>
                 <% if (product.isBlocked) { %>
                   <span class="badge bg-dark">Not Available</span>
@@ -102,7 +121,7 @@
                   <span class="badge badge-discontinued">Discontinued</span>
                 <% } %>
               </td>
-              <td><%= product.stock %></td>
+             
               <td>
                 <% if (!product.isBlocked) { %>
                   <button class="btn btn-danger btn-sm" onclick="confirmBlockProduct('<%= product._id %>')">Block</button>
@@ -117,12 +136,19 @@
                 <a href="/admin/editProduct?id=<%= product._id %>" class="btn btn-info btn-sm text-white">
                   <i class="fas fa-edit"></i> Edit
                 </a>
+               
+              </td>
+              <td>
+                <a href="/admin/product/<%= product._id %>/variants" class="btn btn-primary mt-3">
+                  <i class="fas fa-plus"></i> Add/View Variants
+                </a>
               </td>
             </tr>
           <% }); %>
         <% } %>
       </tbody>
     </table>
+  </div>
   </div>
 </div>
 

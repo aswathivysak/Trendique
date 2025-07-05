@@ -77,7 +77,8 @@
               onclick="openImageModal('/uploads/categories/<%= category.categoryImage %>')"
             />
           </td>
-          <td><%= category.description %></td>
+          <td><%= category.description.length > 30 ? category.description.substring(0, 30) + '...' : category.description %></td>
+
           <td>
             <% if (category.isListed) { %>
               <span class="badge bg-success">Listed</span>

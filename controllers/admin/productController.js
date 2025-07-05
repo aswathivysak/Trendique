@@ -1,5 +1,6 @@
 const Product = require("../../models/productSchema")
 const Category = require("../../models/categorySchema")
+const multer = require('multer');
 const mongoose = require('mongoose');
 const Brand = require('../../models/brandSchema');
 const User = require('../../models/userSchema');
@@ -9,20 +10,22 @@ const sharp = require("sharp")
 
 
 
+
 const getProductAddPage = async (req, res) => {
   try {
   
     const categories = await Category.find({ isListed: true, isDeleted: false })
       .select('name subcategories')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     
-    let subcategories = [];
-    categories.forEach(cat => {
-      if (cat.subcategories && cat.subcategories.length > 0) {
-        subcategories = subcategories.concat(cat.subcategories);
-      }
-    });
+    // let subcategories = [];
+    // categories.forEach(cat => {
+    //   if (cat.subcategories && cat.subcategories.length > 0) {
+    //     subcategories = subcategories.concat(cat.subcategories);
+    //   }
+    // });
 
     
     const brands = await Brand.find({ isBlocked: false }).sort({ createdAt: -1 });
@@ -30,7 +33,7 @@ const getProductAddPage = async (req, res) => {
 
     res.render('product-add', {
       cat: categories,
-      subcat: subcategories,
+      // subcat: subcategories,
       brands: brands
     });
   } catch (error) {
@@ -76,10 +79,6 @@ const addProducts = async (req, res) => {
       subcategory,
       regularPrice,
       finalPrice,
-      quantity,
-      color,
-      size,
-      fit,
       material,
       status
     } = req.body;
@@ -87,10 +86,10 @@ const addProducts = async (req, res) => {
 
     const price = parseFloat(regularPrice);
     const finalPriceParsed = parseFloat(finalPrice);
-    const stock = parseInt(quantity);
+   
 
     if (!name || !description || !brand || !category || !subcategory ||
-        isNaN(price) || isNaN(finalPriceParsed) || isNaN(stock)) {
+        isNaN(price) || isNaN(finalPriceParsed)) {
       return res.status(400).json({ success: false, message: "Missing or invalid required fields" });
     }
 
@@ -120,17 +119,14 @@ const addProducts = async (req, res) => {
       description,
       brand,
       category,
-      subcategory:String(subcategory),
+      subcategory:subcategory,
       price,
       finalPrice: finalPriceParsed,
-      stock,
-      color: color?.split(",").map(c => c.trim()),
-      size: size?.split(",").map(s => s.trim()),
-      fit: fit || "Regular",
       material: material || "Cotton",
       images: imageFilenames,
       status: status || "available"
     });
+    console.log({ name, description, brand, category, subcategory, price, finalPriceParsed, material, status, imageFilenames });
 
     await newProduct.save();
 
@@ -159,19 +155,24 @@ const getProductList = async (req, res) => {
       .populate('category')
       .lean();
       
+     for(const product of productData)
+     {
+      if(product.subcategory && product.category &&   Array.isArray(product.category.subcategories)){
+        let subcategoryobj=null;
+        if(mongoose.Types.ObjectId.isValid(product.subcategory))
+        {
+          const subcategoryId= new mongoose.Types.ObjectId(product.subcategory)
+          subcategoryobj=product.category.subcategories.find(sub=>sub._id.equals(subcategoryId))
+          console.log(product)
+          console.log('subcategoryObject :', JSON.stringify(subcategoryobj, null, 2));
 
-      // for (const product of productData) {
-      //   if (product.subcategory && product.category && Array.isArray(product.category.subcategories)) {
-      //     let subcategoryObj = null;
-      
-      //     // Check if subcategory value is a valid ObjectId
-      //     if (mongoose.Types.ObjectId.isValid(product.subcategory)) {
-      //       // If yes, find by _id (convert string to ObjectId for strict compare)
-      //       const subcategoryId = mongoose.Types.ObjectId(product.subcategory);
-      //       subcategoryObj = product.category.subcategories.find(sub => 
-      //         sub._id.equals(subcategoryId)
-      //       );
-      //     }
+        }
+        product.subCategoryDetails=subcategoryobj || null
+
+      }else{
+        product.subCategoryDetails=null
+      }
+     }
       
       //     // If not found by _id or subcategory is not ObjectId, fallback to search by name
       //     if (!subcategoryObj) {
@@ -180,11 +181,7 @@ const getProductList = async (req, res) => {
       //       );
       //     }
       
-      //     product.subcategoryDetails = subcategoryObj || null;
-      //   } else {
-      //     product.subcategoryDetails = null;
-      //   }
-      // }
+      //
       
     const count = await Product.countDocuments(query);
     const totalPages = Math.ceil(count / limit);
@@ -196,7 +193,6 @@ const getProductList = async (req, res) => {
       totalPages,
       cat: categories,
       brand:brand,
-      // subcategory:subcategory,
       searchQuery: search,
       pageSize: limit
     });
@@ -254,6 +250,222 @@ const deleteProduct = async (req, res) => {
       res.status(500).json({ status: false, message: 'Server Error' });
   }
 }
+  
+const getEditProduct=async (req,res)=>{
+  try {
+    const id = req.query.id
+    const product = await Product.findById(id)
+    .populate({
+      path: 'category',
+     })
+    .populate('brand')
+    .lean()
+   if (!product) {
+      return res.status(404).send("Product not found")
+    }
+    const categories = await Category.find({isListed: true, isDeleted: false})
+    .select('name subcategories')
+    .lean();
+    const brand = await Brand.find({isBlocked:false}).lean();
+    res.render("product-edit", {
+      product: product,
+      brands:brand,
+      cat: categories,
+    })
+  } catch (error) {
+    console.error("Error in getEditProduct:", error)
+    res.redirect("/pageerror")
+  }
+
+}
+
+const editProduct = async (req, res) => {
+  try{
+    const id = req.params.id
+    const {
+      name,
+      description,
+      brand,
+      category,
+      subcategory,
+      regularPrice,
+      finalPrice,
+      material,
+      status
+    } = req.body;
+    console.log({ category, subcategory });
+
+    if (!mongoose.Types.ObjectId.isValid(category)) {
+      return res.status(400).json({ success: false, message: "Invalid category id" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(subcategory)) {
+      return res.status(400).json({ success: false, message: "Invalid subcategory id" });
+    }
+
+    const existingProduct = await Product.findOne({
+      name: name,
+      _id: { $ne: id },
+    })
+
+    if (existingProduct) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Product with this name already exists. Please try another name." })
+    }
+    const updateFields = {
+      name,
+      description,
+      brand,
+      category,
+      subcategory,
+      regularPrice,
+      finalPrice,
+      material,
+      status
+    }
+    const product = await Product.findById(id)
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" })
+    }
+
+    if (!product.productImage) {
+      product.productImage = [];
+    }
+    
+    for (let i = 1; i <= 4; i++) {
+      const croppedImageData = req.body[`croppedImage${i}`];
+      const fileField = req.files ? req.files[`image${i}`] : null;
+    
+      if (croppedImageData && croppedImageData.startsWith('data:image')) {
+        const base64Data = croppedImageData.replace(/^data:image\/\w+;base64,/, '');
+        const imageBuffer = Buffer.from(base64Data, 'base64');
+        const filename = `${Date.now()}-cropped-image-${i}.webp`;
+        const filepath = path.join(__dirname, '../../public/uploads/product-images', filename);
+    
+        await sharp(imageBuffer)
+          .webp({ quality: 80 })
+          .toFile(filepath);
+    
+        const imagePath = `uploads/product-images/${filename}`;
+        product.productImage[i - 1] = imagePath;
+    
+      } else if (fileField && fileField.length > 0) {
+        const file = fileField[0];
+        const filename = `${Date.now()}-${file.originalname.replace(/\s/g, '')}.webp`;
+        const filepath = path.join(__dirname, '../../public/uploads/product-images', filename);
+    
+        await sharp(file.buffer)
+          .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toFile(filepath);
+    
+        const imagePath = `uploads/product-images/${filename}`;
+        product.productImage[i - 1] = imagePath;
+    
+      } else {
+        if (!product.productImage[i - 1]) {
+          product.productImage[i - 1] = '';
+        }
+      }
+    }
+    
+    // Now update all other fields manually:
+    product.name = name;
+    product.description = description;
+    product.brand = brand;
+    product.category = category;
+    product.subcategory = subcategory;
+    product.regularPrice = regularPrice;
+    product.finalPrice = finalPrice;
+    product.material = material;
+    product.status = status;
+    
+    await product.save();
+    
+    res.json({ success: true, message: "Product updated successfully" });
+
+  }catch (err){
+    console.error("Error in editProduct:", err);
+    res.status(500).json({ success: false, message: "An error occurred while updating the product" });
+  }
+}
+
+
+//Product varient section
+const showProductVariants=async (req,res)=>{
+  const productId=req.params.id;
+  try{
+    const product=await Product.findById(productId).lean();
+    console.log(product._id)
+    if(!product)
+    {
+      return res.status(404).send('product not found')
+    }
+  res.render('product-varient',{product})
+  }catch(err){
+    console.error(err);
+      res.status(500).json({ status: false, message: 'Server Error' });
+  }
+
+}
+const addProductVariants=async(req,res)=>{
+  try{
+    const { color, size,quantity } = req.body;
+    const productId = req.params.productId;
+    if (!color || !size || quantity == null) {
+      return res.status(400).json({ success: false, message: 'All fields are required' });
+    }
+    if (quantity < 0) {
+      return res.status(400).json({ success: false, message: 'Quantity cannot be negative' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({ success: false, message: 'Invalid product ID' });
+    }
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'product not found' });
+    }
+    const existingVariant = product.variants.find(v =>
+      v.color.toLowerCase() === color.toLowerCase() && v.size.toLowerCase() === size.toLowerCase()
+    );
+    if (existingVariant) {
+      return res.status(400).json({ success: false, message: 'Variant with same color and size already exists' });
+    }
+    product.variants.push({
+      color,
+      size,
+      quantity: parseInt(quantity)
+    });
+
+    await product.save();
+    return res.redirect(`/admin/product/${productId}/variants`);
+  } catch (err) {
+    console.error('Add Subcategory Error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+}
+
+
+const deleteVariant = async (req, res) => {
+  try {
+    const { productId, variantId } = req.params;
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      { $pull: { variants: { _id: variantId } } },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).send('Product not found');
+    }
+
+    // Redirect back to the variants management page (adjust the URL as needed)
+    res.redirect(`/admin/product/${productId}/variants`);
+  } catch (error) {
+    console.error('Error deleting variant:', error);
+    res.status(500).send('Server error');
+  }
+};
 
 
 module.exports={
@@ -264,4 +476,9 @@ module.exports={
      blockProduct,
      unblockProduct,
      deleteProduct,
+     getEditProduct,
+     editProduct,
+     showProductVariants,
+     addProductVariants,
+     deleteVariant,
    }

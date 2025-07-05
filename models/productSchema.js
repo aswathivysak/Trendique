@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+const variantSchema = new Schema({
+  color: { type: String, required: true },
+  size: { type: String, required: true, default: 'M' },
+  quantity: { type: Number, required: true, min: 0 }
+});
+
 const productSchema = new Schema({
   name: {
     type: String,
@@ -26,35 +32,11 @@ const productSchema = new Schema({
     type: Number, 
     default: 0
   },
-
-  color: {
-    type: [String],// example: ["Red", "Black"]
-    required:true,
-    default: []
-  },
-
-  size: {
-    type: [String], // example: ["S", "M", "L", "XL"]
-    required:true,
-    default: []
-  },
-
-  fit: {
-    type: String, // example: "Regular", "Slim", "Loose"
-    default: "Regular"
-  },
-
   material: {
     type: String, // example: "Cotton", "Denim"
     
     default: "Cotton"
   },
-  gender: {
-    type: String,
-    enum: ['Men', 'Women'],
-  
-  },
-
   category: {
     type: Schema.Types.ObjectId,
     ref: 'Category',
@@ -70,19 +52,11 @@ const productSchema = new Schema({
     ref: 'Brand',
     required: true
   },
-  
-
   images: [{
-    type: String ,// Image filenames or URLs
+    type: String ,
     required :true,
 
   }],
-
-  isFeatured: {
-    type: Boolean,
-    default: false
-  },
-
   isBlocked: {
     type: Boolean,
     default: false
@@ -119,8 +93,8 @@ const productSchema = new Schema({
     required: true,
     default: 'available'
 },
-
-  createdAt: {
+variants: [variantSchema] ,
+ createdAt: {
     type: Date,
     default: Date.now
   },
@@ -131,9 +105,6 @@ const productSchema = new Schema({
 },{timestamps: true});
 
 const Product = mongoose.model('Product', productSchema);
-
-
-
 module.exports = Product
 
 

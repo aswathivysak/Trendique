@@ -37,6 +37,40 @@
     font-size: 0.9em;
     margin-top: 2px;
   }
+/*image */
+.image-upload-container {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.image-upload-item {
+  flex: 1 1 calc(50% - 15px); /* two items per row with gap */
+  max-width: calc(50% - 15px);
+  box-sizing: border-box;
+}
+
+@media (max-width: 576px) {
+  .image-upload-item {
+    flex: 1 1 100%; /* stack on small screens */
+    max-width: 100%;
+  }
+}
+
+.image-preview {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-top: 8px;
+}
+
+.preview-container {
+  margin-top: 10px;
+  display: none; /* show when image is selected */
+}
+
 </style>
 
 <div class="container mt-5">
@@ -67,9 +101,8 @@
           <label class="form-label">Subcategory</label>
           <select id="subcategory" name="subcategory" class="form-select" required>
             <option value="" disabled selected>Select Subcategory</option>
-            <% for (let i = 0; i < subcat.length; i++) { %>
-              <option value="<%= subcat[i]._id %>"><%= subcat[i].name %></option>
-            <% } %>
+             <!-- options will be added dynamically -->
+           
           </select>
           <div id="subcategory-error" class="text-danger"></div>
         </div>
@@ -86,7 +119,7 @@
 
       <div class="row mt-3">
         <div class="col">
-          <label class="form-label">Price</label>
+          <label class="form-label">Regular Price</label>
           <input type="number" id="regularPrice" name="regularPrice" class="form-control" required>
           <div id="regularPrice-error" class="text-danger"></div>
         </div>
@@ -96,21 +129,7 @@
       <input type="number" id="finalPrice" name="finalPrice" class="form-control" required>
       <div id="finalPrice-error" class="text-danger"></div>
 
-      <label class="form-label mt-3">Stock Quantity</label>
-      <input type="number" id="quantity" name="quantity" class="form-control" required>
-      <div id="quantity-error" class="text-danger"></div>
-
-      <label class="form-label mt-3">Color (comma separated)</label>
-      <input type="text" id="color" name="color" class="form-control" >
-      <div id="color-error" class="text-danger"></div>
-
-      <label class="form-label mt-3">Size (comma separated)</label>
-      <input type="text" id="size" name="size" class="form-control" >
-      <div id="size-error" class="text-danger"></div>
-
-      <label class="form-label mt-3">Fit</label>
-      <input type="text" id="fit" name="fit" class="form-control" >
-      <div id="fit-error" class="text-danger"></div>
+     
 
       <label class="form-label mt-3">Material</label>
       <input type="text" id="material" name="material" class="form-control" >
@@ -120,8 +139,43 @@
       <input type="text" id="status" name="status" class="form-control" >
       <div id="status-error" class="text-danger"></div>
     </div>
-
     <div class="col-md-6">
+      <h4>Product Images</h4>
+    
+      <div class="image-upload-container">
+        <% for (let i = 1; i <= 4; i++) { %>
+          <div class="image-upload-item">
+            <label for="image<%= i %>">Image <%= i %></label>
+            <input
+              type="file"
+              id="image<%= i %>"
+              name="image<%= i %>"
+              class="form-control"
+              accept="image/*"
+              required
+              onchange="previewImage(event, <%= i %>)"
+            >
+            <div class="preview-container">
+              <img
+                id="preview<%= i %>"
+                class="image-preview"
+                src="#"
+                alt="Preview"
+              >
+            </div>
+            <input
+              type="hidden"
+              id="croppedImage<%= i %>"
+              name="croppedImage<%= i %>"
+            >
+            <div id="image<%= i %>-error" class="text-danger"></div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    
+
+    <!-- <div class="col-md-6">
       <h4>Product Images</h4>
 
       <% for (let i = 1; i <= 4; i++) { %>
@@ -133,12 +187,12 @@
             <img id="preview<%= i %>" class="image-preview" src="#" alt="Preview">
           </div>
           <div id="image<%= i %>-error" class="text-danger"></div>
-          <!-- Hidden input to store cropped image -->
+         
           <input type="hidden" id="croppedImage<%= i %>" name="croppedImage<%= i %>">
         </div>
       <% } %>
 
-    </div>
+    </div> -->
 
     <div class="col-12 d-flex justify-content-end">
       <button type="reset" class="btn btn-outline-secondary me-2" id="resetBtn">Cancel</button>
@@ -151,6 +205,34 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>
+  // Categories data from server passed as JSON
+  const categories = <%- JSON.stringify(cat) %>;
+
+  const categorySelect = document.getElementById('category');
+  const subcategorySelect = document.getElementById('subcategory');
+
+  categorySelect.addEventListener('change', function() {
+    const selectedCatId = this.value;
+
+    // Clear previous subcategory options
+    subcategorySelect.innerHTML = '<option value="" disabled selected>Select Subcategory</option>';
+
+    if (!selectedCatId) return;
+
+    // Find the selected category object
+    const selectedCategory = categories.find(cat => cat._id === selectedCatId);
+
+    if (selectedCategory && selectedCategory.subcategories) {
+      selectedCategory.subcategories.forEach(subcat => {
+        const option = document.createElement('option');
+        option.value = subcat._id;  // or subcat.name if you store subcategory as string
+        option.textContent = subcat.name;
+        subcategorySelect.appendChild(option);
+      });
+    }
+  });
+</script>
 
 <script>
   let croppers = {};
@@ -210,7 +292,7 @@
     e.preventDefault();
 
     let isValid = true;
-    const requiredFields = ['name', 'description', 'brand', 'regularPrice', 'finalPrice', 'quantity', 'color', 'size', 'status', 'category', 'subcategory'];
+    const requiredFields = ['name', 'description', 'brand', 'regularPrice', 'finalPrice', 'status', 'category', 'subcategory'];
 
     // Clear previous error messages
     requiredFields.forEach(field => {
@@ -229,12 +311,12 @@
     });
 
     // Get numeric values
-    const quantity = parseInt(document.getElementById('quantity').value);
+    /*const quantity = parseInt(document.getElementById('quantity').value);*/
     const regularPrice = parseFloat(document.getElementById('regularPrice').value);
     const finalPrice = parseFloat(document.getElementById('finalPrice').value);
 
     // Validate quantity
-    if (quantity < 0) {
+   /* if (quantity < 0) {
       isValid = false;
       Swal.fire({
         title: 'Invalid Quantity!',
@@ -245,7 +327,7 @@
       const errorElem = document.getElementById('quantity-error');
       if (errorElem) errorElem.textContent = 'Quantity cannot be less than zero';
       return;
-    }
+    }*/
 
     // Validate regular price
     if (regularPrice <= 0) {
@@ -353,7 +435,7 @@
   });
 
   // Real-time validation listeners
-  ['quantity', 'regularPrice', 'finalPrice'].forEach(id => {
+  [ 'regularPrice', 'finalPrice'].forEach(id => {
     document.getElementById(id).addEventListener('input', function () {
       const val = this.value.trim();
       const num = parseFloat(val);

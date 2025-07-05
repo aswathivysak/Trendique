@@ -1,306 +1,379 @@
-<!-- Footer -->
-<footer class="bg3 p-t-75 p-b-32">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-6 col-lg-3 p-b-50">
-                <h4 class="stext-301 cl0 p-b-30">
-                    Categories
-                </h4>
+<%- include("../../views/partials/admin/header") %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
 
-                <ul>
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Women
-                        </a>
-                    </li>
+<style>
+  /* Same styles as add page */
+  .form-section {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  }
+  .preview-container {
+    margin-top: 10px;
+  }
+  .image-preview {
+    width: 100%;
+    max-width: 150px;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-top: 8px;
+  }
+  .image-upload-container {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .image-upload-item {
+    flex: 1 1 calc(50% - 15px);
+    max-width: calc(50% - 15px);
+    box-sizing: border-box;
+  }
+  @media (max-width: 576px) {
+    .image-upload-item {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
+  }
+</style>
 
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Men
-                        </a>
-                    </li>
+<div class="container mt-5">
+  <h3 class="mb-4">Edit Product</h3>
+  <form id="editProductForm"  data-product-id="<%= product._id %>"  class="row g-4 form-section" enctype="multipart/form-data" method="POST" action="">
+    <div class="col-md-6">
+      <label class="form-label">Product Name</label>
+      <input type="text" id="name" name="name" class="form-control" required value="<%= product.name %>">
+      <div id="name-error" class="text-danger"></div>
 
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Shoes
-                        </a>
-                    </li>
+      <label class="form-label mt-3">Description</label>
+      <textarea id="description" name="description" class="form-control" rows="4" required><%= product.description %></textarea>
+      <div id="description-error" class="text-danger"></div>
 
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Watches
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="col-sm-6 col-lg-3 p-b-50">
-                <h4 class="stext-301 cl0 p-b-30">
-                    Help
-                </h4>
-
-                <ul>
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Track Order
-                        </a>
-                    </li>
-
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Returns 
-                        </a>
-                    </li>
-
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            Shipping
-                        </a>
-                    </li>
-
-                    <li class="p-b-10">
-                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
-                            FAQs
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="col-sm-6 col-lg-3 p-b-50">
-                <h4 class="stext-301 cl0 p-b-30">
-                    GET IN TOUCH
-                </h4>
-
-                <p class="stext-107 cl7 size-201">
-                    Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or call us on (+1) 96 716 6879
-                </p>
-
-                <div class="p-t-27">
-                    <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-                        <i class="fa fa-facebook"></i>
-                    </a>
-
-                    <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-                        <i class="fa fa-instagram"></i>
-                    </a>
-
-                    <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
-                        <i class="fa fa-pinterest-p"></i>
-                    </a>
-                </div>
-            </div>
-
-            <div class="col-sm-6 col-lg-3 p-b-50">
-                <h4 class="stext-301 cl0 p-b-30">
-                    Newsletter
-                </h4>
-
-                <form>
-                    <div class="wrap-input1 w-full p-b-4">
-                        <input class="input1 bg-none plh1 stext-107 cl7" type="text" name="email" placeholder="email@example.com">
-                        <div class="focus-input1 trans-04"></div>
-                    </div>
-
-                    <div class="p-t-18">
-                        <button class="flex-c-m stext-101 cl0 size-103 bg1 bor1 hov-btn2 p-lr-15 trans-04">
-                            Subscribe
-                        </button>
-                    </div>
-                </form>
-            </div>
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <label class="form-label">Category</label>
+          <select id="category" name="category" class="form-select" required>
+            <option value="" disabled>Select Category</option>
+            <% for (let i = 0; i < cat.length; i++) { %>
+              <option value="<%= cat[i]._id %>" <%= product.category && product.category._id.toString() === cat[i]._id.toString()?'selected' : '' %> ><%= cat[i].name %></option>
+            <% } %>
+          </select>
+          <div id="category-error" class="text-danger"></div>
         </div>
-
-        <div class="p-t-40">
-            <div class="flex-c-m flex-w p-b-18">
-                <a href="#" class="m-all-1">
-                    <img src="images/icons/icon-pay-01.png" alt="ICON-PAY">
-                </a>
-
-                <a href="#" class="m-all-1">
-                    <img src="images/icons/icon-pay-02.png" alt="ICON-PAY">
-                </a>
-
-                <a href="#" class="m-all-1">
-                    <img src="images/icons/icon-pay-03.png" alt="ICON-PAY">
-                </a>
-
-                <a href="#" class="m-all-1">
-                    <img src="images/icons/icon-pay-04.png" alt="ICON-PAY">
-                </a>
-
-                <a href="#" class="m-all-1">
-                    <img src="images/icons/icon-pay-05.png" alt="ICON-PAY">
-                </a>
-            </div>
-
-            <p class="stext-107 cl6 txt-center">
-                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | Made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a> &amp; distributed by <a href="https://themewagon.com" target="_blank">ThemeWagon</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-
-            </p>
+        <div class="col-md-6">
+          <label class="form-label">Subcategory</label>
+          <select id="subcategory" name="subcategory" class="form-select" required>
+            <option value="" disabled>Select Subcategory</option>
+            <!-- dynamically filled  -->
+          </select>
+          <div id="subcategory-error" class="text-danger"></div>
         </div>
+      </div>
+
+      <label class="form-label mt-3">Brand</label>
+      <select id="brand" name="brand" class="form-select" required>
+        <option value="" disabled>Select Brand</option>
+        <% for (let i = 0; i < brands.length; i++) { %>
+          <option value="<%= brands[i]._id %>"<%= product.brand && product.brand._id.toString() === brands[i]._id.toString()?'selected' : '' %>><%= brands[i].brandName %></option>
+        <% } %>
+      </select>
+      <div id="brand-error" class="text-danger"></div>
+
+      <label class="form-label mt-3">Regular Price</label>
+      <input type="number" id="regularPrice" name="regularPrice" class="form-control" required value="<%= product.price %>">
+      <div id="regularPrice-error" class="text-danger"></div>
+
+      <label class="form-label mt-3">Final Price</label>
+      <input type="number" id="finalPrice" name="finalPrice" class="form-control" required value="<%= product.finalPrice %>">
+      <div id="finalPrice-error" class="text-danger"></div>
+
+      <label class="form-label mt-3">Material</label>
+      <input type="text" id="material" name="material" class="form-control" value="<%= product.material %>">
+      <div id="material-error" class="text-danger"></div>
+
+      <label class="form-label mt-3">Status</label>
+      <input type="text" id="status" name="status" class="form-control" value="<%= product.status %>">
+      <div id="status-error" class="text-danger"></div>
     </div>
-</footer>
 
+    <div class="col-md-6">
+      <h4>Product Images</h4>
+      <div class="image-upload-container">
+        <% for (let i = 0; i < 4; i++) { %>
+          <div class="image-upload-item">
+            <label for="image<%= i+1 %>">Image <%= i+1 %></label>
+            <input
+              type="file"
+              id="image<%= i+1 %>"
+              name="image<%= i+1 %>"
+              class="form-control"
+              accept="image/*"
+              onchange="previewImage(event, <%= i+1 %>)"
+            >
+            <div class="preview-container" style="<%= product.images[i] ? 'display:block' : 'display:none' %>">
+              <img
+                id="preview<%= i+1 %>"
+                class="image-preview"
+                src="<%= product.images[i] ? '/' + product.images[i] : '#' %>"
+                alt="Preview"
+              >
+            </div>
+            <input
+              type="hidden"
+              id="croppedImage<%= i+1 %>"
+              name="croppedImage<%= i+1 %>"
+            >
+            <% if (product.images[i]) { %>
+              <input type="hidden" name="oldImage<%= i+1 %>" value="<%= product.images[i] %>">
+            <% } %>
+            <div id="image<%= i+1 %>-error" class="text-danger"></div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+   
 
-<!-- Back to top -->
-<div class="btn-back-to-top" id="myBtn">
-    <span class="symbol-btn-back-to-top">
-        <i class="zmdi zmdi-chevron-up"></i>
-    </span>
+    <div class="col-12 d-flex justify-content-end">
+      <button type="reset" class="btn btn-outline-secondary me-2" id="resetBtn">Cancel</button>
+      <button type="submit" class="btn btn-dark">Update</button>
+    </div>
+  </form>
 </div>
 
-<!-- Modal1 -->
-<div class="wrap-modal1 js-modal1 p-t-60 p-b-20">
-    <div class="overlay-modal1 js-hide-modal1"></div>
+<script>
+  // Categories data from server
+  const categories = <%- JSON.stringify(cat) %>;
 
-    <div class="container">
-        <div class="bg0 p-t-60 p-b-30 p-lr-15-lg how-pos3-parent">
-            <button class="how-pos3 hov3 trans-04 js-hide-modal1">
-                <img src="images/icons/icon-close.png" alt="CLOSE">
-            </button>
+  const categorySelect = document.getElementById('category');
+  const subcategorySelect = document.getElementById('subcategory');
 
-            <div class="row">
-                <div class="col-md-6 col-lg-7 p-b-30">
-                    <div class="p-l-25 p-r-30 p-lr-0-lg">
-                        <div class="wrap-slick3 flex-sb flex-w">
-                            <div class="wrap-slick3-dots"></div>
-                            <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
+  // Function to populate subcategory dropdown on page load and category change
+  function populateSubcategories(selectedCatId, selectedSubcatId) {
+    subcategorySelect.innerHTML = '<option value="" disabled>Select Subcategory</option>';
+    if (!selectedCatId) return;
 
-                            <div class="slick3 gallery-lb">
-                                <div class="item-slick3" data-thumb="images/product-detail-01.jpg">
-                                    <div class="wrap-pic-w pos-relative">
-                                        <img src="images/product-detail-01.jpg" alt="IMG-PRODUCT">
+    const selectedCategory = categories.find(cat => cat._id === selectedCatId);
+    if (selectedCategory && selectedCategory.subcategories) {
+      selectedCategory.subcategories.forEach(subcat => {
+        const option = document.createElement('option');
+        option.value = subcat._id;
+        option.textContent = subcat.name;
+        if (selectedSubcatId && subcat._id === selectedSubcatId) {
+          option.selected = true;
+        }
+        subcategorySelect.appendChild(option);
+      });
+    }
+  }
 
-                                        <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="images/product-detail-01.jpg">
-                                            <i class="fa fa-expand"></i>
-                                        </a>
-                                    </div>
-                                </div>
+  // Initial populate on page load
+  window.onload = function() {
+   
+    populateSubcategories('<%= product.category._id.toString() %>', '<%= product.subcategory.toString() %>');
+  };
 
-                                <div class="item-slick3" data-thumb="images/product-detail-02.jpg">
-                                    <div class="wrap-pic-w pos-relative">
-                                        <img src="images/product-detail-02.jpg" alt="IMG-PRODUCT">
+  // Change subcategories when category changes
+  categorySelect.addEventListener('change', function() {
+    populateSubcategories(this.value);
+  });
 
-                                        <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="images/product-detail-02.jpg">
-                                            <i class="fa fa-expand"></i>
-                                        </a>
-                                    </div>
-                                </div>
 
-                                <div class="item-slick3" data-thumb="images/product-detail-03.jpg">
-                                    <div class="wrap-pic-w pos-relative">
-                                        <img src="images/product-detail-03.jpg" alt="IMG-PRODUCT">
+  
+  // Your existing previewImage and validation JS can be added here
+  const form = document.getElementById('editProductForm');
 
-                                        <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="images/product-detail-03.jpg">
-                                            <i class="fa fa-expand"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const productId = form.dataset.productId;
+
+    try {
+      const response = await fetch(`/admin/editProduct/${productId}/edit`, {
+        method: 'POST',  // or PUT if you prefer
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: data.message || 'Product updated successfully',
+          confirmButtonText: 'OK'
+        }).then(() => {
+          window.location.href = '/admin/products';
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.message || 'Failed to update product',
+        });
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An unexpected error occurred. Please try again later.'
+      });
+    }
+  });
+
+  let croppers = {};
+    let croppedImagesStatus = [false, false, false, false];
+
+    function previewImage(event, index) {
+        const input = event.target;
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewContainer = input.parentElement.querySelector('.preview-container');
+                previewContainer.style.display = 'block';
                 
-                <div class="col-md-6 col-lg-5 p-b-30">
-                    <div class="p-r-50 p-t-5 p-lr-0-lg">
-                        <h4 class="mtext-105 cl2 js-name-detail p-b-14">
-                            Lightweight Jacket
-                        </h4>
+                const preview = document.getElementById(`preview${index}`);
+                preview.src = e.target.result;
+                preview.style.display = 'block';
 
-                        <span class="mtext-106 cl2">
-                            $58.79
-                        </span>
+                if (croppers[index]) {
+                    croppers[index].destroy();
+                }
 
-                        <p class="stext-102 cl3 p-t-23">
-                            Nulla eget sem vitae eros pharetra viverra. Nam vitae luctus ligula. Mauris consequat ornare feugiat.
-                        </p>
-                        
-                        <!--  -->
-                        <div class="p-t-33">
-                            <div class="flex-w flex-r-m p-b-10">
-                                <div class="size-203 flex-c-m respon6">
-                                    Size
-                                </div>
+                croppers[index] = new Cropper(preview, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    ready: function() {
+                        this.cropper.crop();
+                        croppedImagesStatus[index] = true;
+                    }
+                });
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 
-                                <div class="size-204 respon6-next">
-                                    <div class="rs1-select2 bor8 bg0">
-                                        <select class="js-select2" name="time">
-                                            <option>Choose an option</option>
-                                            <option>Size S</option>
-                                            <option>Size M</option>
-                                            <option>Size L</option>
-                                            <option>Size XL</option>
-                                        </select>
-                                        <div class="dropDownSelect2"></div>
-                                    </div>
-                                </div>
-                            </div>
+</script>
 
-                            <div class="flex-w flex-r-m p-b-10">
-                                <div class="size-203 flex-c-m respon6">
-                                    Color
-                                </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
-                                <div class="size-204 respon6-next">
-                                    <div class="rs1-select2 bor8 bg0">
-                                        <select class="js-select2" name="time">
-                                            <option>Choose an option</option>
-                                            <option>Red</option>
-                                            <option>Blue</option>
-                                            <option>White</option>
-                                            <option>Grey</option>
-                                        </select>
-                                        <div class="dropDownSelect2"></div>
-                                    </div>
-                                </div>
-                            </div>
+<script>
+  // Add your previewImage and validation logic same as add page
+</script>
 
-                            <div class="flex-w flex-r-m p-b-10">
-                                <div class="size-204 flex-w flex-m respon6-next">
-                                    <div class="wrap-num-product flex-w m-r-20 m-tb-10">
-                                        <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-                                            <i class="fs-16 zmdi zmdi-minus"></i>
-                                        </div>
+<%- include("../../views/partials/admin/footer") %>
 
-                                        <input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="1">
 
-                                        <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-                                            <i class="fs-16 zmdi zmdi-plus"></i>
-                                        </div>
-                                    </div>
 
-                                    <button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
-                                        Add to cart
-                                    </button>
-                                </div>
-                            </div>	
-                        </div>
 
-                        <!--  -->
-                        <div class="flex-w flex-m p-l-100 p-t-40 respon7">
-                            <div class="flex-m bor9 p-r-10 m-r-11">
-                                <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
-                                    <i class="zmdi zmdi-favorite"></i>
-                                </a>
-                            </div>
 
-                            <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Facebook">
-                                <i class="fa fa-facebook"></i>
-                            </a>
 
-                            <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Twitter">
-                                <i class="fa fa-twitter"></i>
-                            </a>
 
-                            <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Google Plus">
-                                <i class="fa fa-google-plus"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
+
+const editProduct = async (req, res) => {
+  try{
+    const id = req.params.id
+    const {
+      name,
+      description,
+      brand,
+      category,
+      subcategory,
+      regularPrice,
+      finalPrice,
+      material,
+      status
+    } = req.body;
+    console.log({ category, subcategory });
+
+    if (!mongoose.Types.ObjectId.isValid(category)) {
+      return res.status(400).json({ success: false, message: "Invalid category id" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(subcategory)) {
+      return res.status(400).json({ success: false, message: "Invalid subcategory id" });
+    }
+
+    const existingProduct = await Product.findOne({
+      name: name,
+      _id: { $ne: id },
+    })
+
+    if (existingProduct) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Product with this name already exists. Please try another name." })
+    }
+    const updateFields = {
+      name,
+      description,
+      brand,
+      category,
+      subcategory,
+      regularPrice,
+      finalPrice,
+      material,
+      status
+    }
+    const product = await Product.findById(id)
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" })
+    }
+    for (let i = 1; i <= 4; i++) {
+      const croppedImageData = req.body[`croppedImage${i}`];
+      
+      if (croppedImageData && croppedImageData.startsWith('data:image')) {
+        const base64Data = croppedImageData.replace(/^data:image\/\w+;base64,/, '');
+        const imageBuffer = Buffer.from(base64Data, 'base64');
+        
+        const filename = Date.now() + "-" + `cropped-image-${i}` + ".webp";
+        const filepath = path.join(__dirname, "../../public/uploads/product-images", filename);
+    
+        await sharp(imageBuffer)
+          .webp({ quality: 80 })
+          .toFile(filepath);
+    
+        const imagePath = `uploads/product-images/${filename}`;
+    
+        if (product.productImage[i - 1]) {
+          product.productImage[i - 1] = imagePath;
+        } else {
+          product.productImage.push(imagePath);
+        }
+      } else if (req.files && req.files[`image${i}`] && req.files[`image${i}`].length > 0) {
+        const file = req.files[`image${i}`][0];
+        const filename = Date.now() + "-" + file.originalname.replace(/\s/g, "") + ".webp";
+        const filepath = path.join(__dirname, "../../public/uploads/product-images", filename);
+    
+        await sharp(file.buffer)
+          .resize(800, 800, { fit: "inside", withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toFile(filepath);
+    
+        const imagePath = `uploads/product-images/${filename}`;
+    
+        if (product.productImage[i - 1]) {
+          product.productImage[i - 1] = imagePath;
+        } else {
+          product.productImage.push(imagePath);
+        }
+      }
+    }
+    
+
+    Object.assign(product, updateFields);
+    await product.save();
+
+    res.json({ success: true, message: "Product updated successfully" });
+
+  }catch (err){
+    console.error("Error in editProduct:", err);
+    res.status(500).json({ success: false, message: "An error occurred while updating the product" });
+  }
+}
+

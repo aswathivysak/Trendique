@@ -1,6 +1,7 @@
 const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
 const User = require("../../models/userSchema");
+const Brand = require("../../models/brandSchema")
 
 
 
@@ -9,33 +10,37 @@ const productDetails = async (req,res) => {
     try {
 
         const userId = req.session.user;
-        const userData = await User.findById(userId);
+        const userData =  userId ? await User.findById(userId) : null;
         const productId = req.query.id;
-        const product = await Product.findById(productId).populate('category')
+        const product = await Product.findById(productId)
+        .populate('category')
+        .populate('brand');
+        if (!product) {
+            return res.redirect('/pageNotFound');
+          }
+        let totalQuantity = 0;
+        if (product.variants && product.variants.length > 0) {
+            totalQuantity = product.variants.reduce((sum, variant) => sum + (variant.quantity || 0), 0);
+          }     
         const findCategory = product.category;
-        // const categoryOffer = findCategory ?. categoryOffer || 0;
-        // const productOffer = product.productOffer ||0;
-
-        // const totalOffer = categoryOffer + productOffer;
-
         const categories = await Category.find({ isListed: true });
         const categoryIds = categories.map(category => category._id.toString());
 
         const products = await Product.find({
             isBlocked: false,
             category: { $in: categoryIds },
-            quantity: { $gt: 0 },
+            _id: { $ne: productId },
         })
-        .sort({ createdOn: -1 })
+        .sort({ createdAt: -1 })
         .skip(0)
-        .limit(9);
+        .limit(9)
+        .lean()
 
         res.render("product-details",{
             user:userData,
             product:product,
             products: products,
-            quantity:product.quantity,
-          
+            totalQuantity:totalQuantity,
             category:findCategory
         })
 
