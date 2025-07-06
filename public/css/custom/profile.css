@@ -1,0 +1,115 @@
+.profile-page {
+    max-width: 1000px;
+    margin: 40px auto;
+    background: #fff;
+    box-shadow: 6px 6px 20px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    display: flex;
+    padding: 40px;
+    box-sizing: border-box;
+  }
+  /* Sidebar */
+  .profile-page .sidebar1 {
+    display: block;
+    width: 220px;
+    border-right: 1px solid #ddd;
+    padding-right: 20px;
+    background-color: #f9f9f9;
+    box-sizing: border-box;
+  }
+  .user-greeting {
+    background: black;
+    color: white;
+    padding: 18px 16px;
+    font-weight: 700;
+    border-radius: 5px;
+    margin-bottom: 40px;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+  .sidebar .nav-link {
+    display: block;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    color: #333;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .sidebar .nav-link.active,
+  .sidebar .nav-link:hover {
+    color: #665bea;
+    border-color: #665bea;
+  }
+
+  /* Main content */
+  .profile-main {
+    flex: 1;
+    padding-left: 40px;
+    box-sizing: border-box;
+  }
+  .profile-title {
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: 0.05em;
+    margin-bottom: 14px;
+  }
+  .underline {
+    border-bottom: 1.5px solid #bbb;
+    width: 140px;
+    margin-bottom: 48px;
+  }
+  .input-wrapper {
+    margin-bottom: 36px;
+    max-width: 400px;
+    position: relative;
+  }
+  .input-wrapper label {
+    display: block;
+    margin-bottom: 6px;
+  }
+  .input-wrapper input.form-control {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 1.1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  .gender-group {
+    margin-bottom: 56px;
+  }
+  .buttons {
+    display: flex;
+    gap: 20px;
+  }
+  button {
+    cursor: pointer;
+  }
+  button.change-pass {
+    background: black;
+    color: white;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  button.cancel {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  button.save {
+    background: #d9534f;
+    color: white;
+    border: none;
+    padding: 14px 34px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }

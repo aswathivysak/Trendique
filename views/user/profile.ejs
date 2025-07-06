@@ -1,279 +1,517 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Big Centered Profile Page</title>
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" /> -->
-  <%- include('../partials/user/header') %>
-  <div><br><br><br></div>
-
-  body {
-    background: #f7f7f7;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 60px 20px;
+<%- include('../partials/user/header') %>
+<div><br><br><br></div>
+<style>
+  /* Your CSS styles here (same as your provided styles) */
+  /* Container for whole profile page */
+  .profile-page {
     display: flex;
-    justify-content: center;
-    min-height: 100vh;
-    align-items: flex-start;
-  }
-  .container-profile {
-    max-width: 1000px;
-    width: 100%;
+    max-width: 1100px;
+    margin: 60px auto;
     background: #fff;
-    box-shadow: 6px 6px 20px rgba(0,0,0,0.15);
-    border-radius: 8px;
-    display: flex;
-    padding: 60px 80px;
-  }
-  .sidebar {
-    width: 220px;
-    border-right: 1px solid #ddd;
-    padding-right: 0;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   .user-greeting {
-    background: black;
+    background: #000;
     color: white;
-    padding: 18px 16px;
-    font-weight: 700;
-    border-radius: 5px;
-    margin-bottom: 40px;
+    padding: 20px;
     text-align: center;
-    font-size: 1.1rem;
+    font-weight: 700;
+    font-size: 1.2rem; /* size for "Hello" */
+    border-radius: 8px;
+    margin-bottom: 40px;
+    line-height: 1.2;
   }
-  .sidebar .nav-link {
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-bottom: 16px;
+  
+  .user-greeting .username {
+    display: block;
+    font-size: 1rem;  /* smaller font size */
+    margin-top: 4px;
+    font-weight: 600;
+    opacity: 0.8; /* subtle color */
+  }
+  
+  
+  /* Sidebar */
+  .sidebar1 {
+    width: 260px;
+    background-color: #f9f9f9;
+    padding: 40px 30px;
+    box-sizing: border-box;
+    border-right: 1px solid #ddd;
+  }
+  .sidebar1 .user-greeting {
+    background: #000;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    margin-bottom: 40px;
+  }
+  .sidebar1 .nav-link {
+    display: block;
+    margin-bottom: 15px;
+    padding: 14px 20px;
+    border-radius: 8px;
     font-weight: 600;
     color: #333;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 16px;
-    font-size: 1.05rem;
-    cursor: pointer;
+    text-decoration: none;
+    border: 1.5px solid transparent;
     transition: all 0.3s ease;
+    cursor: pointer;
   }
-  .sidebar .nav-link:hover,
-  .sidebar .nav-link.active {
-    border-color: #665bea;
-    color: #665bea;
+  .sidebar1 .nav-link.active,
+  .sidebar1 .nav-link:hover {
+    background-color: #5c4aff;
+    color: white;
+    border-color: #4a3aff;
+    box-shadow: 0 4px 15px rgba(74, 58, 255, 0.5);
   }
-  .sidebar .nav-link svg {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
-  }
+  /* Main content */
   .profile-main {
     flex: 1;
+    padding: 40px 50px;
+    box-sizing: border-box;
     position: relative;
-    padding-left: 80px;
   }
-  .profile-title {
-    font-weight: 800;
-    font-size: 26px;
+  /* Profile header with image on right */
+  .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  .profile-header h2 {
+    font-weight: 900;
+    font-size: 28px;
     letter-spacing: 0.05em;
-    margin-bottom: 14px;
+    margin: 0;
+    user-select: none;
   }
   .underline {
-    border-bottom: 1.5px solid #bbb;
-    width: 140px;
-    margin-bottom: 48px;
+    height: 2px;
+    width: 160px;
+    background-color: #bbb;
+    margin: 12px 0 40px 0;
+    user-select: none;
   }
+  /* Profile image */
   .profile-image-wrapper {
-    position: absolute;
-    top: 48px;
-    right: 0;
-    width: 90px;
-    height: 90px;
-    background: #ccc;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid #ddd;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    position: relative;
+    cursor: pointer;
+  }
+  .profile-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+  }
+  .edit-icon {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background-color: white;
+    border-radius: 50%;
+    padding: 8px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.25);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    transition: background-color 0.3s ease;
   }
-  .profile-image-wrapper svg {
-    width: 36px;
-    height: 36px;
-    fill: #666;
+  .edit-icon:hover {
+    background-color: #e9ecef;
+  }
+  /* Form styles */
+  form {
+    max-width: 600px;
   }
   .input-wrapper {
-    position: relative;
     margin-bottom: 36px;
-    max-width: 400px;
   }
-  .input-wrapper input.form-control {
-    background-color: #f5f5f5;
-    border: none;
-    color: #666;
-    padding-right: 48px; /* more space for pencil */
-    cursor: not-allowed;
-    font-size: 1.1rem;
-    padding: 14px 16px;
-    border-radius: 6px;
-    width: 100%;
-  }
-  .input-wrapper svg.edit-icon {
-    position: absolute;
-    top: 50%;
-    right: 14px;
-    transform: translateY(-50%);
-    width: 20px;
-    height: 20px;
-    fill: #444;
-    cursor: pointer;
-  }
-  .gender-group {
-    font-weight: 700;
-    font-size: 1.1rem;
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
     color: #333;
-    margin-bottom: 56px;
-    display: flex;
-    align-items: center;
-    gap: 36px;
+    user-select: none;
   }
-  .gender-group label {
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1rem;
+  input.form-control {
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+    transition: border-color 0.3s ease;
   }
-  .gender-group input[type="radio"] {
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
+  input.form-control:focus {
+    outline: none;
+    border-color: #4a3aff;
+    background: white;
   }
   .buttons {
     display: flex;
+    gap: 28px;
     align-items: center;
-    gap: 36px;
   }
-  button.change-pass {
-    background: black;
-    color: white;
+  .btn {
     font-weight: 700;
-    font-size: 1.1rem;
+  }
+  .btn-primary {
+    background-color: #e63946;
     border: none;
-    padding: 14px 30px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-  }
-  button.change-pass svg {
-    width: 20px;
-    height: 20px;
-    fill: white;
-  }
-  button.cancel {
-    background: none;
-    border: none;
-    color: #666;
-    font-size: 1.1rem;
-    cursor: pointer;
-    font-weight: 600;
-  }
-  button.save {
-    background: #d9534f;
+    padding: 14px 44px;
+    border-radius: 10px;
     color: white;
-    font-weight: 700;
-    font-size: 1.1rem;
-    border: none;
-    padding: 14px 34px;
-    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .btn-primary:hover {
+    background-color: #b83239;
+  }
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+  }
+  .btn-dark {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+  }
+  .btn-outline-primary {
+    border: 1.5px solid #5c4aff;
+    color: #5c4aff;
+    background: transparent;
+    padding: 6px 14px;
+    border-radius: 8px;
     cursor: pointer;
   }
-  
-<!-- </head>
-<body> -->
-  <div class="container-profile">
-    <nav class="sidebar nav flex-column" aria-label="User Navigation">
-      <div class="user-greeting">Hello Aswathi</div>
-      <a class="nav-link active" href="#">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg>
-        Profile
-      </a>
-      <a class="nav-link" href="#">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"/></svg>
-        My Orders
-      </a>
-      <a class="nav-link" href="#">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="9"/></svg>
-        Wallet
-      </a>
-      <a class="nav-link" href="#">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 3h12v18H6z"/></svg>
-        Address
-      </a>
-      <a class="nav-link" href="#">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" stroke-width="2" stroke="currentColor" fill="none"/></svg>
-        Delete Account
-      </a>
-      <a class="nav-link" href="#">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 12h18" stroke-width="2" stroke="currentColor" fill="none"/></svg>
-        Logout
-      </a>
-    </nav>
+  .btn-outline-primary:hover {
+    background-color: #5c4aff;
+    color: white;
+  }
+  .btn-sm {
+    font-size: 0.8rem;
+  }
+</style>
 
-    <section class="profile-main" aria-label="User Profile Form">
-      <h2 class="profile-title">PROFILE</h2>
-      <div class="underline"></div>
+<div class="profile-page">
+  <!-- Sidebar -->
+  <nav class="sidebar1" aria-label="User Navigation">
+    <!-- <div class="user-greeting">Hello <%= user ? user.name : 'Guest' %></div> -->
+    <div class="user-greeting">
+      Hello<br />
+      <span class="username"><%= user ? user.name : 'Guest' %></span>
+    </div>
+    
 
-      <form>
+    <a id="profile-tab" href="#profile" class="nav-link active" data-bs-toggle="tab" role="tab" aria-controls="profile" aria-selected="true">Profile</a>
+    <a id="orders-tab" href="#orders" class="nav-link" data-bs-toggle="tab" role="tab" aria-controls="orders" aria-selected="false">My Orders</a>
+    <a id="wallet-tab" href="#wallet" class="nav-link" data-bs-toggle="tab" role="tab" aria-controls="wallet" aria-selected="false">Wallet</a>
+    <a id="address-tab" href="#address" class="nav-link" data-bs-toggle="tab" role="tab" aria-controls="address" aria-selected="false">Address</a>
+    <a href="/logout" class="nav-link">Logout</a>
+  </nav>
+
+  <!-- Main content -->
+  <section class="profile-main tab-content">
+    <!-- Header with title and profile image -->
+    <div class="profile-header">
+      <h2>PROFILE</h2>
+
+      <div class="profile-image-wrapper" title="Change profile picture">
+        <img id="profileImagePreview" 
+             src="<%= user && user.profilePicture ? ('/uploads/profile/' + user.profilePicture) : '/images/default-avatar.png' %>" 
+             alt="Profile Image" />
+        <label for="profileImageInput" class="edit-icon" title="Change Profile Picture">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+               class="bi bi-pencil-fill text-primary" viewBox="0 0 16 16">
+            <path d="M12.854.146a.5.5 0 0 1 .11.637l-.057.07L5.207 8.5H4.5v-.707l7.7-7.7a.5.5 0 0 1 .653-.064zM11.207 2.5 13.5 4.793l-8 8H3v-2.5l8-8z"/>
+          </svg>
+        </label>
+      </div>
+
+      <input type="file" id="profileImageInput" name="profileImage" accept="image/*" style="display:none;" />
+
+      <div id="uploadStatus"></div>
+    </div>
+
+    <div class="underline"></div>
+
+    <div id="profile" class="tab-pane fade show active" role="tabpanel" aria-labelledby="profile-tab">
+      <form method="POST" action="/updateProfile" id="profileForm">
+
         <div class="input-wrapper">
           <label for="firstName">First Name</label>
-          <input type="text" id="firstName" class="form-control" value="Md" readonly />
-          <svg class="edit-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" title="Edit" aria-label="Edit icon" role="img">
-            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.004 1.004 0 0 0 0-1.42l-2.34-2.34a1.004 1.004 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
-          </svg>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="text" id="firstName" name="name" class="form-control" value="<%= user ? user.name : '' %>" readonly />
+            <button type="button" class="btn btn-sm btn-outline-primary edit-btn" onclick="toggleEdit('firstName', this)">Edit</button>
+          </div>
+          <div id="nameError" class="error-message" style="display:none;"></div>
         </div>
 
         <div class="input-wrapper">
           <label for="email">Email</label>
-          <input type="email" id="email" class="form-control" value="rimell1111@gmail.com" readonly />
-          <svg class="edit-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" title="Edit" aria-label="Edit icon" role="img">
-            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.004 1.004 0 0 0 0-1.42l-2.34-2.34a1.004 1.004 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
-          </svg>
+          <input type="email" id="email" name="email" class="form-control" value="<%= user ? user.email : '' %>" readonly />
+          <div id="emailError" class="error-message" style="display:none;"></div>
         </div>
 
         <div class="input-wrapper">
           <label for="phone">Phone Number</label>
-          <input type="tel" id="phone" class="form-control" placeholder="Phone Number" readonly />
-          <svg class="edit-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" title="Edit" aria-label="Edit icon" role="img">
-            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.004 1.004 0 0 0 0-1.42l-2.34-2.34a1.004 1.004 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
-          </svg>
-        </div>
-
-        <div class="gender-group" role="radiogroup" aria-labelledby="gender-label">
-          <span id="gender-label" class="me-4 fw-bold" style="font-size:1.1rem;">Your Gender</span>
-          <label class="me-4"><input type="radio" name="gender" value="male" checked /> Male</label>
-          <label><input type="radio" name="gender" value="female" /> Female</label>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="tel" id="phone" name="phone" class="form-control" value="<%= user ? user.phone : '' %>" readonly />
+            <button type="button" class="btn btn-sm btn-outline-primary edit-btn" onclick="toggleEdit('phone', this)">Edit</button>
+          </div>
+          <div id="phoneError" class="error-message" style="display:none;"></div>
         </div>
 
         <div class="buttons">
-          <button type="button" class="change-pass btn btn-dark d-flex align-items-center gap-2">
-            Change password
-            <svg width="20" height="20" fill="white" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm6-7h-1V7a5 5 0 0 0-10 0v3H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zm-6-3a3 3 0 0 1 3 3v3H9v-3a3 3 0 0 1 3-3z"/></svg>
-          </button>
-          <button type="reset" class="cancel btn btn-link text-secondary fw-normal fs-5">Cancel</button>
-          <button type="submit" class="save btn btn-danger fw-bold fs-5 px-4">Save Changes</button>
+          <a href="/change-email" type="button" class="btn btn-dark">Change Email</a>
+          <a href="/change-password" class="btn btn-danger">Change Password</a>
+          <button type="submit" class="btn btn-sml btn-dark">Save Changes</button>
         </div>
       </form>
+    </div>
 
-      <div class="profile-image-wrapper" title="Upload Profile Image" aria-label="Upload Profile Image">
-        <svg width="36" height="36" fill="#666" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-11-1l2.03-2.71 2.71 3.61L19 14l3 4H7z"/></svg>
-      </div>
-    </section>
-  </div>
+    <div id="orders" class="tab-pane fade" role="tabpanel" aria-labelledby="orders-tab">
+      <h2>My Orders</h2>
+      <div class="underline"></div>
+      <p>Your orders list will appear here.</p>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- </body>
-</html> -->
+    <div id="wallet" class="tab-pane fade" role="tabpanel" aria-labelledby="wallet-tab">
+      <h2>Wallet</h2>
+      <div class="underline"></div>
+      <p>Your wallet details will appear here.</p>
+    </div>
+
+    <div id="address" class="tab-pane fade" role="tabpanel" aria-labelledby="address-tab">
+      <h2>Address</h2>
+      <div class="underline"></div>
+      <p>Your addresses will appear here.</p>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Activate tab based on URL hash or default
+    const hash = window.location.hash;
+    if (hash) {
+      const triggerEl = document.querySelector(`.sidebar1 a[href="${hash}"]`);
+      if (triggerEl) {
+        const tab = new bootstrap.Tab(triggerEl);
+        tab.show();
+      }
+    }
+
+    // Update active link on tab change
+    const sidebarLinks = document.querySelectorAll('.sidebar1 .nav-link[data-bs-toggle="tab"]');
+    sidebarLinks.forEach(link => {
+      link.addEventListener('shown.bs.tab', (e) => {
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        e.target.classList.add('active');
+      });
+    });
+
+    const originalValues = {};
+
+    function toggleEdit(inputId, btn) {
+      const input = document.getElementById(inputId);
+
+      if (input.hasAttribute('readonly')) {
+        // Save original value before editing
+        originalValues[inputId] = input.value;
+
+        // Enable editing
+        input.removeAttribute('readonly');
+        input.focus();
+        btn.textContent = 'Cancel';
+        btn.classList.remove('btn-outline-primary');
+        btn.classList.add('btn-danger');
+      } else {
+        // Cancel editing — revert to original value
+        if (originalValues[inputId] !== undefined) {
+          input.value = originalValues[inputId];
+        }
+        input.setAttribute('readonly', true);
+        btn.textContent = 'Edit';
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-outline-primary');
+        // Clear saved original value since cancel done
+        delete originalValues[inputId];
+      }
+    }
+
+    window.toggleEdit = toggleEdit; // Make globally accessible for inline onclick
+
+    // Attach real-time validation on input changes
+    ['firstName', 'email', 'phone'].forEach(id => {
+      const input = document.getElementById(id);
+      if (!input) return;
+      input.addEventListener('input', () => {
+        if (id === 'firstName') validateName();
+        if (id === 'email') validateEmail();
+        if (id === 'phone') validatePhone();
+      });
+    });
+
+    function showError(inputId, message) {
+      const errorDiv = document.getElementById(inputId + 'Error');
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    function clearError(inputId) {
+      const errorDiv = document.getElementById(inputId + 'Error');
+      if (errorDiv) {
+        errorDiv.textContent = '';
+        errorDiv.style.display = 'none';
+      }
+    }
+
+    function validateName() {
+      const nameInput = document.getElementById('firstName');
+      const val = nameInput.value.trim();
+      clearError('firstName');
+      if (nameInput.hasAttribute('readonly')) return true;
+
+      if (val === '') {
+        showError('firstName', 'Name is required.');
+        return false;
+      }
+      if (val.length < 3) {
+        showError('firstName', 'Name must be at least 3 characters.');
+        return false;
+      }
+      if (!/^[a-zA-Z\s]+$/.test(val)) {
+        showError('firstName', 'Name can only contain letters and spaces.');
+        return false;
+      }
+      return true;
+    }
+
+    function validateEmail() {
+      const emailInput = document.getElementById('email');
+      const val = emailInput.value.trim();
+      clearError('email');
+      if (emailInput.hasAttribute('readonly')) return true;
+
+      if (val === '') {
+        showError('email', 'Email is required.');
+        return false;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(val)) {
+        showError('email', 'Please enter a valid email address.');
+        return false;
+      }
+      return true;
+    }
+
+    function validatePhone() {
+      const phoneInput = document.getElementById('phone');
+      const val = phoneInput.value.trim();
+      clearError('phone');
+      if (phoneInput.hasAttribute('readonly')) return true;
+
+      if (val === '') {
+        showError('phone', 'Phone number is required.');
+        return false;
+      }
+      const phoneRegex = /^[+]?[\d\s\-]{10,15}$/;
+      if (!phoneRegex.test(val)) {
+        showError('phone', 'Please enter a valid phone number.');
+        return false;
+      }
+      return true;
+    }
+
+    const form = document.getElementById('profileForm');
+    if(form){
+      form.addEventListener('submit', (e) => {
+        const validName = validateName();
+        const validEmail = validateEmail();
+        const validPhone = validatePhone();
+
+        if (!validName || !validEmail || !validPhone) {
+          e.preventDefault();
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops!',
+            text: 'Please fix the errors in the form before submitting.',
+            confirmButtonText: 'Okay'
+          });
+        }
+      });
+    }
+
+    const profileImageInput = document.getElementById("profileImageInput");
+    const uploadStatus = document.getElementById("uploadStatus");
+    const profileImagePreview = document.getElementById("profileImagePreview");
+  
+    if (!profileImageInput || !uploadStatus || !profileImagePreview) {
+      console.error("One or more required elements not found");
+      return;
+    }
+  
+    profileImageInput.addEventListener("change", async function () {
+      const file = this.files[0];
+      if (!file) return;
+  
+      const formData = new FormData();
+      formData.append("profileImage", file);
+  
+      uploadStatus.innerHTML = `<span class="text-info">Uploading...</span>`;
+  
+      try {
+        const res = await fetch("/upload-profile-pic", {
+          method: "POST",
+          body: formData
+        });
+  
+        const data = await res.json();
+  
+        if (res.ok) {
+          uploadStatus.innerHTML = `<span class="text-success">Uploaded successfully!</span>`;
+          profileImagePreview.src = `/uploads/profile/${data.filename}?t=${new Date().getTime()}`;
+        } else {
+          uploadStatus.innerHTML = `<span class="text-danger">${data.error || "Upload failed"}</span>`;
+        }
+      } catch (err) {
+        uploadStatus.innerHTML = `<span class="text-danger">Something went wrong</span>`;
+      }
+  
+      // Clear message after 3 seconds
+      setTimeout(() => {
+        uploadStatus.innerHTML = '';
+      }, 3000);
+    });
+
+
+  }); // end DOMContentLoaded
+</script>
 
 <%- include('../partials/user/footer') %>

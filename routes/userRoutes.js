@@ -3,8 +3,26 @@ const router = express.Router();
 const passport = require('passport');
 const userController=require("../controllers/user/userController")
 const profileController = require("../controllers/user/profileController")
+
 const productController = require("../controllers/user/productController")
 const {userAuth} = require("../middlewares/auth")
+
+const multer = require("multer");
+const path = require("path");
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/uploads/profile");
+  },
+  filename: function (req, file, cb) {
+    const ext = path.extname(file.originalname);
+    const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1E9) + ext;
+    cb(null, uniqueName);
+  }
+});
+
+const uploads = multer({ storage: storage });
 //Error management
 router.get('/pagenotfound', userController.pageNotFound);
 
@@ -44,6 +62,14 @@ router.get("/reset-password",profileController.getResetPassPage)
 router.post("/resend-forgot-otp",profileController.resendOtp);
 router.post("/reset-password",profileController.postNewPassword);
 router.get('/userProfile',userAuth,profileController.userProfile);
+router.get("/change-email", userAuth, profileController.changeEmail);
+router.post("/change-email", userAuth, profileController.changeEmailValid);
+router.post("/verify-email-otp", userAuth, profileController.verifyEmailOtp);
+router.post("/update-email", userAuth, profileController.updateEmail);
+router.post('/updateProfile', userAuth,profileController.updateProfile);
+router.get("/change-password", userAuth, profileController.getChangePassword);
+router.post("/change-password", userAuth, profileController.changePassword);
+router.post("/upload-profile-pic",userAuth,uploads.single("profileImage"), profileController.changeProfilePic)
 
 
 

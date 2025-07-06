@@ -193,6 +193,169 @@ const userProfile = async (req,res)=>{
        }
 
 }
+const changeEmail = async (req,res)=>{
+  try{
+    const user = req.session.user
+    res.render('change-email',{user})
+  } catch (err){
+    res.redirect("/pageNotFound")
+  }
+}
+const changeEmailValid =async (req,res)=>{
+    try{
+        const {email}=req.body;
+        const userExist=await User.findOne({email})
+
+        if(userExist)
+        {
+            const otp =generateOtp();
+            const emailSent=await sendVerificationEmail(email,otp)
+            if(emailSent){
+                req.session.userOtp=otp
+                req.session.userData=req.body
+                req.session.email=email
+                res.render('change-email-otp',{ user: req.session.user || null })
+                console.log(`Email Sent : ${email}, Otp: ${otp}`)
+               }else{
+                res.json('Email error')
+               }
+        }else{
+            res.render('change-email',{message: "User with email not exist"})
+        }
+
+    }catch (err){
+        res.redirect("/pageNotFound")  
+    }
+}
+
+
+const verifyEmailOtp = async (req,res) => {
+    try {
+        
+        const enteredOtp = req.body.otp;
+        if(enteredOtp === req.session.userOtp){
+            // req.session.userData = req.body.userData;
+            res.render("new-email",{
+                user: req.session.user || null,
+                userData: req.session.userData,
+            })
+        }else{
+            res.render("change-email-otp",{
+                message:"OTP not matching",
+                userData: req.session.userData,
+                user: req.session.user || null,
+            })
+        }
+
+    } catch (error) {
+        res.redirect("/pagenotfound")
+    }
+}
+const updateEmail= async (req,res)=>
+{
+    try{
+        const newEmail=req.body.newEmail
+        const userId=req.session.user
+        await User.findByIdAndUpdate(userId,{email:newEmail})
+        res.redirect('/userProfile')
+
+    }catch (err){
+        res.redirect("/pagenotfound")
+    }
+}
+//Updating userData
+
+const updateProfile = async (req, res) => {
+    try {
+      const userId = req.session.user;
+      const { name, phone } = req.body;
+  
+      console.log('Updating user:', { userId, name, phone });
+  
+      // Update only name and phone
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { name, phone },
+        { new: true, runValidators: true }
+      );
+  
+      if (!updatedUser) {
+        console.log('User not found');
+        return res.status(404).send('User not found');
+      }
+  
+      // Update session data
+      req.session.user.name = updatedUser.name;
+      req.session.user.phone = updatedUser.phone;
+  
+      console.log('Updated user:', updatedUser);
+  
+      return res.redirect('/userProfile');
+    } catch (error) {
+      console.error('Update error:', error);
+      return res.status(500).send('Server error');
+    }
+  };
+  //Get  change password page
+  const getChangePassword = async (req,res)=>
+{
+    try{
+        res.render('change-password',{ user: req.session.user || null})
+
+    }catch (err){
+        res.redirect("/pagenotfound")
+    }
+}
+//Change password
+const changePassword = async (req,res)=>
+{
+    try{
+         const userId =req.session.user
+         const {currentPassword,newPassword,confirmPassword} = req.body
+         const userData =await User.findById(userId)
+         const passwordMatch =await bcrypt.compare(currentPassword,userData.password)
+        if(!passwordMatch)
+        {
+            return res.status(400).json({success:false,message:"Incorrect password"})
+        }else{
+            if(newPassword !== confirmPassword){
+                return res.status(400).json({success:false,message:'New password and confirm password must be same'})
+            }else{
+                const passwordHash =await securePassword(newPassword)
+                userData.password =passwordHash
+                await userData.save()
+                res.status(200).json({success:true,message:'Password changed'})
+
+            }
+        }
+
+    }catch (err){
+        console.error("Error while changing password", err)
+        res.status(500).json({success: false, message: 'Internal server error'})
+    }
+}
+const changeProfilePic = async (req, res) => {
+    try {
+      const userId = typeof req.session.user === 'string' ? req.session.user : req.session.user._id;
+  
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+  
+      const filename = req.file.filename;
+      console.log(filename)
+  
+      await User.findByIdAndUpdate(userId, { profilePicture: filename });
+  
+      res.json({ success: true, filename });
+    } catch (error) {
+      console.error('Profile pic upload error:', error);
+      res.status(500).json({ error: 'Upload failed' });
+    }
+  };
+  
+
+  
 
 module.exports={
     getForgotPassPage,
@@ -202,4 +365,12 @@ module.exports={
     resendOtp,
     postNewPassword,
     userProfile,
-}
+    changeEmail,
+    changeEmailValid,
+    verifyEmailOtp,
+    updateEmail,
+    updateProfile,
+    getChangePassword,
+    changePassword,
+    changeProfilePic,
+   }
