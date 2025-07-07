@@ -1,5 +1,6 @@
 const session = require("express-session")
 const User = require('../../models/userSchema')
+const Address = require('../../models/addressSchema')
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const env = require("dotenv").config();
@@ -187,7 +188,9 @@ const userProfile = async (req,res)=>{
     try{ 
         const userId =req.session.user
         const userData = await User.findById(userId)
-        res.render('profile',{user:userData})
+        const userAddress = await Address.findOne({ userId: userId });
+        const addresses = userAddress ? userAddress.address : [];
+        res.render('profile',{user:userData,addresses})
        }catch (err){
         res.redirect("/pageNotFound")
        }
@@ -353,9 +356,112 @@ const changeProfilePic = async (req, res) => {
       res.status(500).json({ error: 'Upload failed' });
     }
   };
-  
 
-  
+  //Load Address page
+  const getAddAddress = async (req,res) => {
+    try {
+        const user = req.session.user;
+        res.render("add-address",{user:user})
+    } catch (error) {
+        res.redirect("/pagenotfound")
+    }
+}
+  const addAddress = async (req,res)=>{
+    try{
+        const userId = req.session.user
+        const userData = await User.findById(userId)
+
+        const {name, addressType, houseNo, city, state, landMark,pincode, phone, altPhone} = req.body
+        const userAddress = await Address.findOne({userId: userData._id})
+        if(!userAddress){
+            const newAddress = new Address({
+                userId: userData._id,
+                address: [{addressType, name, houseNo, city, state, landMark, pincode, phone, altPhone}]
+            })
+
+            await newAddress.save()
+        }else{
+            
+            userAddress.address.push({addressType, name, houseNo, city, state, landMark, pincode, phone, altPhone})
+            await userAddress.save()
+        }
+        res.status(200).json({success: true, message: 'Address added successfully.'})
+
+    }catch (err){
+        console.error('Error while adding new address', err)
+        res.status(500).json({success: false, message: 'Internal server error'})
+    }
+}
+
+const getEditAddress =async (req,res)=>{
+    try{
+        const addressId=req.query.id;
+        const user = req.session.user;
+        const currAddress = await Address.findOne({
+            "address._id": addressId,
+        });
+        if(!currAddress){
+            return res.redirect("/pagenotfound")
+        }
+        const addressData = currAddress.address.find((item)=>{
+            return item._id.toString()===addressId.toString(); 
+        })
+        if(!addressData){
+            return res.redirect("/pagenotfound")
+        }
+        res.render("edit-address",{address:addressData, user:user})
+
+    }catch (error){
+        res.redirect("/pagenotfound")
+    }
+    }
+
+  const postEditAddress =async (req,res)=>{
+    try{
+        const userId = req.session.user;
+        const { addressId, name, addressType, houseNo, city, state, landMark, pincode, phone, altPhone } = req.body;
+        const userAddressDoc = await Address.findOne({ userId, "address._id": addressId });
+        if (!userAddressDoc) return res.status(404).json({ success: false, message: "Address not found" });
+
+        const addr = userAddressDoc.address.id(addressId);
+        if (!addr) return res.status(404).json({ success: false, message: "Address not found" });
+
+        addr.name = name;
+        addr.addressType = addressType;
+        addr.houseNo = houseNo;
+        addr.city = city;
+        addr.state = state;
+        addr.landMark = landMark;
+        addr.pincode = pincode;
+        addr.phone = phone;
+        addr.altPhone = altPhone;
+        await userAddressDoc.save();
+    
+        res.json({ success: true, message: 'Address updated successfully.' });
+
+    }catch (error){
+        console.error('Update address error:', error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+
+    }
+   
+  }
+  const deleteAddress =async (req,res)=>{
+    try{
+        const addressId=req.query.id;
+        const findAddress=await Address.findOne({"address._id":addressId})
+         if(!findAddress){
+            return res.status(404).send("Address not found")
+        }
+        await Address.updateOne({'address._id':addressId},{$pull:{address:{_id:addressId}}})
+        res.redirect("/userProfile")
+    
+    }catch (error){
+        console.error("Error in deleting address",error);
+        res.redirect("/pagenotfound")
+    }
+  }
+
 
 module.exports={
     getForgotPassPage,
@@ -373,4 +479,9 @@ module.exports={
     getChangePassword,
     changePassword,
     changeProfilePic,
+    getAddAddress,
+    addAddress,
+    getEditAddress,
+    postEditAddress,
+    deleteAddress,
    }

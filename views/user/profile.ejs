@@ -1,8 +1,8 @@
 <%- include('../partials/user/header') %>
 <div><br><br><br></div>
+
 <style>
-  /* Your CSS styles here (same as your provided styles) */
-  /* Container for whole profile page */
+  /* All your original styles here (copied from your old profile page) */
   .profile-page {
     display: flex;
     max-width: 1100px;
@@ -19,38 +19,24 @@
     padding: 20px;
     text-align: center;
     font-weight: 700;
-    font-size: 1.2rem; /* size for "Hello" */
+    font-size: 1.2rem;
     border-radius: 8px;
     margin-bottom: 40px;
     line-height: 1.2;
   }
-  
   .user-greeting .username {
     display: block;
-    font-size: 1rem;  /* smaller font size */
+    font-size: 1rem;
     margin-top: 4px;
     font-weight: 600;
-    opacity: 0.8; /* subtle color */
+    opacity: 0.8;
   }
-  
-  
-  /* Sidebar */
   .sidebar1 {
     width: 260px;
     background-color: #f9f9f9;
     padding: 40px 30px;
     box-sizing: border-box;
     border-right: 1px solid #ddd;
-  }
-  .sidebar1 .user-greeting {
-    background: #000;
-    color: white;
-    padding: 20px;
-    text-align: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    border-radius: 8px;
-    margin-bottom: 40px;
   }
   .sidebar1 .nav-link {
     display: block;
@@ -71,14 +57,12 @@
     border-color: #4a3aff;
     box-shadow: 0 4px 15px rgba(74, 58, 255, 0.5);
   }
-  /* Main content */
   .profile-main {
     flex: 1;
     padding: 40px 50px;
     box-sizing: border-box;
     position: relative;
   }
-  /* Profile header with image on right */
   .profile-header {
     display: flex;
     justify-content: space-between;
@@ -99,7 +83,6 @@
     margin: 12px 0 40px 0;
     user-select: none;
   }
-  /* Profile image */
   .profile-image-wrapper {
     width: 140px;
     height: 140px;
@@ -136,7 +119,6 @@
   .edit-icon:hover {
     background-color: #e9ecef;
   }
-  /* Form styles */
   form {
     max-width: 600px;
   }
@@ -211,53 +193,55 @@
   .btn-sm {
     font-size: 0.8rem;
   }
+  /* Show/hide content */
+  .section-content {
+    display: none;
+  }
+  .section-content.active {
+    display: block;
+  }
 </style>
 
 <div class="profile-page">
   <!-- Sidebar -->
   <nav class="sidebar1" aria-label="User Navigation">
-    <!-- <div class="user-greeting">Hello <%= user ? user.name : 'Guest' %></div> -->
     <div class="user-greeting">
       Hello<br />
       <span class="username"><%= user ? user.name : 'Guest' %></span>
     </div>
-    
 
-    <a id="profile-tab" href="#profile" class="nav-link active" data-bs-toggle="tab" role="tab" aria-controls="profile" aria-selected="true">Profile</a>
-    <a id="orders-tab" href="#orders" class="nav-link" data-bs-toggle="tab" role="tab" aria-controls="orders" aria-selected="false">My Orders</a>
-    <a id="wallet-tab" href="#wallet" class="nav-link" data-bs-toggle="tab" role="tab" aria-controls="wallet" aria-selected="false">Wallet</a>
-    <a id="address-tab" href="#address" class="nav-link" data-bs-toggle="tab" role="tab" aria-controls="address" aria-selected="false">Address</a>
+    <a href="#" class="nav-link active" data-target="profile">Profile</a>
+    <a href="#" class="nav-link" data-target="orders">My Orders</a>
+    <a href="#" class="nav-link" data-target="wallet">Wallet</a>
+    <a href="#" class="nav-link" data-target="address">Address</a>
     <a href="/logout" class="nav-link">Logout</a>
   </nav>
 
   <!-- Main content -->
-  <section class="profile-main tab-content">
-    <!-- Header with title and profile image -->
-    <div class="profile-header">
-      <h2>PROFILE</h2>
+  <section class="profile-main">
+    <!-- Profile Section -->
+    <div id="profile" class="section-content active">
+      <div class="profile-header">
+        <h2>PROFILE</h2>
 
-      <div class="profile-image-wrapper" title="Change profile picture">
-        <img id="profileImagePreview" 
-             src="<%= user && user.profilePicture ? ('/uploads/profile/' + user.profilePicture) : '/images/default-avatar.png' %>" 
-             alt="Profile Image" />
-        <label for="profileImageInput" class="edit-icon" title="Change Profile Picture">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-               class="bi bi-pencil-fill text-primary" viewBox="0 0 16 16">
-            <path d="M12.854.146a.5.5 0 0 1 .11.637l-.057.07L5.207 8.5H4.5v-.707l7.7-7.7a.5.5 0 0 1 .653-.064zM11.207 2.5 13.5 4.793l-8 8H3v-2.5l8-8z"/>
-          </svg>
-        </label>
+        <div class="profile-image-wrapper" title="Change profile picture">
+          <img id="profileImagePreview"
+               src="<%= user && user.profilePicture ? ('/uploads/profile/' + user.profilePicture) : '/images/default-avatar.png' %>"
+               alt="Profile Image" />
+          <label for="profileImageInput" class="edit-icon" title="Change Profile Picture">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                 class="bi bi-pencil-fill text-primary" viewBox="0 0 16 16">
+              <path d="M12.854.146a.5.5 0 0 1 .11.637l-.057.07L5.207 8.5H4.5v-.707l7.7-7.7a.5.5 0 0 1 .653-.064zM11.207 2.5 13.5 4.793l-8 8H3v-2.5l8-8z"/>
+            </svg>
+          </label>
+        </div>
+        <input type="file" id="profileImageInput" name="profileImage" accept="image/*" style="display:none;" />
+        <div id="uploadStatus"></div>
       </div>
 
-      <input type="file" id="profileImageInput" name="profileImage" accept="image/*" style="display:none;" />
+      <div class="underline"></div>
 
-      <div id="uploadStatus"></div>
-    </div>
-
-    <div class="underline"></div>
-
-    <div id="profile" class="tab-pane fade show active" role="tabpanel" aria-labelledby="profile-tab">
       <form method="POST" action="/updateProfile" id="profileForm">
-
         <div class="input-wrapper">
           <label for="firstName">First Name</label>
           <div style="display: flex; align-items: center; gap: 10px;">
@@ -283,30 +267,63 @@
         </div>
 
         <div class="buttons">
-          <a href="/change-email" type="button" class="btn btn-dark">Change Email</a>
+          <a href="/change-email" class="btn btn-dark">Change Email</a>
           <a href="/change-password" class="btn btn-danger">Change Password</a>
           <button type="submit" class="btn btn-sml btn-dark">Save Changes</button>
         </div>
       </form>
     </div>
 
-    <div id="orders" class="tab-pane fade" role="tabpanel" aria-labelledby="orders-tab">
+    <!-- Orders Section -->
+    <div id="orders" class="section-content">
       <h2>My Orders</h2>
       <div class="underline"></div>
       <p>Your orders list will appear here.</p>
+    
     </div>
 
-    <div id="wallet" class="tab-pane fade" role="tabpanel" aria-labelledby="wallet-tab">
+    <!-- Wallet Section -->
+    <div id="wallet" class="section-content">
       <h2>Wallet</h2>
       <div class="underline"></div>
       <p>Your wallet details will appear here.</p>
     </div>
 
-    <div id="address" class="tab-pane fade" role="tabpanel" aria-labelledby="address-tab">
+    <!-- Address Section -->
+    <div id="address" class="section-content">
       <h2>Address</h2>
       <div class="underline"></div>
-      <p>Your addresses will appear here.</p>
+    
+      <% if (!addresses || addresses.length === 0) { %>
+        <p>No addresses found. <a href="/addAddress">Add an address</a></p>
+      <% } else { %>
+        <div class="address-list">
+          <% addresses.forEach((addr) => { %>
+            <div class="address-card" style="border:1px solid #ccc; padding:15px; margin-bottom:15px; border-radius:8px; position: relative;">
+              <strong><%= addr.addressType %></strong><br>
+              <%= addr.name %><br>
+              House No: <%= addr.houseNo %><br>
+              City: <%= addr.city %><br>
+              State: <%= addr.state %><br>
+              Landmark: <%= addr.landMark || 'N/A' %><br>
+              Pincode: <%= addr.pincode %><br>
+              Phone: <%= addr.phone %><br>
+              Alternate Phone: <%= addr.altPhone || 'N/A' %><br>
+    
+              <div style="margin-top:10px; display: flex; justify-content: flex-end; gap: 10px;">
+                <a href="/editAddress?id=<%= addr._id %>" class="btn btn-sm btn-outline-primary">Edit</a>
+                <a href="/deleteAddress?id=<%= addr._id %>" class="btn btn-sm btn-outline-danger"
+                   onclick="return confirm('Are you sure you want to delete this address?')">Delete</a>
+              </div>
+            </div>
+          <% }) %>
+          <a href="/addAddress" class="btn btn-primary mt-3">Add New Address</a>
+        </div>
+      <% } %>
     </div>
+    
+    
+    
   </section>
 </div>
 
@@ -315,42 +332,34 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // Activate tab based on URL hash or default
-    const hash = window.location.hash;
-    if (hash) {
-      const triggerEl = document.querySelector(`.sidebar1 a[href="${hash}"]`);
-      if (triggerEl) {
-        const tab = new bootstrap.Tab(triggerEl);
-        tab.show();
-      }
-    }
+    const navLinks = document.querySelectorAll('.sidebar1 .nav-link[data-target]');
+    const sections = document.querySelectorAll('.section-content');
 
-    // Update active link on tab change
-    const sidebarLinks = document.querySelectorAll('.sidebar1 .nav-link[data-bs-toggle="tab"]');
-    sidebarLinks.forEach(link => {
-      link.addEventListener('shown.bs.tab', (e) => {
-        sidebarLinks.forEach(l => l.classList.remove('active'));
-        e.target.classList.add('active');
+    navLinks.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+
+        navLinks.forEach(l => l.classList.remove('active'));
+        sections.forEach(s => s.classList.remove('active'));
+
+        link.classList.add('active');
+        const target = link.getAttribute('data-target');
+        document.getElementById(target).classList.add('active');
       });
     });
 
     const originalValues = {};
 
-    function toggleEdit(inputId, btn) {
+    window.toggleEdit = function(inputId, btn) {
       const input = document.getElementById(inputId);
-
       if (input.hasAttribute('readonly')) {
-        // Save original value before editing
         originalValues[inputId] = input.value;
-
-        // Enable editing
         input.removeAttribute('readonly');
         input.focus();
         btn.textContent = 'Cancel';
         btn.classList.remove('btn-outline-primary');
         btn.classList.add('btn-danger');
       } else {
-        // Cancel editing — revert to original value
         if (originalValues[inputId] !== undefined) {
           input.value = originalValues[inputId];
         }
@@ -358,23 +367,9 @@
         btn.textContent = 'Edit';
         btn.classList.remove('btn-danger');
         btn.classList.add('btn-outline-primary');
-        // Clear saved original value since cancel done
         delete originalValues[inputId];
       }
-    }
-
-    window.toggleEdit = toggleEdit; // Make globally accessible for inline onclick
-
-    // Attach real-time validation on input changes
-    ['firstName', 'email', 'phone'].forEach(id => {
-      const input = document.getElementById(id);
-      if (!input) return;
-      input.addEventListener('input', () => {
-        if (id === 'firstName') validateName();
-        if (id === 'email') validateEmail();
-        if (id === 'phone') validatePhone();
-      });
-    });
+    };
 
     function showError(inputId, message) {
       const errorDiv = document.getElementById(inputId + 'Error');
@@ -449,8 +444,18 @@
       return true;
     }
 
+    ['firstName', 'email', 'phone'].forEach(id => {
+      const input = document.getElementById(id);
+      if (!input) return;
+      input.addEventListener('input', () => {
+        if (id === 'firstName') validateName();
+        if (id === 'email') validateEmail();
+        if (id === 'phone') validatePhone();
+      });
+    });
+
     const form = document.getElementById('profileForm');
-    if(form){
+    if (form) {
       form.addEventListener('submit', (e) => {
         const validName = validateName();
         const validEmail = validateEmail();
@@ -471,47 +476,41 @@
     const profileImageInput = document.getElementById("profileImageInput");
     const uploadStatus = document.getElementById("uploadStatus");
     const profileImagePreview = document.getElementById("profileImagePreview");
-  
-    if (!profileImageInput || !uploadStatus || !profileImagePreview) {
-      console.error("One or more required elements not found");
-      return;
-    }
-  
-    profileImageInput.addEventListener("change", async function () {
-      const file = this.files[0];
-      if (!file) return;
-  
-      const formData = new FormData();
-      formData.append("profileImage", file);
-  
-      uploadStatus.innerHTML = `<span class="text-info">Uploading...</span>`;
-  
-      try {
-        const res = await fetch("/upload-profile-pic", {
-          method: "POST",
-          body: formData
-        });
-  
-        const data = await res.json();
-  
-        if (res.ok) {
-          uploadStatus.innerHTML = `<span class="text-success">Uploaded successfully!</span>`;
-          profileImagePreview.src = `/uploads/profile/${data.filename}?t=${new Date().getTime()}`;
-        } else {
-          uploadStatus.innerHTML = `<span class="text-danger">${data.error || "Upload failed"}</span>`;
+
+    if (profileImageInput && uploadStatus && profileImagePreview) {
+      profileImageInput.addEventListener("change", async function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("profileImage", file);
+
+        uploadStatus.innerHTML = `<span class="text-info">Uploading...</span>`;
+
+        try {
+          const res = await fetch("/upload-profile-pic", {
+            method: "POST",
+            body: formData
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            uploadStatus.innerHTML = `<span class="text-success">Uploaded successfully!</span>`;
+            profileImagePreview.src = `/uploads/profile/${data.filename}?t=${new Date().getTime()}`;
+          } else {
+            uploadStatus.innerHTML = `<span class="text-danger">${data.error || "Upload failed"}</span>`;
+          }
+        } catch (err) {
+          uploadStatus.innerHTML = `<span class="text-danger">Something went wrong</span>`;
         }
-      } catch (err) {
-        uploadStatus.innerHTML = `<span class="text-danger">Something went wrong</span>`;
-      }
-  
-      // Clear message after 3 seconds
-      setTimeout(() => {
-        uploadStatus.innerHTML = '';
-      }, 3000);
-    });
 
-
-  }); // end DOMContentLoaded
+        setTimeout(() => {
+          uploadStatus.innerHTML = '';
+        }, 3000);
+      });
+    }
+  });
 </script>
 
 <%- include('../partials/user/footer') %>

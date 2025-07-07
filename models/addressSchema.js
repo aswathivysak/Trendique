@@ -16,18 +16,15 @@ const addressSchema = new Schema({
             type: String,
             required: true
         },
-        country:{
+        houseNo: {
             type: String,
             required: true
-        },
+         },
         city:{
             type: String,
             required: true
         },
-        streetAddress:{
-            type: String,
-            required: true
-        },
+       
         landMark:{
             type: String,
             required: true

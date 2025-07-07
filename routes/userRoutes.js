@@ -71,6 +71,12 @@ router.get("/change-password", userAuth, profileController.getChangePassword);
 router.post("/change-password", userAuth, profileController.changePassword);
 router.post("/upload-profile-pic",userAuth,uploads.single("profileImage"), profileController.changeProfilePic)
 
+//Address Management
+router.get("/addAddress", userAuth, profileController.getAddAddress);
+router.post('/add-address', userAuth, profileController.addAddress)
+router.get("/editAddress", userAuth, profileController.getEditAddress);
+router.post("/editAddress", userAuth, profileController.postEditAddress);
+router.get("/deleteAddress", userAuth, profileController.deleteAddress);
 
 
 module.exports=router
