@@ -1,5 +1,12 @@
 <%- include('../partials/user/header') %>
 <div><br><br><br><br></div>
+<style>
+  .disabled-link {
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+</style>
 
 <!-- breadcrumb -->
 <div class="container">
@@ -149,10 +156,21 @@
               <span class="mtext-110 cl2" id="totalPayable">$ <%= totalPayable.toFixed(2) %></span>
             </div>
           </div>
-
-          <button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
+         
+          <!-- <a href="/checkout" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"> 
             Proceed to Checkout
-          </button>
+          </a> -->
+          <% const hasOutOfStock = cartItems.some(item => item.productStock <= 0); %>
+
+          <a 
+            href="<%= hasOutOfStock ? 'javascript:void(0)' : '/checkout' %>" 
+            id="proceedCheckout"
+            class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
+            data-disabled="<%= hasOutOfStock %>"
+          >
+            Proceed to Checkout
+          </a>
+          
         </div>
       </div>
     </div>
@@ -160,6 +178,22 @@
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Script to show alert if out-of-stock -->
+
+<script>
+  document.getElementById('proceedCheckout').addEventListener('click', function(event) {
+    const isDisabled = this.getAttribute('data-disabled') === 'true';
+    if (isDisabled) {
+      event.preventDefault(); // prevent navigation
+      Swal.fire({
+        icon: 'warning',
+        title: 'Out of Stock',
+        text: 'Some products are out of stock. Please update your cart before proceeding to checkout.',
+        confirmButtonText: 'OK'
+      });
+    }
+  });
+</script>
 <script>
   function viewShippingCharge() {
     Swal.fire({

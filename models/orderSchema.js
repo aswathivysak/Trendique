@@ -34,15 +34,31 @@ const orderSchema = new Schema({
             type: Number,
             default: 0
         },
-        regularPrice: {
+        finalPrice: {
             type: Number,
-            default: 0
-        },
+            required: true,
+          },
+          size: {
+            type: String,
+            
+            required: true,
+          },
+          color: {
+            type: String,
+            required: true,
+          },
         status: {
             type: String,
             enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returning', 'returned'],
             default: 'pending'
-        },
+        }, cancellationReason: {
+            type: String,
+            default: "",
+          },
+          returnReason: {
+            type: String,
+            default: "",
+          },
       
     }],
     subTotal: {
@@ -55,7 +71,7 @@ const orderSchema = new Schema({
     },
     deliveryCharge: {
         type: Number,
-        default: 50
+        default: 0
     },
     finalAmount: {
         type: Number,
@@ -76,9 +92,9 @@ const orderSchema = new Schema({
         enum: ['pending', 'completed', 'failed', 'refunded'],
         default: 'pending'
       },
-      
-    invoiceDate: {
-        type: Date
+      invoiceDate: {
+        type: Date,
+        default: Date.now
     },
     status: {
         type: String,
@@ -103,8 +119,6 @@ const orderSchema = new Schema({
         default: false
     },
     couponCode: { type: String }
-
-
 },{
     timestamps: true 
   });
