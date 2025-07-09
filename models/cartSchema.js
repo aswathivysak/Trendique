@@ -24,7 +24,24 @@ const cartSchema = new Schema({
         totalPrice:{
             type: Number,
             required: true
+        },  
+        size: {
+            type: String,
+            required: false
+        },
+        color: {
+            type: String,
+            required: false
+        },
+        status:{
+            type:String,
+            default:'placed'
+        },
+        cancellationReason:{
+            type:String,
+            default:"none"
         }
+
       
     }], createdAt: {
         type: Date,

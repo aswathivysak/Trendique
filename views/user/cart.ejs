@@ -1,5 +1,5 @@
 <%- include('../partials/user/header') %>
-<div><br><br><br><br><br><br></div>
+<div><br><br><br><br></div>
 
 <!-- breadcrumb -->
 <div class="container">
@@ -50,45 +50,54 @@
                     <td class="column-4">
                       <div class="wrap-num-product flex-w m-l-auto m-r-0" data-index="<%= index %>">
                         <button 
-                          type="button" 
-                          class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m" 
-                          onclick="changeQuantity('<%= item.productId %>', <%= item.quantity %>, -1, <%= item.productPrice %>, <%= index %>, <%= item.productStock %>)"
-                          <%= item.quantity <= 1 ? 'disabled' : '' %>
-                        >
-                          -
-                        </button>
+                            type="button" 
+                            class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m" 
+                            onclick="changeQuantity('<%= item.productId %>', -1, <%= item.productPrice %>, <%= index %>, <%= item.productStock %>,'<%= item.size %>', '<%= item.color %>')"
+                            <%= (item.quantity <= 1 || item.productStock <= 0) ? 'disabled' : '' %>
+                            >
+                            -
+                            </button>
 
-                        <input 
-                          class="mtext-104 cl3 txt-center num-product" 
-                          type="number" 
-                          name="quantity" 
-                          id="cartProductQuantity<%= index %>" 
-                          value="<%= item.quantity %>" 
-                          min="1" 
-                          max="<%= item.productStock %>" 
-                          readonly
-                        >
+                            <input 
+                            class="mtext-104 cl3 txt-center num-product" 
+                            type="number" 
+                            name="quantity" 
+                            id="cartProductQuantity<%= index %>" 
+                            value="<%= item.quantity %>" 
+                            min="1" 
+                            max="<%= item.productStock %>" 
+                            readonly
+                            <%= item.productStock <= 0 ? 'disabled' : '' %>
+                            >
 
-                        <button 
-                          type="button" 
-                          class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m" 
-                          onclick="changeQuantity('<%= item.productId %>', <%= item.quantity %>, 1, <%= item.productPrice %>, <%= index %>, <%= item.productStock %>)"
-                          <%= item.quantity >= item.productStock ? 'disabled' : '' %>
-                        >
-                          +
-                        </button>
+                            <button 
+                            type="button" 
+                            class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m" 
+                            onclick="changeQuantity('<%= item.productId %>', 1, <%= item.productPrice %>, <%= index %>, <%= item.productStock %>,'<%= item.size %>', '<%= item.color %>')"
+                            <%= (item.quantity >= item.productStock || item.productStock <= 0) ? 'disabled' : '' %>
+                            >
+                            +
+                            </button>
+
                       </div>
+                      <% if (item.productStock <= 0) { %>
+                        <small class="text-danger">Out of Stock</small>
+                      <% } %>
                     </td>
 
                     <!-- Subtotal with id for JS update -->
                     <td class="column-5" id="subTotal<%= index %>">$ <%= (item.productPrice * item.quantity).toFixed(2) %></td>
 
                     <!-- Remove item -->
-                    <td class="column-6">
-                      <a class="btn btn-sm" href="#" onclick="confirmRemove('<%= item.productId %>')">
-                        <i class="fi-rs-trash">Remove</i>
-                      </a>
-                    </td>
+                 
+                      <td class="column-6">
+                        <a class="btn btn-sm" href="#" onclick="confirmRemove('<%= item.productId %>', '<%= item.size %>','<%= item.color %>', <%= index %>)">
+                          <i class="fi-rs-trash"></i> Remove
+                        </a>
+                      </td>
+                    
+                      
+                      
                   </tr>
                 <% }) %>
               <% } %>
@@ -102,9 +111,9 @@
                 Apply coupon
               </div>
             </div>
-            <div class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10" id="updateCartBtn">
+            <!-- <div class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10" id="updateCartBtn">
               Update Cart
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -118,7 +127,7 @@
               <span class="stext-110 cl2">Subtotal:</span>
             </div>
             <div class="size-209">
-              <span class="mtext-110 cl2" id="total">$ <%= totalPayable.toFixed(2) %></span>
+              <span class="mtext-110 cl2" id="total">$ <%= grandTotal.toFixed(2) %></span>
             </div>
           </div>
 
@@ -127,7 +136,7 @@
               <span class="stext-110 cl2">Shipping:</span>
             </div>
             <div class="size-209">
-              <span class="mtext-110 cl2">$ <%= shippingCharge.toFixed(2) %></span>
+              <span class="mtext-110 cl2" id="shippingCharge">$ <%= shippingCharge.toFixed(2) %></span>
               <a href="#" onclick="viewShippingCharge()" class="text-blue text-sm">View shipping charge</a>
             </div>
           </div>
@@ -137,7 +146,7 @@
               <span class="mtext-101 cl2">Total:</span>
             </div>
             <div class="size-209 p-t-1">
-              <span class="mtext-110 cl2">$ <%= totalPayable.toFixed(2) %></span>
+              <span class="mtext-110 cl2" id="totalPayable">$ <%= totalPayable.toFixed(2) %></span>
             </div>
           </div>
 
@@ -161,14 +170,17 @@
     });
   }
 
-  function changeQuantity(productId, currentQuantity, count, productPrice, index, maxStock) {
+  function changeQuantity(productId, count, productPrice, index, maxStock,size, color) {
     maxStock = parseInt(maxStock);
     const quantityInput = document.getElementById(`cartProductQuantity${index}`);
     const subtotalElement = document.getElementById(`subTotal${index}`);
     const totalElement = document.getElementById('total');
-
-    let newQuantity = parseInt(currentQuantity) + count;
-
+    const shippingChargeElement = document.getElementById('shippingCharge');
+    const totalPayableElement = document.getElementById('totalPayable');
+  
+    let currentQuantity = parseInt(quantityInput.value);
+    let newQuantity = currentQuantity + count;
+  
     if (newQuantity < 1) {
       Swal.fire('Oops!', 'Quantity cannot be less than 1', 'warning');
       return;
@@ -181,27 +193,41 @@
       Swal.fire('Oops!', 'Not enough stock available.', 'warning');
       return;
     }
-
+  
     $.ajax({
       url: '/changeQuantity',
       method: 'POST',
       data: {
         productId: productId,
-        quantity: newQuantity,
         count: count,
+        size: size,
+        color: color
       },
       success: (response) => {
         if (response.status) {
+          // Update UI only on success
           quantityInput.value = newQuantity;
+  
           if (subtotalElement) {
             subtotalElement.innerText = (newQuantity * productPrice).toFixed(2);
           }
-          if (totalElement && response.grandTotal) {
+          if (totalElement && response.grandTotal !== undefined) {
             totalElement.innerText = response.grandTotal.toFixed(2);
           }
-          location.reload(); // Optional: to update other UI parts
+          if (shippingChargeElement && response.shippingCharge !== undefined) {
+            shippingChargeElement.innerText = response.shippingCharge.toFixed(2);
+          }
+          if (totalPayableElement && response.totalPayable !== undefined) {
+            totalPayableElement.innerText = response.totalPayable.toFixed(2);
+          }
+  
+          // Enable or disable buttons accordingly
+          const btnMinus = quantityInput.previousElementSibling;
+          const btnPlus = quantityInput.nextElementSibling;
+          btnMinus.disabled = newQuantity <= 1;
+          btnPlus.disabled = newQuantity >= Math.min(3, maxStock);
         } else {
-          Swal.fire('Error', response.message || 'Could not update quantity', 'error');
+          Swal.fire('Error', response.error || 'Could not update quantity', 'error');
         }
       },
       error: (err) => {
@@ -210,6 +236,40 @@
       }
     });
   }
+  
+  //Remove cart product
+  function confirmRemove(productId, size, color, index) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to remove this item from your cart?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, remove it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Call your backend to remove the item
+        $.ajax({
+          url: '/removeCartItem',
+          method: 'POST',
+          data: { productId, size, color },
+          success: (response) => {
+            if(response.status){
+              Swal.fire('Removed!', 'Your item has been removed.', 'success').then(() => {
+                location.reload();
+              });
+            } else {
+              Swal.fire('Error', response.message || 'Failed to remove item', 'error');
+            }
+          },
+          error: () => {
+            Swal.fire('Error', 'Server error while removing item', 'error');
+          }
+        });
+      }
+    });
+  }
+  
+
 </script>
 
 <%- include('../partials/user/footer') %>

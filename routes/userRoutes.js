@@ -3,7 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const userController=require("../controllers/user/userController")
 const profileController = require("../controllers/user/profileController")
-
+const cartController = require("../controllers/user/cartController")
 const productController = require("../controllers/user/productController")
 const {userAuth} = require("../middlewares/auth")
 
@@ -78,5 +78,10 @@ router.get("/editAddress", userAuth, profileController.getEditAddress);
 router.post("/editAddress", userAuth, profileController.postEditAddress);
 router.get("/deleteAddress", userAuth, profileController.deleteAddress);
 
+//Cart Management
+router.get("/cart", userAuth, cartController.getCartPage);
+router.post("/addToCart",userAuth, cartController.addToCart)
+router.post("/changeQuantity", userAuth, cartController.changeQuantity);
+router.post("/removeCartItem", userAuth, cartController.deleteProduct);
 
 module.exports=router

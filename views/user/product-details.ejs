@@ -30,16 +30,16 @@
       <!-- Product Info -->
       <div class="col-md-6 col-lg-5 p-b-30">
         <div class="p-r-50 p-t-5 p-lr-0-lg">
-          <h4 class="mtext-105 cl2 js-name-detail p-b-14">
+          <h1 class="mtext-105 cl2 js-name-detail p-b-14">
             <%= product.name %>
-          </h4>
+          </h1>
 
           <span class="mtext-106 cl2">
             $ <%= Math.round(product.finalPrice) %>.00
           </span>
 
           <p class="stext-102 cl3 p-t-23">
-            <%= product.description %>
+           <b>Brand:<%= product.brand.brandName %></b> 
           </p>
 
           <!-- Variants (Size and Color) -->
@@ -55,11 +55,19 @@
                 <div class="rs1-select2 bor8 bg0">
                   <select class="js-select2" name="size">
                     <option value="" disabled selected>Choose an option</option>
-                    <% if (product.variants && product.variants.length > 0) { %>
-                      <% product.variants.forEach(variant => { %>
-                        <option value="<%= variant.size %>"><%= variant.size %></option>
-                      <% }) %>
-                    <% } %>
+                    <% 
+                    let uniqueSize = [];
+                    if (product.variants && product.variants.length > 0) {
+                      product.variants.forEach(variant => {
+                        if (!uniqueSize.includes(variant.size)) {
+                          uniqueSize.push(variant.size);
+                        }
+                      });
+                    }
+                    uniqueSize.forEach(size => { 
+                  %>
+                    <option value="<%= size %>"><%= size %></option>
+                  <% }) %>
                   </select>
                   <div class="dropDownSelect2"></div>
                 </div>
@@ -115,9 +123,18 @@
                   <i class="fs-16 zmdi zmdi-plus"></i>
                 </div>
               </div>
-              <button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
+              <!-- <button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" onclick="addToCart('<%= product._id %>')">
                 Add to cart
-              </button>
+              </button> -->
+              <button 
+                type="button" 
+                class="btn btn-primary btn-lg px-4 py-2" 
+                 onclick="addToCart('<%= product._id %>')"
+                style="border-radius: 30px; font-weight: 600; transition: background-color 0.3s ease;"
+                 >
+                    Add to Cart
+                </button>
+
             </div>
 			
           </div>
@@ -171,6 +188,13 @@
               <p class="stext-102 cl6">
                 <%= product.description %>
               </p>
+              <div class="product_sort_info font-xs mb-30">
+                <ul>
+                    <li class="mb-10"><i class="fi-rs-crown mr-5"></i> 1 Year Brand Warranty</li>
+                    <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 30 Day Return Policy</li>
+                    <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
+                </ul>
+            </div>
             </div>
           </div>
 
@@ -364,14 +388,14 @@
                 <div class="block2-pic hov-img0">
                   <img src="/<%= related.images[0] %>" alt="IMG-PRODUCT">
 
-                  <a href="/product-details?id=<%= related._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                  <a href="/productDetails?id=<%= related._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
                     Quick View
                   </a>
                 </div>
 
                 <div class="block2-txt flex-w flex-t p-t-14">
                   <div class="block2-txt-child1 flex-col-l ">
-                    <a href="/product-details?id=<%= related._id %>" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+                    <a href="/productDetails?id=<%= related._id %>" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
                       <%= related.name %>
                     </a>
 
@@ -408,6 +432,83 @@
 <script src="vendor/bootstrap/js/popper.js"></script>
 <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 <script src="vendor/select2/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  async function addToCart(productId) {
+    const sizeSelect = document.querySelector('select[name="size"]');
+    const colorSelect = document.querySelector('select[name="color"]');
+    const quantityInput = document.querySelector('input[name="quantity"]');
+  
+    const selectedSize = sizeSelect ? sizeSelect.value : null;
+    const selectedColor = colorSelect ? colorSelect.value : null;
+    const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+  
+    if (!selectedSize) {
+      return Swal.fire("Select Size", "Please choose a size before adding to cart", "warning");
+    }
+  
+    if (!selectedColor) {
+      return Swal.fire("Select Color", "Please choose a color before adding to cart", "warning");
+    }
+  
+    if (isNaN(quantity) || quantity < 1) {
+      return Swal.fire("Invalid Quantity", "Please enter a valid quantity", "warning");
+    }
+  
+    try {
+      const response = await fetch('/addToCart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json',
+        'Accept': 'application/json', },
+        body: JSON.stringify({
+          productId,
+          size: selectedSize,
+          color: selectedColor,
+          quantity,
+        }),
+      });
+  
+      // Check content type to avoid parsing HTML error
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Server returned non-JSON:', text);
+        return Swal.fire('Error', 'Unexpected server response. Please try again.', 'error');
+      }
+  
+      const data = await response.json();
+  
+      if (response.status === 401) {
+        return Swal.fire({
+          icon: 'warning',
+          title: 'Please Login',
+          text: 'You must be logged in to add items to your cart.',
+        });
+      }
+  
+      if (response.ok && data.status === true) {
+        Swal.fire('Success', 'Product added to cart', 'success');
+  
+        // Update cart count badge if present
+        const cartCountEl = document.getElementById('cart-count');
+        if (cartCountEl && typeof data.cartLength === 'number') {
+          cartCountEl.innerText = data.cartLength;
+        }
+  
+        const cartIcon = document.querySelector('.icon-header-noti.js-show-cart');
+        if (cartIcon && typeof data.cartLength === 'number') {
+          cartIcon.setAttribute('data-notify', data.cartLength);
+        }
+      } else {
+        Swal.fire('Oops!', data.message || 'Failed to add to cart', 'error');
+      }
+    } catch (error) {
+      console.error('Add to cart error:', error);
+      Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
+    }
+  }
+  
+</script>
 <script>
   $(".js-select2").each(function(){
     $(this).select2({
@@ -422,22 +523,22 @@
 <script src="js/slick-custom.js"></script>
 <script src="vendor/parallax100/parallax100.js"></script>
 <script>
-  $('.parallax100').parallax100();
+  /*$('.parallax100').parallax100(); */
 </script>
 <script src="vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
 <script>
-  $('.gallery-lb').each(function() { 
+ /* $('.gallery-lb').each(function() { 
     $(this).magnificPopup({
       delegate: 'a',
       type: 'image',
       gallery: { enabled:true },
       mainClass: 'mfp-fade'
     });
-  });
+  }); */
 </script>
 <script src="vendor/isotope/isotope.pkgd.min.js"></script>
 <script src="vendor/sweetalert/sweetalert.min.js"></script>
-<script>
+<!-- <script>
   $('.js-addwish-b2, .js-addwish-detail').on('click', function(e){
     e.preventDefault();
   });
@@ -486,6 +587,6 @@
     })
   });
 </script>
-<script src="js/main.js"></script>
+<script src="js/main.js"></script> -->
 
 <%- include('../partials/user/footer') %>
