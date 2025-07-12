@@ -36,7 +36,7 @@ const addToCart = async (req, res) => {
     // Find variant matching size and color
     const variant = product.variants.find(v => v.size === size && v.color === color);
     if (!variant) {
-      return res.json({ status: false, message: 'Selected variant not found' });
+      return res.json({ status: false, message: 'Selected color and size are not available' });
     }
 
     if (variant.quantity < qty) {
@@ -175,13 +175,13 @@ const getCartPage = async (req, res) => {
       },
 
       // Filter out blocked products, unlisted categories, and out-of-stock variants
-      {
-        $match: {
-          "productDetails.isBlocked": false,
-          "categoryDetails.isListed": true,
-          "productDetails.variants.quantity": { $gt: 0 }
-        }
-      },
+      // {
+      //   $match: {
+      //     "productDetails.isBlocked": false,
+      //     "categoryDetails.isListed": true,
+      //     "productDetails.variants.quantity": { $gt: 0 }
+      //   }
+      // },
 
       // Project the fields needed for the cart page
       {

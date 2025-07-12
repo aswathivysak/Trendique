@@ -467,6 +467,49 @@ const deleteVariant = async (req, res) => {
   }
 };
 
+const updateVariant = async (req, res) => {
+  try {
+    const { productId, variantId } = req.params;
+    const { color, size, quantity } = req.body;
+
+    if (!color || typeof color !== 'string' || color.trim().length === 0) {
+      return res.status(400).send('Invalid color');
+    }
+
+    if (!size || typeof size !== 'string' || size.trim().length === 0) {
+      return res.status(400).send('Invalid size (max 4 chars)');
+    }
+
+    const qtyNum = Number(quantity);
+    if (!Number.isInteger(qtyNum) || qtyNum < 0) {
+      return res.status(400).send('Quantity must be a non-negative integer');
+    }
+
+  
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).send('Product not found');
+    }
+
+    // Find variant index
+    const variantIndex = product.variants.findIndex(v => v._id.toString() === variantId);
+    if (variantIndex === -1) {
+      return res.status(404).send('Variant not found');
+    }
+    product.variants[variantIndex].color = color;
+    product.variants[variantIndex].size = size;
+    product.variants[variantIndex].quantity = parseInt(quantity);
+
+    
+    await product.save();
+    res.redirect(`/admin/product/${productId}/variants`);
+  } catch (error) {
+    console.error('Error updating variant:', error);
+    res.status(500).send('Internal server error');
+  }
+};
+
+
 
 module.exports={
      getProductAddPage,
@@ -481,4 +524,5 @@ module.exports={
      showProductVariants,
      addProductVariants,
      deleteVariant,
+     updateVariant,
    }

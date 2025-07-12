@@ -76,6 +76,7 @@ router.get('/product/:id/variants', productController.showProductVariants);
 router.post('/product/:productId/variants/add', productController.addProductVariants);
 // router.post('/product/:productId/variant/:variantId/delete',productController.deleteVariant);
 router.post('/product/:productId/variants/:variantId/delete', productController.deleteVariant);
+router.post('/product/:productId/variants/:variantId/edit', productController.updateVariant);
 
 //Order management
 router.get("/orderList", adminAuth, orderController.listOrders)
