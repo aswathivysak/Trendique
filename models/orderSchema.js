@@ -55,10 +55,13 @@ const orderSchema = new Schema({
             type: String,
             default: "",
           },
-          returnReason: {
+          returnReason: {   
             type: String,
             default: "",
           },
+          deliveredOn: {
+            type: Date
+        },
       
     }],
     subTotal: {
@@ -101,8 +104,10 @@ const orderSchema = new Schema({
         required: true,
         enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returning', 'returned'],
         default: 'pending'
+    }, 
+    invoiceDate: {
+        type: Date
     },
-    
     createdOn: {
         type: Date,
         default: Date.now,

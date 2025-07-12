@@ -7,6 +7,7 @@ const brandController = require('../controllers/admin/brandController');
 const subcategoryController = require('../controllers/admin/subcategoryController');
 const upload = require('../middlewares/multerConfig');
 const productController = require('../controllers/admin/productController');
+const orderController = require("../controllers/admin/orderController")
 const { adminAuth } = require('../middlewares/auth');
 
 router.get('/pageerror', adminController.pageError);
@@ -76,6 +77,12 @@ router.post('/product/:productId/variants/add', productController.addProductVari
 // router.post('/product/:productId/variant/:variantId/delete',productController.deleteVariant);
 router.post('/product/:productId/variants/:variantId/delete', productController.deleteVariant);
 
+//Order management
+router.get("/orderList", adminAuth, orderController.listOrders)
+router.get("/order/:orderId", adminAuth, orderController.getOrderDetails)
+router.post('/orders/:orderId/items/:itemIndex/status',adminAuth, orderController.updateItemStatus);
+router.post('/approveReturn/:orderId/:productIndex', adminAuth, orderController.approveReturn);
+router.post('/rejectReturn/:orderId/:productIndex', adminAuth, orderController.rejectReturn);
 
 
 

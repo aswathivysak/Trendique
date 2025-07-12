@@ -89,5 +89,13 @@ router.post("/removeCartItem", userAuth, cartController.deleteProduct);
 router.get("/checkout", userAuth, orderController.getCheckoutPage)
 router.post('/placeOrder',userAuth, orderController.placeOrder)
 router.get('/order-success/:orderId', userAuth, orderController.getOrderSuccessPage);
+router.get('/viewOrderDetails/:orderId', userAuth, orderController.viewOrderDetails)
+router.post("/cancelOrder",userAuth,orderController.cancelOrder);
+router.post('/orders/return-request', userAuth, orderController.returnRequest);
+// router.get('/orders/download-invoice/:orderId', userAuth, orderController.getInvoice)
+router.get('/orders/download-invoice', userAuth,orderController.generateInvoice);
+
+
+
 
 module.exports=router

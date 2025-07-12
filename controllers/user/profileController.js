@@ -1,6 +1,7 @@
 const session = require("express-session")
 const User = require('../../models/userSchema')
 const Address = require('../../models/addressSchema')
+const Order = require("../../models/orderSchema");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const env = require("dotenv").config();
@@ -190,7 +191,25 @@ const userProfile = async (req,res)=>{
         const userData = await User.findById(userId)
         const userAddress = await Address.findOne({ userId: userId });
         const addresses = userAddress ? userAddress.address : [];
-        res.render('profile',{user:userData,addresses})
+
+        //for order
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page - 1) * limit;
+        const totalOrders = await Order.countDocuments({ userId });
+        const orders = await Order.find({ userId })
+        .sort({ createdOn: -1 }) // latest first
+        .skip(skip)
+        .limit(limit)
+        .lean();
+        const totalPages = Math.ceil(totalOrders / limit);
+        
+        res.render('profile',{user:userData,
+            addresses,
+            orders,
+            currentPage: page,
+            totalPages,
+        })
        }catch (err){
         res.redirect("/pageNotFound")
        }

@@ -200,6 +200,84 @@
   .section-content.active {
     display: block;
   }
+/* My Order */
+.card {
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 0.1);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.card-header {
+  background-color: #0d6efd;
+  color: white;
+  font-weight: 700;
+  font-size: 1.25rem;
+  user-select: none;
+  border-radius: 12px 12px 0 0;
+}
+table thead th {
+  border-bottom: 2px solid #0d6efd;
+}
+tbody tr:hover {
+  background-color: #e9f0ff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.btn-small {
+  font-size: 0.85rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+}
+.status-badge {
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  user-select: none;
+}
+.status-pending {
+  background-color: #ffc107;
+  color: #212529;
+}
+.status-delivered {
+  background-color: #198754;
+}
+.status-cancelled {
+  background-color: #dc3545;
+}
+.status-shipped {
+  background-color: #0dcaf0;
+  color: #212529;
+}
+/* Responsive overflow for small devices */
+.table-responsive {
+  overflow-x: auto;
+}
+/* Pagination styling */
+.pagination {
+  justify-content: center;
+  margin-top: 25px;
+}
+.page-link {
+  color: #0d6efd;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.page-link:hover {
+  background-color: #0d6efd;
+  color: white;
+  text-decoration: none;
+}
+.page-item.active .page-link {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+  cursor: default;
+  pointer-events: none;
+}
+  
 </style>
 
 <div class="profile-page">
@@ -278,8 +356,75 @@
     <div id="orders" class="section-content">
       <h2>My Orders</h2>
       <div class="underline"></div>
-      <p>Your orders list will appear here.</p>
+      <div class="card">
+        <!-- <div class="card-header">
+          Your Orders
+        </div> -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th scope="col">Order ID</th>
+                  <th scope="col">Order Date</th>
+                  <th scope="col">Products</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Example row -->
+                <% if (orders && orders.length > 0) { %>
+                  <% orders.forEach(order => { %>
+                <tr>
+                  <td># <%= order.orderId.toString().slice(-6) %></td>
+                  <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
+                  
+                  <td>
+                    <% order.orderedItems.forEach(item => { %>
+                    <div class="d-flex flex-column">
+                      <span><%= item.product?.productName || item.productName %> (x<%= item.quantity %>)</span>
+                     </div>
+                     <% }) %>
+                  </td>
+                  <td>
+                    <span class="status-badge status-pending"><%= order.status %></span>
+                  </td>
+                  <td>₹<%= order.finalAmount %></td>
+                  <td>
+                    <a href="/viewOrderDetails/<%= order._id %>" class="btn btn-primary btn-small d-block mb-1">View Details</a>
+                    <!-- <button class="btn btn-outline-danger btn-small d-block">Cancel Order</button> -->
+                  </td>
+                </tr>
+                <% }) %>
     
+                
+                <% } else { %>
+                  <tr>
+                    <td colspan="5" class="text-center">No orders found.</td>
+                  </tr>
+                <% } %>
+    
+              </tbody>
+            </table>
+          </div>
+    
+         <!-- Pagination -->
+         <% if (totalPages > 1) { %>
+          <div class="d-flex justify-content-center mt-3">
+            <ul class="pagination">
+              <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                  <a class="page-link" href="?page=<%= i %>#orders"><%= i %></a>
+                </li>
+              <% } %>
+            </ul>
+          </div>
+        <% } %>
+        </div>
+      </div>
+        
     </div>
 
     <!-- Wallet Section -->
@@ -512,5 +657,11 @@
     }
   });
 </script>
+
+<script>
+  function cancelOrder(orderId) {
+    alert(`Cancel order: ${orderId} (replace this alert with your real logic)`);
+  }
+</script></p>
 
 <%- include('../partials/user/footer') %>
