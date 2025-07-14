@@ -50,7 +50,7 @@ const sendVerificationEmail = async (email,otp) => {
         }
 
         const info = await transporter.sendMail(mailOption);
-        console.log("Email sent:",info.messageId)
+        // console.log("Email sent:",info.messageId)
 
         return true;
 
@@ -292,7 +292,7 @@ const updateProfile = async (req, res) => {
       const userId = req.session.user;
       const { name, phone } = req.body;
   
-      console.log('Updating user:', { userId, name, phone });
+    //   console.log('Updating user:', { userId, name, phone });
   
       // Update only name and phone
       const updatedUser = await User.findByIdAndUpdate(

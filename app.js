@@ -47,7 +47,7 @@ app.use(async (req, res, next) => {
           // Fetch product details for each cart item
           cartItems = await Promise.all(cart.items.map(async item => {
             const product = await Product.findById(item.productId).lean();
-            if (!product) return null;
+            if (!product || product.isBlocked) return null;
   
             cartTotal += product.finalPrice * item.quantity;
             cartCount += item.quantity;

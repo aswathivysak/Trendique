@@ -389,7 +389,20 @@ tbody tr:hover {
                      <% }) %>
                   </td>
                   <td>
-                    <span class="status-badge status-pending"><%= order.status %></span>
+                    <!-- <span class="status-badge status-pending"><%= order.status %></span> -->
+                    <span class="badge bg-<%= 
+                    order.status.toLowerCase() === 'pending' ? 'warning' :
+                    order.status.toLowerCase() === 'processing' ? 'info' :
+                    order.status.toLowerCase() === 'shipped' ? 'primary' :
+                    order.status.toLowerCase() === 'delivered' ? 'success' :
+                    order.status.toLowerCase() === 'cancelled' ? 'danger' :
+                    order.status.toLowerCase() === 'return request' ? 'warning' :
+                    order.status.toLowerCase() === 'returned' ? 'secondary' :
+                    order.status.toLowerCase() === 'confirmed' ? 'success' :
+                    'secondary'
+                  %>">
+                    <%= order.status %>
+                  </span>
                   </td>
                   <td>₹<%= order.finalAmount %></td>
                   <td>

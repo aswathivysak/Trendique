@@ -15,48 +15,12 @@ const pageNotFound = async (req, res) => {
         res.redirect('/pagenotfound')
     }
 }
-// const loadHomePage = async (req, res) => {
-//     try {
-//       const userId = req.session.user;
-//       let userData = null;
-//       const categories = await Category.find({isListed:true})
-//         let productData = await Product.find({
-//             isBlocked:false,
-//             category:{$in:categories.map(category=>category._id)},
-//             stock:{$gt:0},
-//         })
-//      console.log(productData,categories)
-//         productData.sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt))
-//         productData = productData.slice(0,12);
 
-
-  
-//       if (userId) {
-//         userData = await User.findById(userId);
-//         if(userData && userData.isBlocked)
-//         {
-//             req.session.destroy(err => {
-//                 if (err) {
-//                   console.error("Session destruction error:", err);
-//                 }
-//                 return res.redirect('/login');
-//             });
-//         return; 
-//         }
-//         res.render('home',{user:userData, products:productData})
-//       }else{
-//         res.render('home',{  user: null,products:productData,req:req});
-//       }
-  
-//       // Always pass `user`
-//     } catch (error) {
-//       console.log('Home Page Not Found', error);
-//       res.status(500).send('Server Error');
-//     }
-//   };
   const loadHomePage=async (req,res)=>{
     try{
         const userId=req.session.user;
+        console.log('Session user:', req.session.user);
+
         let userData=null;
         if(userId)
         {
@@ -95,7 +59,7 @@ const pageNotFound = async (req, res) => {
       
 
     }catch (err){
-        console.error('Home Page Not Found', error);
+        console.error('Home Page Not Found', err);
         res.status(500).send('Server Error');
     }
   }
@@ -196,7 +160,7 @@ const verifyOtp = async (req, res) => {
     try{
         const {otp} = req.body;
 
-        console.log('OTP',otp)
+        // console.log('OTP',otp)
 
         if(otp===req.session.userOtp){
             const user = req.session.userData;
@@ -239,10 +203,10 @@ const resendOtp = async (req, res) => {
 
         const emailSent = await sendVerificationEmail(email,otp);
 
-        console.log("Resended OTP:",otp)
+        // console.log("Resended OTP:",otp)
 
         if(emailSent){
-            console.log("Resend OTP",otp);
+            // console.log("Resend OTP",otp);
             res.status(200).json({success:true,message:'OTP Resend Successfully'})
             
         } else{
@@ -309,20 +273,7 @@ const login = async (req, res) => {
         
     }
 }
-// const loadShoppingPage = async (req, res) => {
-//     try {
-        
-//         const products = await Product.find({ isBlocked: false, stock: { $gt: 0 } }).lean();
-    
-//         res.render('shop', {
-//           user: req.session.user || null,
-//           products: products
-//         });
-//       } catch (error) {
-//         console.error('Error loading shop page:', error);
-//         res.redirect('/pagenotfound');
-//       }
-//   }
+
 const loadShoppingPage = async (req, res) => {
     try {
         const user = req.session.user;
@@ -341,7 +292,8 @@ const loadShoppingPage = async (req, res) => {
         products.forEach(product => {
             product.totalQuantity = product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0);
           });
-       
+
+        
              // Get total number of products for pagination
         const totalProducts = await Product.countDocuments({isBlocked:false,category:{$in:categoryIds} ,variants:{ $elemMatch: { quantity: { $gt: 0 } } } });
         const totalPages = Math.ceil(totalProducts / limit);
@@ -367,6 +319,8 @@ const loadShoppingPage = async (req, res) => {
         const user =req.session.user
         const category =req.query.category
         const brand=req.query.brand;
+
+        const subcategoryId = req.query.subcategory;
         const findCategory=category? await Category.findOne({_id:category}):null;
         const findBrand = brand ? await Brand.findOne({_id:brand}):null;
         const brands= await Brand.find({}).lean();
@@ -374,6 +328,8 @@ const loadShoppingPage = async (req, res) => {
             isBlocked :false,
             variants: { $elemMatch: { quantity: { $gt: 0 } } }
          }
+         
+         let selectedSubcategory = null;
          if (findCategory) {
             query.category = findCategory._id;
         }

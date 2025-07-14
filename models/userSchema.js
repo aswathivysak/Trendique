@@ -42,16 +42,7 @@ const userSchema = new Schema({
         type:String,
         required:false
     },
-    // cart:[{
-    //     productId: {
-    //         type: Schema.Types.ObjectId,
-    //         ref: 'Product'
-    //     },
-    //     quantity: {
-    //         type: Number,
-    //         default: 1
-    //     }
-    // }],
+   
     wallet:{
         type: Number,
         default: 0

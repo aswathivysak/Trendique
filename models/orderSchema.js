@@ -38,12 +38,12 @@ const orderSchema = new Schema({
             type: Number,
             required: true,
           },
-          size: {
+        size: {
             type: String,
             
             required: true,
           },
-          color: {
+        color: {
             type: String,
             required: true,
           },
@@ -51,18 +51,18 @@ const orderSchema = new Schema({
             type: String,
             enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returning', 'returned'],
             default: 'pending'
-        }, cancellationReason: {
+        }, 
+        cancellationReason: {
             type: String,
             default: "",
           },
-          returnReason: {   
+        returnReason: {   
             type: String,
             default: "",
           },
-          deliveredOn: {
+        deliveredOn: {
             type: Date
         },
-      
     }],
     subTotal: {
         type: Number,

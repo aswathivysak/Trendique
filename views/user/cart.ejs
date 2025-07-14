@@ -178,6 +178,7 @@
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- Script to show alert if out-of-stock -->
 
 <script>
@@ -211,6 +212,7 @@
     const totalElement = document.getElementById('total');
     const shippingChargeElement = document.getElementById('shippingCharge');
     const totalPayableElement = document.getElementById('totalPayable');
+    Swal.fire('Hello!') 
   
     let currentQuantity = parseInt(quantityInput.value);
     let newQuantity = currentQuantity + count;

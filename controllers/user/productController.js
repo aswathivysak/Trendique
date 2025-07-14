@@ -12,7 +12,7 @@ const productDetails = async (req,res) => {
         const userId = req.session.user;
         const userData =  userId ? await User.findById(userId) : null;
         const productId = req.query.id;
-        const product = await Product.findById(productId)
+        const product = await Product.findById({ _id: productId, isBlocked: false})
         .populate('category')
         .populate('brand');
         if (!product) {

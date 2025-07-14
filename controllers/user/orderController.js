@@ -121,6 +121,23 @@ const getCheckoutPage = async (req, res) => {
       });
   
       await newOrder.save();
+
+      // Decrease stock for each ordered variant
+    for (const item of orderItems) {
+      await Product.findByIdAndUpdate(
+        item.product,
+        {
+          $inc: { 
+            'variants.$[elem].quantity': -item.quantity 
+          }
+        },
+        {
+          arrayFilters: [
+            { 'elem.color': item.color, 'elem.size': item.size }
+          ]
+        }
+      );
+    }
   
       // Clear cart after order placement
       await Cart.findOneAndUpdate({ userId :userId}, { items: [] });
@@ -244,9 +261,17 @@ const getOrderSuccessPage = async (req, res) => {
     item.status = 'cancelled';
     item.cancellationReason = reason || '';
 
-    // Increment stock for the cancelled product
-    await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } });
-
+     // Increment stock for the cancelled product variant
+     await Product.findByIdAndUpdate(
+      item.product,
+      {
+        $inc: { 'variants.$[elem].quantity': item.quantity }
+      },
+      {
+        arrayFilters: [{ 'elem.color': item.color, 'elem.size': item.size }]
+      }
+    );
+    
     await order.save();
 
     res.send({ message: 'Order item cancelled successfully' });

@@ -132,6 +132,7 @@ const listOrders = async (req, res) => {
   
       if (itemStatuses.every(s => s === 'delivered')) {
         order.status = 'delivered';
+        order.paymentStatus = 'completed';
         order.deliveredOn = new Date();
       } else if (itemStatuses.some(s => s === 'pending' || s === 'confirmed')) {
         order.status = 'pending'; // or 'processing' if you have that status

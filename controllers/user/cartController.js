@@ -15,7 +15,7 @@ const addToCart = async (req, res) => {
 
     const { productId, size, color, quantity } = req.body;
     const qty = parseInt(quantity) || 1;
-   ;
+   
 
     if (!productId || !size || !color || !qty) 
         {
@@ -30,9 +30,26 @@ const addToCart = async (req, res) => {
     if (product.isBlocked) {
       return res.json({ status: false, message: 'This product is currently unavailable.' });
     }
-    if (!product.category || !product.category.isListed) {
-      return res.json({ status: false, message: 'This product category is currently unavailable.' });
+    // if (!product.category || !product.category.isListed) {
+    //   return res.json({ status: false, message: 'This product category is currently unavailable.' });
+
+    // }
+    const category = await Category.findById(product.category._id || product.category).lean();
+if (!category || !category.isListed) {
+  return res.json({ status: false, message: 'This product category is currently unavailable.' });
+}
+console.log(category)
+    const subcategory = category.subcategories.find(sc =>
+      sc._id.toString() === product.subcategory.toString() &&
+      sc.isListed === true &&
+      !sc.isDeleted
+    );
+    console.log(subcategory)
+    
+    if (!subcategory) {
+      return res.json({ status: false, message: 'This product subcategory is currently unavailable.' });
     }
+    
     // Find variant matching size and color
     const variant = product.variants.find(v => v.size === size && v.color === color);
     if (!variant) {
@@ -175,13 +192,13 @@ const getCartPage = async (req, res) => {
       },
 
       // Filter out blocked products, unlisted categories, and out-of-stock variants
-      // {
-      //   $match: {
-      //     "productDetails.isBlocked": false,
-      //     "categoryDetails.isListed": true,
-      //     "productDetails.variants.quantity": { $gt: 0 }
-      //   }
-      // },
+      {
+        $match: {
+          "productDetails.isBlocked": false,
+          "categoryDetails.isListed": true,
+          // "productDetails.variants.quantity": { $gt: 0 }
+        }
+      },
 
       // Project the fields needed for the cart page
       {
