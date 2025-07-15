@@ -1,9 +1,41 @@
 <%- include('../partials/user/header') %>
 
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script> -->
 
 <div>
     <br><br><br>
 </div>
+<style>
+  /* Enable submenu on hover */
+.dropdown-submenu {
+    position: relative;
+  }
+  
+  .dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-left: 0.1rem;
+    margin-right: 0.1rem;
+    display: none;
+    position: absolute;
+    z-index: 1000;
+  }
+  
+  .dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+  }
+  
+  /* Fix caret for submenu */
+  .dropdown-submenu > a:after {
+    content: "▶";
+    float: right;
+    margin-left: 5px;
+    font-size: 0.6em;
+  }
+  
+  
+</style>
 
 
 <!-- Product Section -->
@@ -24,9 +56,97 @@
                  
                   </ul>
                 </div>
+             <!-- Category -->
+                <div class="dropdown me-3">
+                    <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                      Select Category
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="categoryDropdown" id="categoryMenu">
+                      <% category.forEach(cat => { %>
+                        <li>
+                          <button class="dropdown-item category-item" type="button" data-category-id="<%= cat._id %>">
+                            <%= cat.name %>
+                          </button>
+                        </li>
+                      <% }) %>
+                    </ul>
+                  </div>
+                  <div class="dropdown">
+                    <button class="btn dropdown-toggle" type="button" id="subcategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                      Select Subcategory
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="subcategoryDropdown" id="subcategoryMenu">
+                      <li><span class="dropdown-item-text">Select a category first</span></li>
+                    </ul>
+                  </div>
+                  <!-- end  -->
+                  
+                  
+                <!-- Category Dropdown with Submenus -->
+<!-- Category Dropdown with Submenus -->
+<!-- <div class="dropdown me-3">
+    <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+      Category
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="categoryDropdown" style="min-width: 200px;">
+      <% category.forEach(cat => { %>
+        <li class="dropdown-submenu">
+          Parent Category item
+          <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <%= cat.name %>
+          </a>
+  
+          Subcategory submenu
+          <% if (cat.subcategories && cat.subcategories.length > 0) { %>
+            <ul class="dropdown-menu">
+              <% cat.subcategories.forEach(subcat => { %>
+                <% if (subcat.isListed && !subcat.isDeleted) { %>
+                  <li>
+                    <a class="dropdown-item" href="/filter?subcategory=<%= subcat._id %>"><%= subcat.name %></a>
+                  </li>
+                <% } %>
+              <% }) %>
+            </ul>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+   -->
+
+              <!-- Category Dropdown with Submenus -->
+<!-- <div class="dropdown me-3">
+    <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+      Category
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="categoryDropdown" style="min-width: 200px;">
+      <% category.forEach(cat => { %>
+        <li class="dropdown-submenu">
+          Parent Category item
+          <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <%= cat.name %>
+          </a>
+  
+          Subcategory submenu
+          <% if (cat.subcategories && cat.subcategories.length > 0) { %>
+            <ul class="dropdown-menu">
+              <% cat.subcategories.forEach(subcat => { %>
+                <% if (subcat.isListed && !subcat.isDeleted) { %>
+                  <li>
+                    <a class="dropdown-item" href="/filter?subcategory=<%= subcat._id %>"><%= subcat.name %></a>
+                  </li>
+                <% } %>
+              <% }) %>
+            </ul>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  </div> -->
+  
               
                 <!-- Category Dropdown -->
-                <div class="dropdown">
+                <!-- <div class="dropdown">
                   <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     Category
                   </button>
@@ -39,23 +159,46 @@
                         </li>
                       <% } %>
                   </ul>
-                </div>
+                </div> -->
+                            <!-- Category Dropdown -->
+                        <!-- <div class="dropdown me-3">
+                            <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Category
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
+                            <% for(let i = 0; i < category.length; i++) { %>
+                                <li>
+                                <a class="dropdown-item" href="/filter?category=<%= category[i]._id %>">
+                                    <%= category[i].name %>
+                                </a>
+                                </li>
+                            <% } %>
+                            </ul>
+                        </div> -->
+                        
+                        <!-- Subcategory Dropdown -->
+                        <!-- <div class="dropdown">
+                            <button class="btn dropdown-toggle" type="button" id="subcategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Subcategory
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="subcategoryDropdown">
+                            <% category.forEach(cat => { 
+                                if(cat.subcategories && cat.subcategories.length > 0) { %>
+                                <li class="dropdown-header"><%= cat.name %></li>
+                                <% cat.subcategories.forEach(subcat => { %>
+                                <li>
+                                    <a class="dropdown-item" href="/filter?subcategory=<%= subcat._id %>">
+                                    <%= subcat.name %>
+                                    </a>
+                                </li>
+                                <% }) %>
+                                <li><hr class="dropdown-divider"></li>
+                            <% } 
+                                }) %>
+                            </ul>
+                        </div>  -->
 
-
-                 <!-- Category Dropdown -->
-        <!-- <select id="categorySelect" class="form-select" style="min-width: 180px;">
-            <option value="">Select Category</option>
-            <% category.forEach(cat => { %>
-              <option value="<%= cat._id %>"><%= cat.name %></option>
-            <% }) %>
-          </select> -->
-  
-          <!-- Subcategory Dropdown -->
-          <!-- <select id="subcategorySelect" class="form-select" disabled style="min-width: 180px;">
-            <option value="">Select Subcategory</option>
-          </select> -->
-
-                <!-- Brand Dropdown -->
+                  <!-- Brand Dropdown -->
                
                 <div class="dropdown">
                   <button class="btn dropdown-toggle" type="button" id="brandDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -95,7 +238,7 @@
         </div>
 
         <!-- Search product panel -->
-        <div class="dis-none panel-search w-full p-t-10 p-b-15">
+        <!-- <div class="dis-none panel-search w-full p-t-10 p-b-15">
             <div class="bor8 dis-flex p-l-15">
                 <button class="icon-close-search cl2 p-r-15" type="button">
                     <i class="zmdi zmdi-close"></i>
@@ -105,7 +248,24 @@
                 </button>
                 <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product" placeholder="Search" />
             </div>
-        </div>
+        </div> -->
+        <form action="/shop" method="GET" class="w-full p-t-10 p-b-15">
+            <div class="bor8 dis-flex p-l-15">
+              <button class="icon-close-search cl2 p-r-15" type="button">
+                <i class="zmdi zmdi-close"></i>
+              </button>
+              <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04" type="submit">
+                <i class="zmdi zmdi-search"></i>
+              </button>
+              <input class="mtext-107 cl2 size-114 plh2 p-r-15" 
+                     type="text" 
+                     name="search" 
+                     placeholder="Search" 
+                     value="<%= typeof search !== 'undefined' ? search : '' %>"
+              />
+            </div>
+          </form>
+          
 
         <!-- Filter panel -->
         <div class="dis-none panel-filter w-full p-t-10">
@@ -113,31 +273,51 @@
                 <!-- Sort By -->
                 <div class="filter-col1 p-r-15 p-b-27">
                     <div class="mtext-102 cl2 p-b-15">Sort By</div>
+                   
                     <ul>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04">Default</a></li>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04">Popularity</a></li>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04">Average rating</a></li>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04 filter-link-active">Newness</a></li>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04">Price: Low to High</a></li>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04">Price: High to Low</a></li>
-                    </ul>
+                        <li><a href="/shop?sort=default" class="filter-link stext-106 trans-04">Default</a></li>
+                        <li><a href="/shop?sort=popularity" class="filter-link stext-106 trans-04">Popularity</a></li>
+                        <li><a href="/shop?sort=rating" class="filter-link stext-106 trans-04">Average rating</a></li>
+                        <li><a href="/shop?sort=newest" class="filter-link stext-106 trans-04 filter-link-active">Newness</a></li>
+                        <li><a href="/shop?sort=price_asc" class="filter-link stext-106 trans-04">Price: Low to High</a></li>
+                        <li><a href="/shop?sort=price_desc" class="filter-link stext-106 trans-04">Price: High to Low</a></li>
+                        <li><a href="/shop?sort=name_asc" class="filter-link stext-106 trans-04">Name: A to Z</a></li>
+                        <li><a href="/shop?sort=name_desc" class="filter-link stext-106 trans-04">Name: Z to A</a></li>
+                      </ul>
+                      
                 </div>
 
-                <!-- Price -->
+               
                 <div class="filter-col2 p-r-15 p-b-27">
                     <div class="mtext-102 cl2 p-b-15">Price</div>
-                    <ul>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04 filter-link-active">All</a></li>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04">$0.00 - $50.00</a></li>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04">$50.00 - $100.00</a></li>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04">$100.00 - $150.00</a></li>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04">$150.00 - $200.00</a></li>
-                        <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04">$200.00+</a></li>
+                    <ul id="priceFilterList">
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04 filter-link-active" data-price="">All</a>
+                      </li>
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="0-500">$0.00 - $500.00</a>
+                      </li>
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="500-1000">$500.00 - $1000.00</a>
+                      </li>
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="1000-1500">$1000.00 - $1500.00</a>
+                      </li>
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="1500-2000">$1500.00 - $2000.00</a>
+                      </li>
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="2000 - 4000">$2000.00 - $4000.00</a>
+                      </li>
+                       <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="4000+"> $4000.00+</a>
+                      </li>
                     </ul>
-                </div>
+                  </div>
+                  
 
                 <!-- Color -->
-                <div class="filter-col3 p-r-15 p-b-27">
+                <!-- <div class="filter-col3 p-r-15 p-b-27">
                     <div class="mtext-102 cl2 p-b-15">Color</div>
                     <ul>
                         <li class="p-b-6">
@@ -177,7 +357,92 @@
                             <a href="#" class="filter-link stext-106 trans-04">White</a>
                         </li>
                     </ul>
-                </div>
+                </div> -->
+
+                <!-- Color Filter -->
+<div class="filter-col3 p-r-15 p-b-27">
+    <div class="mtext-102 cl2 p-b-15">Color</div>
+    <ul id="colorFilterList">
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #222;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04 filter-link-active" data-color="">All</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #000;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Black">Black</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #4272d7;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Blue">Blue</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #f73109;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Red">Red</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #f211f6;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Pink">Pink</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #d58514;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Orange">Orange</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #0a9531;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Green">Green</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #ebeb0b;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Yellow">Yellow</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #e5e7ea;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="White">White</a>
+      </li>
+      <!-- Add more colors similarly -->
+    </ul>
+  </div>
+  
+  <!-- Size Filter -->
+  <div class="filter-col4 p-r-15 p-b-27">
+    <div class="mtext-102 cl2 p-b-15">Size</div>
+    <ul id="sizeFilterList">
+      <li class="p-b-6">
+        <a href="#" class="filter-link stext-106 trans-04 filter-link-active" data-size="">All</a>
+      </li>
+      <li class="p-b-6">
+        <a href="#" class="filter-link stext-106 trans-04" data-size="S">Small (S)</a>
+      </li>
+      <li class="p-b-6">
+        <a href="#" class="filter-link stext-106 trans-04" data-size="M">Medium (M)</a>
+      </li>
+      <li class="p-b-6">
+        <a href="#" class="filter-link stext-106 trans-04" data-size="L">Large (L)</a>
+      </li>
+      <li class="p-b-6">
+        <a href="#" class="filter-link stext-106 trans-04" data-size="XL">Extra Large (XL)</a>
+      </li>
+    </ul>
+  </div>
+  
 
                 <!-- Tags -->
                 <div class="filter-col4 p-b-27">
@@ -398,6 +663,116 @@
     });
 </script>
 
+<!-- Price filter -->
+
+<script>
+    document.querySelectorAll('#priceFilterList a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Remove active class from all links and add to clicked one
+        document.querySelectorAll('#priceFilterList a').forEach(el => el.classList.remove('filter-link-active'));
+        this.classList.add('filter-link-active');
+  
+        const price = this.dataset.price; // get data-price value
+  
+        // Get current URL parameters
+        const params = new URLSearchParams(window.location.search);
+  
+        // Set or delete price param
+        if (price) {
+          params.set('price', price);
+        } else {
+          params.delete('price');
+        }
+  
+        // Redirect to /filter with updated query params
+        window.location.href = '/filter?' + params.toString();
+      });
+    });
+  </script>
+  <script>
+    const categoriesData = <%- JSON.stringify(category) %>;
+  
+    const categoryItems = document.querySelectorAll('.category-item');
+    const subcategoryMenu = document.getElementById('subcategoryMenu');
+    const subcategoryDropdownButton = document.getElementById('subcategoryDropdown');
+    const categoryDropdownButton = document.getElementById('categoryDropdown');
+  
+    categoryItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const selectedCategoryId = item.getAttribute('data-category-id');
+        const selectedCategory = categoriesData.find(cat => cat._id === selectedCategoryId);
+  
+        if (!selectedCategory) return;
+  
+        // Update category button text
+        categoryDropdownButton.textContent = selectedCategory.name;
+  
+        // Enable and reset subcategory button
+        subcategoryDropdownButton.disabled = false;
+        subcategoryDropdownButton.textContent = 'Select Subcategory';
+  
+        // Clear old subcategories
+        subcategoryMenu.innerHTML = '';
+  
+        if (selectedCategory.subcategories && selectedCategory.subcategories.length > 0) {
+          const filteredSubcats = selectedCategory.subcategories.filter(subcat => subcat.isListed && !subcat.isDeleted);
+  
+          if (filteredSubcats.length > 0) {
+            filteredSubcats.forEach(subcat => {
+              const li = document.createElement('li');
+              li.innerHTML = `<a class="dropdown-item" href="/filter?subcategory=${subcat._id}">${subcat.name}</a>`;
+              subcategoryMenu.appendChild(li);
+            });
+          } else {
+            subcategoryMenu.innerHTML = '<li><span class="dropdown-item-text">No subcategories available</span></li>';
+          }
+        } else {
+          subcategoryMenu.innerHTML = '<li><span class="dropdown-item-text">No subcategories available</span></li>';
+        }
+      });
+    });
+  </script>
+  <!-- Color and Size filter -->
+  <script>
+    function handleFilterClick(filterListId, queryParamName) {
+      document.querySelectorAll(`#${filterListId} a`).forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+  
+          // Remove active class from all
+          document.querySelectorAll(`#${filterListId} a`).forEach(el => el.classList.remove('filter-link-active'));
+  
+          // Add active class to clicked
+          this.classList.add('filter-link-active');
+  
+          // Get selected value (color or size)
+          const value = this.getAttribute(`data-${queryParamName}`);
+  
+          // Get current URL params
+          const params = new URLSearchParams(window.location.search);
+  
+          // Set or delete query param based on selection
+          if (value) {
+            params.set(queryParamName, value);
+          } else {
+            params.delete(queryParamName);
+          }
+          params.set('page', '1'); // Reset page on filter change
+  
+          // Redirect with updated params
+          window.location.href = '/filter?' + params.toString();
+        });
+      });
+    }
+  
+    // Initialize handlers for color and size filters
+    handleFilterClick('colorFilterList', 'color');
+    handleFilterClick('sizeFilterList', 'size');
+  </script>
+  
+  
 
 
 <%- include('../partials/user/footer') %>

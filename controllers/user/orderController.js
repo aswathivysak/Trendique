@@ -200,7 +200,7 @@ const getOrderSuccessPage = async (req, res) => {
       const perPage = 5; 
       const currentPage = parseInt(req.query.page) || 1;
   
-      const order = await Order.findById(orderId).populate({path:'orderedItems.product', select: 'productImages productName' });
+      const order = await Order.findById(orderId).populate({path:'orderedItems.product', select: 'productImages productName' }).populate('userId', 'name phone').populate('userId', 'name phone');;
       console.log("order details.........................",order)
   
       if (!order) {
