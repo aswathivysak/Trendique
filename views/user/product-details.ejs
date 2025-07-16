@@ -141,9 +141,16 @@
 
           <div class="flex-w flex-m p-l-100 p-t-40 respon7">
             <div class="flex-m bor9 p-r-10 m-r-11">
-              <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
+              <!-- <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
                 <i class="zmdi zmdi-favorite"></i>
-              </a>
+              </a> -->
+              <a href="#"
+              onclick="addToWishlist('<%= product._id %>', event)"
+              class="btn-addwish-b2 <%= wishlistIds.includes(product._id.toString()) ? 'wishlisted' : '' %>"
+              data-product-id="<%= product._id %>">
+              <img class="icon-heart1" src="images/icons/icon-heart-01.png" alt="Empty Heart" />
+              <img class="icon-heart2" src="images/icons/icon-heart-02.png" alt="Filled Heart" />
+            </a>
             </div>
 
             <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 m-r-8 tooltip100" data-tooltip="Facebook">
@@ -405,10 +412,18 @@
                   </div>
 
                   <div class="block2-txt-child2 flex-r p-t-3">
-                    <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
+                    <!-- <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
                       <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON">
                       <img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON">
-                    </a>
+                    </a> -->
+                    <a href="#"
+                    onclick="addToWishlist('<%= related._id %>', event)"
+                    class="btn-addwish-b2 <%= wishlistIds.includes(related._id.toString()) ? 'wishlisted' : '' %>"
+                    data-product-id="<%= related._id %>">
+                    <img class="icon-heart1" src="images/icons/icon-heart-01.png" alt="Empty Heart" />
+                    <img class="icon-heart2" src="images/icons/icon-heart-02.png" alt="Filled Heart" />
+                  </a>
+                
                   </div>
                 </div>
               </div>
@@ -507,6 +522,34 @@
       Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
     }
   }
+
+  //Add to cart from wishlist
+  function addToWishlist(productId, event) {
+    event.preventDefault();
+
+    $.ajax({
+      url: '/addToWishlist',
+      method: 'POST',
+      data: { productId },
+      success: (response) => {
+        if (response.status) {
+          Swal.fire('Added to wishlist', '', 'success');
+
+          // Select the link by data attribute instead of onclick string for reliability
+          const link = document.querySelector(`a[data-product-id="${productId}"]`);
+          if (link) {
+            link.classList.add('wishlisted');
+          }
+        } else {
+          Swal.fire('Already in wishlist', response.message, 'info');
+        }
+      },
+      error: () => {
+        Swal.fire('Error', 'Failed to add to wishlist', 'error');
+      }
+    });
+  }
+
   
 </script>
 <script>
@@ -538,55 +581,7 @@
 </script>
 <script src="vendor/isotope/isotope.pkgd.min.js"></script>
 <script src="vendor/sweetalert/sweetalert.min.js"></script>
-<!-- <script>
-  $('.js-addwish-b2, .js-addwish-detail').on('click', function(e){
-    e.preventDefault();
-  });
 
-  $('.js-addwish-b2').each(function(){
-    var nameProduct = $(this).parent().parent().find('.js-name-b2').html();
-    $(this).on('click', function(){
-      swal(nameProduct, "is added to wishlist !", "success");
-
-      $(this).addClass('js-addedwish-b2');
-      $(this).off('click');
-    });
-  });
-
-  $('.js-addwish-detail').each(function(){
-    var nameProduct = $(this).parent().parent().parent().find('.js-name-detail').html();
-
-    $(this).on('click', function(){
-      swal(nameProduct, "is added to wishlist !", "success");
-
-      $(this).addClass('js-addedwish-detail');
-      $(this).off('click');
-    });
-  });
-
-  $('.js-addcart-detail').each(function(){
-    var nameProduct = $(this).parent().parent().parent().parent().find('.js-name-detail').html();
-    $(this).on('click', function(){
-      swal(nameProduct, "is added to cart !", "success");
-    });
-  });
-</script>
-<script src="vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-<script>
-  $('.js-pscroll').each(function(){
-    $(this).css('position','relative');
-    $(this).css('overflow','hidden');
-    var ps = new PerfectScrollbar(this, {
-      wheelSpeed: 1,
-      scrollingThreshold: 1000,
-      wheelPropagation: false,
-    });
-
-    $(window).on('resize', function(){
-      ps.update();
-    })
-  });
-</script>
-<script src="js/main.js"></script> -->
+<script src="js/main.js"></script> 
 
 <%- include('../partials/user/footer') %>

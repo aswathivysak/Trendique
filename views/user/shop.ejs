@@ -33,6 +33,35 @@
     margin-left: 5px;
     font-size: 0.6em;
   }
+ 
+  
+  /* Wish list */
+ /* .btn-addwish-b2 .icon-heart2 { display: none; }
+  .btn-addwish-b2.wishlisted .icon-heart1 { display: none; }
+  .btn-addwish-b2.wishlisted .icon-heart2 { display: inline; }*/
+  .btn-addwish-b2 .icon-heart2 { 
+    display: none; 
+  }
+  
+  .btn-addwish-b2.wishlisted .icon-heart1 { 
+    display: inline; /* empty heart visible by default */
+  }
+  
+  .btn-addwish-b2.wishlisted:hover .icon-heart1 { 
+    display: none; /* hide empty heart on hover */
+  }
+  
+  .btn-addwish-b2.wishlisted:hover .icon-heart2 { 
+    display: inline; /* show filled heart on hover */
+  }
+  
+  .btn-addwish-b2:not(.wishlisted) .icon-heart1 { 
+    display: inline; /* empty heart visible for not wishlisted */
+  }
+  
+  .btn-addwish-b2:not(.wishlisted) .icon-heart2 { 
+    display: none; /* no filled heart for not wishlisted */
+  }
   
   
 </style>
@@ -249,6 +278,7 @@
                 <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product" placeholder="Search" />
             </div>
         </div> -->
+        <div class="panel-search dis-none w-full p-t-10 p-b-15">
         <form action="/shop" method="GET" class="w-full p-t-10 p-b-15">
             <div class="bor8 dis-flex p-l-15">
               <button class="icon-close-search cl2 p-r-15" type="button">
@@ -265,6 +295,7 @@
               />
             </div>
           </form>
+        </div>
           
 
         <!-- Filter panel -->
@@ -473,10 +504,22 @@
                             <span class="stext-105 cl3">$<%= product.finalPrice%></span><strike>$ <%= product.price%></strike>
                         </div>
                         <div class="block2-txt-child2 flex-r p-t-3">
-                            <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
+                            <!-- <a href="#"  onclick="addToWishlist('<%=product._id%>')" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
                                 <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON" />
                                 <img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON" />
-                            </a>
+                            </a> -->
+                            <!-- <a href="#" onclick="addToWishlist('<%= product._id %>', event)" class="btn-addwish-b2 <%= wishlistIds.includes(product._id.toString()) ? 'wishlisted' : '' %>">
+                              <img class="icon-heart1" src="images/icons/icon-heart-01.png" alt="Empty Heart" />
+                              <img class="icon-heart2" src="images/icons/icon-heart-02.png" alt="Filled Heart" />
+                            </a> -->
+                            <a href="#"
+                                onclick="addToWishlist('<%= product._id %>', event)"
+                                class="btn-addwish-b2 <%= wishlistIds.includes(product._id.toString()) ? 'wishlisted' : '' %>"
+                                data-product-id="<%= product._id %>">
+                                <img class="icon-heart1" src="images/icons/icon-heart-01.png" alt="Empty Heart" />
+                                <img class="icon-heart2" src="images/icons/icon-heart-02.png" alt="Filled Heart" />
+                              </a>
+                            
                         </div>
                     </div>
                 </div>
@@ -545,10 +588,16 @@
 <script src="vendor/parallax100/parallax100.js"></script>
 <script src="vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
 <script src="vendor/isotope/isotope.pkgd.min.js"></script>
-<script src="vendor/sweetalert/sweetalert.min.js"></script>
+<!-- <script src="vendor/sweetalert/sweetalert.min.js"></script> -->
 <script src="vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+  $(".js-addwish-b2, .js-addwish-detail").on("click", function (e) {
+    e.preventDefault();
+});
+
     // Select2 initialization
     $(".js-select2").each(function () {
         $(this).select2({
@@ -587,29 +636,7 @@
         });
     });
 
-    // SweetAlert handlers for wishlist and cart buttons
-    $(".js-addwish-b2, .js-addwish-detail").on("click", function (e) {
-        e.preventDefault();
-    });
-
-    $(".js-addwish-b2").each(function () {
-        var nameProduct = $(this).parent().parent().find(".js-name-b2").html();
-        $(this).on("click", function () {
-            swal(nameProduct, "is added to wishlist !", "success");
-            $(this).addClass("js-addedwish-b2");
-            $(this).off("click");
-        });
-    });
-
-    $(".js-addwish-detail").each(function () {
-        var nameProduct = $(this).parent().parent().parent().find(".js-name-detail").html();
-        $(this).on("click", function () {
-            swal(nameProduct, "is added to wishlist !", "success");
-            $(this).addClass("js-addedwish-detail");
-            $(this).off("click");
-        });
-    });
-
+    
     $(".js-addcart-detail").each(function () {
         var nameProduct = $(this)
             .parent()
@@ -770,6 +797,79 @@
     // Initialize handlers for color and size filters
     handleFilterClick('colorFilterList', 'color');
     handleFilterClick('sizeFilterList', 'size');
+
+
+    //Add to Wishlist
+
+   /* function addToWishlist(productId) {
+      $.ajax({
+        url: '/addToWishlist',
+        method: 'POST',
+        data: { productId: productId },
+        success: (response) => {
+          if (response.status) {
+            Swal.fire({
+              title: 'Added to wishlist',
+              text: 'The product has been added to your wishlist',
+              icon: 'success',
+              timer: 2000
+            });
+  
+            // Toggle icon to filled red heart
+           /* const icon = document.querySelector(`.wishlist-btn[onclick="addToWishlist('${productId}')"] i`);
+            if (icon) {
+              icon.classList.remove('far');
+              icon.classList.add('fas');
+              icon.style.color = 'red';
+            }
+  
+          } else {
+            Swal.fire({
+              title: 'Already in wishlist',
+              text: response.message,
+              icon: 'info',
+              timer: 2000
+            });
+          }
+        },
+        error: (error) => {
+          Swal.fire({
+            title: 'Error',
+            text: 'There was an error adding the product to your wishlist',
+            icon: 'error',
+            timer: 2000
+          });
+        }
+      });
+    }*/
+
+
+      function addToWishlist(productId, event) {
+        event.preventDefault();
+    
+        $.ajax({
+          url: '/addToWishlist',
+          method: 'POST',
+          data: { productId },
+          success: (response) => {
+            if (response.status) {
+              Swal.fire('Added to wishlist', '', 'success');
+    
+              // Select the link by data attribute instead of onclick string for reliability
+              const link = document.querySelector(`a[data-product-id="${productId}"]`);
+              if (link) {
+                link.classList.add('wishlisted');
+              }
+            } else {
+              Swal.fire('Already in wishlist', response.message, 'info');
+            }
+          },
+          error: () => {
+            Swal.fire('Error', 'Failed to add to wishlist', 'error');
+          }
+        });
+      }
+    
   </script>
   
   

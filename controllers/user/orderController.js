@@ -10,6 +10,12 @@ const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
 const puppeteer = require('puppeteer');
+const env = require("dotenv").config();
+const razorpay = require("razorpay");
+const razorpayInstance = new razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 
 

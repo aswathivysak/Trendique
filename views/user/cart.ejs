@@ -212,7 +212,7 @@
     const totalElement = document.getElementById('total');
     const shippingChargeElement = document.getElementById('shippingCharge');
     const totalPayableElement = document.getElementById('totalPayable');
-    Swal.fire('Hello!') 
+   
   
     let currentQuantity = parseInt(quantityInput.value);
     let newQuantity = currentQuantity + count;
@@ -221,10 +221,7 @@
       Swal.fire('Oops!', 'Quantity cannot be less than 1', 'warning');
       return;
     }
-    if (newQuantity > 3) {
-      Swal.fire('Oops!', 'You can add a maximum of 3 units per product.', 'warning');
-      return;
-    }
+    
     if (newQuantity > maxStock) {
       Swal.fire('Oops!', 'Not enough stock available.', 'warning');
       return;
@@ -243,6 +240,10 @@
         if (response.status) {
           // Update UI only on success
           quantityInput.value = newQuantity;
+          if (newQuantity > 3) {
+            Swal.fire('Oops!', 'You can add a maximum of 3 units per product.', 'warning');
+            return;
+          }
   
           if (subtotalElement) {
             subtotalElement.innerText = (newQuantity * productPrice).toFixed(2);

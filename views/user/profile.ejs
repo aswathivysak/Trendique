@@ -291,6 +291,8 @@ tbody tr:hover {
     <a href="#" class="nav-link active" data-target="profile">Profile</a>
     <a href="#" class="nav-link" data-target="orders">My Orders</a>
     <a href="#" class="nav-link" data-target="wallet">Wallet</a>
+    <a href="#" class="nav-link" data-target="Wallet-History">Wallet History</a>
+    <a href="#" class="nav-link" data-target="Referral">Referral</a>
     <a href="#" class="nav-link" data-target="address">Address</a>
     <a href="/logout" class="nav-link">Logout</a>
   </nav>
@@ -444,8 +446,41 @@ tbody tr:hover {
     <div id="wallet" class="section-content">
       <h2>Wallet</h2>
       <div class="underline"></div>
-      <p>Your wallet details will appear here.</p>
+      
+      <div class="card-body contact-from-area">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center mt-4">
+            <!-- Wallet Balance -->
+            <h4 class="mb-4">Wallet Balance: ₹<%= user.wallet.toFixed(2) %></h4>
+
+            <!-- Add Money Form -->
+            <form id="addWalletForm">
+              <div class="form-group">
+                <label for="walletAmount" class="h5">Enter Amount to Add</label>
+                <input type="number" min="1" id="walletAmount" class="form-control" placeholder="Enter amount in ₹" required />
+              </div>
+              <button type="button" class="btn btn-success mt-3" onclick="addMoneyToWallet()">Add Money</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      
     </div>
+     <!-- Wallet Section -->
+     <div id="Wallet-History" class="section-content">
+      <h2>Wallet History</h2>
+      <div class="underline"></div>
+      <p>Your wallet details will appear here.</p>
+      
+    </div>
+    <!-- Wallet Section -->
+    <div id="Referral" class="section-content">
+      <h2>Referral</h2>
+      <div class="underline"></div>
+      <p>Your wallet details will appear here.</p>
+     
+    </div>
+
 
     <!-- Address Section -->
     <div id="address" class="section-content">

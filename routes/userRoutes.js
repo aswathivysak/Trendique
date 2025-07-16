@@ -6,6 +6,7 @@ const profileController = require("../controllers/user/profileController")
 const cartController = require("../controllers/user/cartController")
 const productController = require("../controllers/user/productController")
 const orderController = require("../controllers/user/orderController")
+const wishlistController = require("../controllers/user/wishlistController")
 const {userAuth} = require("../middlewares/auth")
 
 const multer = require("multer");
@@ -95,7 +96,11 @@ router.post('/orders/return-request', userAuth, orderController.returnRequest);
 // router.get('/orders/download-invoice/:orderId', userAuth, orderController.getInvoice)
 router.get('/orders/download-invoice', userAuth,orderController.generateInvoice);
 
-
+//Wishlist management
+router.get("/wishlist", userAuth,wishlistController.loadWishlist);
+router.post("/addToWishlist", userAuth, wishlistController.addToWishlist);
+router.get("/removeFromWishlist", userAuth, wishlistController.removeProduct);
+router.post("/wishlist/addToCart", userAuth, wishlistController.addToCartWish)
 
 
 module.exports=router

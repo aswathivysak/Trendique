@@ -10,6 +10,11 @@ const productDetails = async (req,res) => {
     try {
 
         const userId = req.session.user;
+        let wishlistIds = [];
+        if(userId) {
+            const userDoc = await User.findById(userId).select('wishlist').lean();
+            wishlistIds = userDoc?.wishlist?.map(id => id.toString()) || [];
+        }
         const userData =  userId ? await User.findById(userId) : null;
         const productId = req.query.id;
         const product = await Product.findById({ _id: productId, isBlocked: false})
@@ -41,7 +46,8 @@ const productDetails = async (req,res) => {
             product:product,
             products: products,
             totalQuantity:totalQuantity,
-            category:findCategory
+            category:findCategory,
+            wishlistIds
         })
 
 

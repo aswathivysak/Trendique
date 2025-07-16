@@ -225,7 +225,7 @@
 									  </span>
 									</div>
 									<div class="block2-txt-child2 flex-r p-t-3">
-									  <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
+									  <a href="#"  onclick="addToWishlist('<%=product._id%>')" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
 										<img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON">
 										<img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON">
 									  </a>
@@ -324,6 +324,51 @@
 			</div>
 		</div>
 	</section>
+	<script>
+		  //Add to Wishlist
+
+		  function addToWishlist(productId) {
+			$.ajax({
+			  url: '/addToWishlist',
+			  method: 'POST',
+			  data: { productId: productId },
+			  success: (response) => {
+				if (response.status) {
+				  Swal.fire({
+					title: 'Added to wishlist',
+					text: 'The product has been added to your wishlist',
+					icon: 'success',
+					timer: 2000
+				  });
+		
+				  // Toggle icon to filled red heart
+				  const icon = document.querySelector(`.wishlist-btn[onclick="addToWishlist('${productId}')"] i`);
+				  if (icon) {
+					icon.classList.remove('far');
+					icon.classList.add('fas');
+					icon.style.color = 'red';
+				  }
+		
+				} else {
+				  Swal.fire({
+					title: 'Already in wishlist',
+					text: response.message,
+					icon: 'info',
+					timer: 2000
+				  });
+				}
+			  },
+			  error: (error) => {
+				Swal.fire({
+				  title: 'Error',
+				  text: 'There was an error adding the product to your wishlist',
+				  icon: 'error',
+				  timer: 2000
+				});
+			  }
+			});
+		  }
+	</script>
 	<%- include('../partials/user/footer') %>
 
 

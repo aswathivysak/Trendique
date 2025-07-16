@@ -20,11 +20,16 @@ const pageNotFound = async (req, res) => {
     try{
         const userId=req.session.user;
         console.log('Session user:', req.session.user);
+        let wishlistCount = 0;
+     
 
         let userData=null;
         if(userId)
         {
             userData=await User.findById(userId);
+            if (userData) {
+                wishlistCount = userData.wishlist ? userData.wishlist.length : 0;
+              }
             if(userData && userData.isBlocked)
             {
               req.session.destroy((err)=>
@@ -55,7 +60,7 @@ const pageNotFound = async (req, res) => {
             .limit(12)
             .lean();
 
-        res.render('home', { user: userData, products ,newArrivals});
+        res.render('home', { user: userData, products ,newArrivals });
       
 
     }catch (err){
@@ -305,6 +310,11 @@ const loadShoppingPage = async (req, res) => {
           }
 
         const user = req.session.user;
+        let wishlistIds = [];
+        if(user) {
+            const userDoc = await User.findById(user).select('wishlist').lean();
+            wishlistIds = userDoc?.wishlist?.map(id => id.toString()) || [];
+        }
         const userData = user ? await User.findOne({ _id: user }) : null;
         const categories = await Category.find({ isListed: true });
         const categoryIds = categories.map(category => category._id.toString());
@@ -354,6 +364,7 @@ const loadShoppingPage = async (req, res) => {
           currentPage:page,
           totalPages:totalPages,
           search,
+          wishlistIds
         });
       } catch (error) {
         console.error('Error loading shop page:', error);
