@@ -49,7 +49,7 @@ const orderSchema = new Schema({
           },
         status: {
             type: String,
-            enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returning', 'returned'],
+            enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returning', 'returned','failed'],
             default: 'pending'
         }, 
         cancellationReason: {
@@ -87,8 +87,8 @@ const orderSchema = new Schema({
       
     paymentMethod: {
         type: String,
-        enum: ['cod', 'online', 'wallet'],
-        required: true
+        enum: ["cod", "wallet", "razorpay"],
+        default: "cod",
     },
     paymentStatus: {
         type: String,
@@ -102,7 +102,7 @@ const orderSchema = new Schema({
     status: {
         type: String,
         required: true,
-        enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returning', 'returned'],
+        enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returning', 'returned','failed'],
         default: 'pending'
     }, 
     invoiceDate: {
