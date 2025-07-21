@@ -236,6 +236,7 @@ const getCartPage = async (req, res) => {
     const totalPayable = grandTotal + shippingCharge;
     console.log(totalPayable,shippingCharge)
 
+    req.session.cartTotal = grandTotal
     res.render('cart', {
       user: req.session.user,
       cartItems: cartData,
@@ -319,6 +320,7 @@ const changeQuantity = async (req, res) => {
     }
 
     const totalPayable = grandTotal + shippingCharge;
+    req.session.cartTotal = grandTotal
 
     res.json({
       status: true,

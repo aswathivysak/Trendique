@@ -8,6 +8,7 @@ const subcategoryController = require('../controllers/admin/subcategoryControlle
 const upload = require('../middlewares/multerConfig');
 const productController = require('../controllers/admin/productController');
 const orderController = require("../controllers/admin/orderController")
+const couponController = require("../controllers/admin/couponController")
 const { adminAuth } = require('../middlewares/auth');
 
 router.get('/pageerror', adminController.pageError);
@@ -71,6 +72,8 @@ router.post("/editProduct/:id/edit", adminAuth, upload.fields([
     { name: 'image3', maxCount: 1 },
     { name: 'image4', maxCount: 1 }
 ]), productController.editProduct);
+router.post('/addProductOffer', adminAuth,productController.addProductOffer);
+router.post('/removeProductOffer', adminAuth, productController.removeProductOffer);
 //product varient
 router.get('/product/:id/variants', productController.showProductVariants);
 router.post('/product/:productId/variants/add', productController.addProductVariants);
@@ -85,7 +88,19 @@ router.post('/orders/:orderId/items/:itemIndex/status',adminAuth, orderControlle
 router.post('/approveReturn/:orderId/:productIndex', adminAuth, orderController.approveReturn);
 router.post('/rejectReturn/:orderId/:productIndex', adminAuth, orderController.rejectReturn);
 
+//Couponmanagement
+router.get('/coupon', adminAuth, couponController.loadCouponPage)
+router.get('/coupons/add', adminAuth, couponController.loadAddCouponPage)
+router.post('/coupons/add', adminAuth, couponController.addCoupon)
+router.get('/coupons/edit/:id', adminAuth, couponController.getEditPage)
+router.post('/coupons/edit/:id', adminAuth, couponController.editCoupon)
+router.delete('/coupons/delete/:id', adminAuth, couponController.deleteCoupon)
 
 
+// Sales Management
+router.get('/sales', adminAuth,  adminController.loadSalesPage);
+router.get('/report/generate', adminAuth, adminController.loadSalesPage)
+//refer and earn
+// router.get('/referrals', adminAuth, adminController.loadReferralPage)
 
 module.exports = router;

@@ -36,13 +36,13 @@ const sendOrderCancellation = async (toEmail, product, orderId, refundAmount) =>
     <h2>Hi,</h2>
     <p>Your request to cancel the product <strong>${product.name}</strong> has been processed.</p>
     <p><strong>Order ID:</strong> ${orderId}</p>
-    <p><strong>Cancelled Item:</strong> ${product.name} (Size: ${product.size})</p>
+    <p><strong>Cancelled Item:</strong> ${product.name}</p>
     <p><strong>Refunded Amount:</strong> ₹${refundAmount}</p>
     <p>The amount has been added to your wallet if applicable. Thank you!</p>
   `;
 
   await transporter.sendMail({
-    from: `"Fluxo Store" <${process.env.NODEMAILER_EMAIL}>`,
+    from: `"TrendiQue Store" <${process.env.NODEMAILER_EMAIL}>`,
     to: toEmail,
     subject: "Order Item Cancelled & Refunded",
     html,

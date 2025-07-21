@@ -1,13 +1,15 @@
 const User = require('../../models/userSchema');
-
+const Order = require('../../models/orderSchema');
+const {generatePDF, generateExcel } = require('../../utils/makeReport')
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const moment = require('moment')
 
 
 
 
 const pageError = async (req, res) => {
-    res.render('admin-error')
+    res.render('pageerror')
 }
 
 const loadLogin =async (req, res) => {
@@ -61,10 +63,118 @@ const logout = async (req, res) => {
     }
 };
 
+  //sales report
+const loadSalesPage = async (req, res) => {
+  try {
+
+      const page = req.query.page || 1
+      const search = req.query.search || ''
+      const limit = 10
+      const skip = ( page - 1 ) * limit
+      const {rangeType, startDate, endDate, format } = req.query 
+      const matchedQuery = {status: {$in: ['delivered']}}
+
+      if(rangeType === 'custom' && startDate && endDate){
+          matchedQuery.createdOn = {
+              $gte: new Date(startDate),
+              $lte: new Date(new Date(endDate).setHours(23,59,59,999))
+          }
+      }else if( rangeType === 'day'){
+          const today = moment().startOf('day')
+          matchedQuery.createdOn = {
+             $lte: moment(today).endOf('day').toDate(), $gte: today.toDate()
+              
+          }
+      }else if(rangeType === 'week'){
+          matchedQuery.createdOn = {
+              $gte: moment().startOf('week').toDate(),
+              $lte: moment().endOf('week').toDate()
+          }
+      }else if(rangeType === 'month'){
+          matchedQuery.createdOn = {
+              $gte: moment().startOf('month').toDate(),
+              $lte: moment().endOf('month').toDate()
+          }
+      }
+
+      let orderQuery = Order.find(matchedQuery)
+            .populate('userId')
+            .populate('orderedItems.product')
+            .sort({createdOn: -1})
+      if(!format){
+          orderQuery = orderQuery.skip(skip).limit(limit)
+      }
+      const orders = await orderQuery
+      let totalSale = orders.length
+      let totalAmount = 0
+      let totalDiscount = 0
+      let totalOffer = 0
+
+      const salesData = orders.map(order => {
+           let orderTotal = order.finalAmount || 0
+           let discount = order.discount || 0
+           let offer = 0
+
+           order.orderedItems.forEach(item =>{
+              const product = item.product
+              const quantity = item.quantity
+              if(product?.price && product?.finalPrice){
+                  const offerAmount = (product.price - product.finalPrice) * quantity
+                  offer += offerAmount
+              }
+           })
+
+           totalAmount += orderTotal
+           totalDiscount += discount
+           totalOffer += offer
+
+           return {
+              orderId: order.orderId,
+              user: order.userId.name,
+              date: moment(order.createdOn).format('YYYY-MM-DD'),
+              totalAmount: orderTotal,
+              discount: discount,
+              payment: order.paymentMethod,
+              offer: offer
+           }
+      })
+
+      // download logic
+      if(format === 'pdf'){
+          return generatePDF(res, salesData, totalSale, totalAmount, totalDiscount, totalOffer)
+      }else if(format === 'excel'){
+          return generateExcel(res, salesData, totalSale, totalAmount, totalDiscount, totalOffer)
+      }
+
+      //pagination
+      const count = await Order.find(matchedQuery).countDocuments()
+      const totalPages = Math.ceil( count / limit )
+
+      res.render('salesReport',{
+          salesData,
+          totalSale,
+          totalAmount,
+          totalDiscount,
+          totalOffer,
+          currentPage: page,
+          totalPages,
+          search,
+          rangeType,
+          startDate,
+          endDate
+      })
+  } catch (error) {
+      console.error('Error while loading sales report page', error)
+      res.redirect('/admin/pageerror')
+  }
+}
+  
+
 module.exports={
     loadLogin,
     login,
     pageError,
     loadDashboard,
     logout,
+    loadSalesPage,
 }

@@ -1,6 +1,6 @@
 const Category = require("../../models/categorySchema")
 const Product = require("../../models/productSchema")
-//const { calculateEffectivePrice } = require("./productController");
+const { calculateEffectivePrice } = require("./productController");
 const loadSubcategoryPage=async(req,res)=>{
     try {
         const categoryId = req.params.categoryId;

@@ -4,8 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Checkout with Bootstrap</title>
-  <!-- Bootstrap CSS CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+     <!-- Bootstrap CSS CDN -->
+
+
+ 
+
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     .address-card {
       cursor: pointer;
@@ -127,6 +131,9 @@
       padding: 0.5rem 0.75rem;
       font-size: 1rem;
     }
+    .coupon{
+      width: 500px;
+    }
     .coupon-section button {
       border-radius: 0.375rem;
       background: #0d6efd;
@@ -163,6 +170,36 @@
     .btn-place-order:hover {
       background: #0b5ed7;
     }
+
+    /* Coupon */
+    .coupon-card {
+      border: 2px solid #eaeaea;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+  }
+
+  .coupon-name {
+      font-size: 12px;
+      font-weight: bold;
+  }
+
+  .use-button {
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+  }
+
+  .use-button:hover {
+      background-color: #45a049;
+  }
   </style>
 </head>
 <body>
@@ -276,20 +313,85 @@
       <!-- You can add discount or coupon here if needed -->
       <div class="order-summary-line d-flex justify-content-between mt-2">
         <span>Shipping</span>
-        <span><%= shippingCharge %></span>
+        <span id="shippingCharge"><%= shippingCharge %></span>
       </div>
             <!-- Discount line placeholder (hidden initially) -->
       <div class="order-summary-line d-flex justify-content-between mt-2 text-success" id="discountLine" style="display:none;">
-        <span>Discount</span>
-        <span id="discountAmount">₹ 0.00</span>
+        <span >Discount</span>
+        <span id="discountAmount">- ₹<%= appliedCoupon ? appliedCoupon.discount : 0 %></span>
       </div>
       <div class="order-summary-line total d-flex justify-content-between fw-bold mt-2 border-top pt-2">
         <span>Total</span>
         <span id="totalAmount">₹ <%= parseFloat(totalPayable).toFixed(2) %></span>
       </div>
+      <input type="hidden" name="finalAmount" id="totalPayable" value="<%= totalPayable %>">
+      <!-- Coupon -->
+      
+      <div class="col-md-5 mt-5 coupon" >
+        <div class="card shadow-sm p-4 mb-4">
+          <h5 class="mb-3">Apply Coupon</h5>
+          <div class="input-group">
+            <input 
+              type="text" 
+              id="couponCode" 
+              class="form-control" 
+              placeholder="Enter coupon code"
+              <%= appliedCoupon ? 'value="'+ appliedCoupon.code +'" disabled' : '' %>
+            >
+            <button 
+              type="button" 
+              class="btn btn-success" 
+              id="applyBtn" 
+              onclick="toggleCoupon()"
+            >
+              <%= appliedCoupon ? 'Remove Coupon' : 'Apply' %>
+            </button>
+          </div>
+          <small id="couponMessage" class="mt-2 d-block">
+            <% if(appliedCoupon){ %> Coupon "<%= appliedCoupon.code %>" applied! <% } %>
+          </small>
+          <button type="button" class="btn  btn-info mb-3 mt-3" id="showCouponsBtn">
+            Available Coupons
+          </button>
+        </div>
+      
+       
+      </div>
+      
+      
+      
+      <!-- <div class="available-coupons mt-4">
+        <h5 class="mb-3">Available Coupons</h5>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="card-title mb-1">
+                    <span class="badge bg-success me-2">COUPON_NAME</span>
+                    <span class="badge bg-warning text-dark">Gifted</span>
+                  </h6>
+                  <p class="card-text mb-0 small text-muted">
+                    Save ₹OFFER_PRICE on min order of ₹MINIMUM_PRICE
+                  </p>
+                  <p class="card-text mb-0 small text-muted">
+                    Valid till: EXPIRY_DATE
+                  </p>
+                </div>
+                <button class="btn btn-outline-primary btn-sm copy-btn" data-coupon="COUPON_NAME">
+                  Copy
+                </button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div> -->
+      
+
 
     <!-- place order -->
-    <div><br><br></div>
+    <div><br></div>
     <div class="payment-method mt-4">
       <h3 class="fw-semibold mb-3">Payment Method</h3>
       <label class="d-flex align-items-center gap-2 mb-3" for="online">
@@ -305,11 +407,29 @@
         <span>Cash on Delivery</span>
       </label>
     </div>
-
+    
     <button type="button" id="placeOrderBtn" class="btn-place-order">Place Order</button>
   
     </div>
-     
+     <!-- Coupons Modal -->
+<div class="modal fade" id="couponsModal" tabindex="-1" aria-labelledby="couponsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="couponsModalLabel">Available Coupons</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="couponsModalBody">
+        <!-- Coupons will be loaded here dynamically -->
+        <p>Loading coupons...</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
   </div>
 </div>
@@ -603,7 +723,7 @@
     let address = document.querySelector('input[name="shippingAddress"]:checked')?.value;
     let payment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
     const discountText = document.getElementById('discountAmount').textContent;
-    const discount = parseFloat(discountText.replace(/[^\d.]/g, '')) || 0;
+    let discount = parseFloat(discountText.replace(/[^\d.]/g, '')) || 0;
   
     const totalText = document.querySelector('#totalAmount')?.textContent || '<%= parseFloat(totalPayable).toFixed(2) %>';
     const numericValue = parseFloat(totalText.replace(/[^\d.]/g, ''));
@@ -631,7 +751,7 @@
         totalPrice: numericValue,
         addressId: address,
         payment: payment,
-        discount: discount
+        discount:discount
       }),
       success: function (response) {
         let orderId = response.order?._id;
@@ -765,10 +885,119 @@
   
 </script>
 
+<script>
 
+  async function toggleCoupon(){
+    const codeInput = document.getElementById('couponCode')
+    const message = document.getElementById('couponMessage')
+    const applyBtn = document.getElementById('applyBtn')
+
+    if(applyBtn.innerText === 'Apply'){
+      const code = codeInput.value.trim()
+      if(!code) return message.innerText = 'Enter a coupon code'
+ 
+      console.log("Coupon code entered:", code)
+
+    
+      const response = await fetch('/apply-coupon', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({code})
+      })
+
+      const result = await response.json()
+
+      if(response.ok){
+        applyBtn.innerText = 'Remove Coupon'
+        codeInput.disabled = true
+        document.getElementById('discountAmount').innerText = `-₹${result.discount}`
+       /* document.getElementById('grandTotal').innerText = `₹${result.newTotal}`*/
+       const shippingCharge = parseFloat(document.getElementById('shippingCharge').textContent) || 0;
+       const grandTotal = parseFloat(result.newTotal) + shippingCharge;
+        document.getElementById('totalAmount').innerText= `₹${result.newTotal}`
+        
+        document.getElementById('totalPayable').value= `₹${result.newTotal}`
+        message.innerText = `Coupon ${code.toUpperCase()} Applied`
+      }else{
+        message.innerText = result.message
+        message.classList.add('text-dange')
+      }
+      
+    }else{
+      await fetch('/cancel-coupon')
+      applyBtn.innerText = 'Apply'
+      codeInput.disabled = false
+      codeInput.value = ''
+      message.innerText = ''
+      document.getElementById('discountAmount').innerText = '-₹0'
+      const base = <%= grandTotal %> + <%= shippingCharge %> ;
+    
+      document.getElementById('totalAmount').value = base;
+
+    }
+  }
+   
+
+
+  <!-- Available Coupon -->
+  document.getElementById('showCouponsBtn').addEventListener('click', async () => {
+    const modalBody = document.getElementById('couponsModalBody');
+    modalBody.innerHTML = '<p>Loading coupons...</p>';
+  
+    try {
+      const res = await fetch('/available-coupons');
+      const data = await res.json();
+  
+      if (data.success && data.coupons.length) {
+        modalBody.innerHTML = ''; // clear loading text
+  
+        data.coupons.forEach(coupon => {
+          const expiry = new Date(coupon.expiryDate).toLocaleDateString();
+          const offer = coupon.type === 'percentage' ? `${coupon.offerPrice}% OFF` : `₹${coupon.offerPrice} OFF`;
+  
+          const couponCard = document.createElement('div');
+          couponCard.classList.add('coupon-card', 'mb-3');
+          couponCard.innerHTML = `
+            <div>
+              <strong>${coupon.code}</strong> — ${offer} <br />
+              Min order: ₹${coupon.minimumPrice} <br />
+              Valid till: ${expiry}
+            </div>
+            <button class="btn btn-sm btn-primary copy-btn" data-code="${coupon.code}">Copy</button>
+          `;
+          modalBody.appendChild(couponCard);
+        });
+  
+        // Add copy functionality
+        modalBody.querySelectorAll('.copy-btn').forEach(button => {
+          button.addEventListener('click', () => {
+            const code = button.getAttribute('data-code');
+            navigator.clipboard.writeText(code).then(() => {
+              alert(`Copied coupon code: ${code}`);
+            });
+          });
+        });
+      } else {
+        modalBody.innerHTML = '<p>No coupons available.</p>';
+      }
+    } catch (error) {
+      console.error('Error loading coupons:', error);
+      modalBody.innerHTML = '<p>Failed to load coupons. Try again later.</p>';
+    }
+  
+    // Show the modal (Bootstrap 5)
+    const couponsModal = new bootstrap.Modal(document.getElementById('couponsModal'));
+    couponsModal.show();
+  });
+  
+
+</script>
 
 <!-- Bootstrap JS Bundle CDN -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
+

@@ -203,12 +203,28 @@ const userProfile = async (req,res)=>{
         .limit(limit)
         .lean();
         const totalPages = Math.ceil(totalOrders / limit);
+
+        // Wallet history pagination
+        const walletPage = parseInt(req.query.walletPage) || 1;
+        const walletLimit = 5;
+        const walletSkip = (walletPage - 1) * walletLimit;
+        const walletHistory = userData.history || [];
+
+        const paginatedHistory = walletHistory
+        .sort((a, b) => new Date(b.date) - new Date(a.date)) // newest first
+        .slice(walletSkip, walletSkip + walletLimit);
+        const totalWalletPages = Math.ceil(walletHistory.length / walletLimit);
+
+        const walletTransactions = userData.walletTransactions || [];
         
         res.render('profile',{user:userData,
             addresses,
             orders,
             currentPage: page,
             totalPages,
+            walletTransactions: paginatedHistory,
+            walletCurrentPage: walletPage,
+            walletTotalPages: totalWalletPages,
         })
        }catch (err){
         res.redirect("/pageNotFound")

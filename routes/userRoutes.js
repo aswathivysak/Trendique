@@ -7,6 +7,7 @@ const cartController = require("../controllers/user/cartController")
 const productController = require("../controllers/user/productController")
 const orderController = require("../controllers/user/orderController")
 const wishlistController = require("../controllers/user/wishlistController")
+const walletController = require("../controllers/user/walletController")
 const {userAuth} = require("../middlewares/auth")
 
 const multer = require("multer");
@@ -98,12 +99,19 @@ router.post("/cancelOrder",userAuth,orderController.cancelOrder);
 router.post('/orders/return-request', userAuth, orderController.returnRequest);
 // router.get('/orders/download-invoice/:orderId', userAuth, orderController.getInvoice)
 router.get('/orders/download-invoice', userAuth,orderController.generateInvoice);
+router.get('/available-coupons', userAuth, orderController.getAvailableCoupons)
+router.post('/apply-coupon', userAuth, orderController.applyCoupon)
+router.get('/cancel-coupon', userAuth, orderController.deleteCoupon)
 
 //Wishlist management
 router.get("/wishlist", userAuth,wishlistController.loadWishlist);
 router.post("/addToWishlist", userAuth, wishlistController.addToWishlist);
 router.get("/removeFromWishlist", userAuth, wishlistController.removeProduct);
-router.post("/wishlist/addToCart", userAuth, wishlistController.addToCartWish)
+router.post("/wishlist/addToCart", userAuth, wishlistController.addToCartWish);
+
+//Wallet management
+router.post("/createWalletOrder", userAuth, walletController.addMoneyToWallet);
+router.post("/verifyWalletPayment", userAuth, walletController.verify_payment)
 
 
 module.exports=router

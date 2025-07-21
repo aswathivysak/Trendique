@@ -105,9 +105,7 @@ const orderSchema = new Schema({
         enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returning', 'returned','failed'],
         default: 'pending'
     }, 
-    invoiceDate: {
-        type: Date
-    },
+    
     createdOn: {
         type: Date,
         default: Date.now,
@@ -119,11 +117,12 @@ const orderSchema = new Schema({
     deliveredOn: {
         type: Date
     },
-    couponApplied: {
-        type: Boolean,
-        default: false
+    appliedCoupon: {
+        type: Schema.Types.ObjectId,
+        ref: 'Coupon',
+        default: null
     },
-    couponCode: { type: String }
+    
 },{
     timestamps: true 
   });

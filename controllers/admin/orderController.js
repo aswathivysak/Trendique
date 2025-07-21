@@ -140,7 +140,9 @@ const listOrders = async (req, res) => {
         order.status = 'shipped';
       } else if (itemStatuses.every(s => s === 'cancelled')) {
         order.status = 'cancelled';
-      } else {
+      }else if(itemStatuses.includes('delivered') && itemStatuses.includes('cancelled')){
+        order.status = 'delivered';
+      }else {
         // Fallback or keep current order.status as is
       }
   
@@ -171,7 +173,7 @@ const listOrders = async (req, res) => {
         return res.status(400).send('Invalid product or no return request found');
       }
   
-      // Step 1: Update stock for product color & size variant
+      // Update stock for product color & size variant
       await Product.findByIdAndUpdate(productItem.product, {
         $inc: { 
           [`variants.$[elem].quantity`]: productItem.quantity
@@ -182,7 +184,7 @@ const listOrders = async (req, res) => {
         ]
       });
   
-      // Step 2: Mark product as returned
+      
       order.orderedItems[productIndex].status = 'returned';
   
       // Step 3: Recalculate subtotal excluding returned/cancelled items
@@ -194,21 +196,41 @@ const listOrders = async (req, res) => {
       });
       order.subTotal = newSubTotal;
   
-      // Step 4: Calculate delivery charge - 50 if subtotal < 500 else 0
       const shippingCharge = order.subTotal < 500 ? 50 : 0;
       order.deliveryCharge = shippingCharge;
   
-      // Step 5: Calculate final amount
+    
       order.finalAmount = order.subTotal + order.deliveryCharge - order.discount;
   
-      // Step 6: Update overall order status if all items are returned or cancelled
+     
       const allReturnedOrCancelled = order.orderedItems.every(item => 
         item.status === 'returned' || item.status === 'cancelled'
       );
       if (allReturnedOrCancelled) {
         order.status = 'returned';
       }
-  
+       // Credit refund to user's wallet
+      const user = await User.findById(order.userId);
+       if (user) {
+      const itemTotal = productItem.finalPrice * productItem.quantity;
+
+      let refundAmount = itemTotal;
+      if (order.discount > 0 && order.subTotal > 0) {
+        const proportionalDiscount = (itemTotal / order.subTotal) * order.discount;
+        refundAmount -= proportionalDiscount;
+        refundAmount = Math.round(refundAmount);
+      }
+
+      user.wallet += refundAmount;
+      user.history.push({
+        amount: refundAmount,
+        status: "credit",
+        date: new Date(),
+        description: `Refund for returned product (${productItem.productName}) in order ${order.orderId}`
+      });
+
+      await user.save();
+    }
       await order.save();
   
       res.redirect(`/admin/order/${orderId}`);

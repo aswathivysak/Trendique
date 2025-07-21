@@ -6,6 +6,24 @@ const env = require('dotenv').config();
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 
+const calculateEffectiveOffer = async (product) => {
+ 
+    const category = await Category.findById(product.category).lean();
+  
+    const categoryOffer = category?.categoryOffer || 0;
+  
+  
+    const subcat = category?.subcategories?.find(sc => sc._id.toString() === product.subcategory.toString());
+    const subcategoryOffer = subcat?.offer || 0;
+  
+    const productOffer = product.offer || 0; 
+  
+    
+    return Math.max(categoryOffer, subcategoryOffer, productOffer);
+  };
+  
+  
+
 
 const pageNotFound = async (req, res) => {
     try {
@@ -336,6 +354,25 @@ const loadShoppingPage = async (req, res) => {
           }
         const products = await Product.find(query).sort(sortCriteria).skip(skip).limit(limit);
         products.forEach(product => {
+
+            const category = categories.find(cat => cat._id.toString() === product.category.toString());
+
+          
+            const subcategory = category?.subcategories?.find(sc => sc._id.toString() === product.subcategory.toString());
+      
+           
+            const productOffer = product.offer || 0;
+            const categoryOffer = category?.categoryOffer || 0;
+            const subcategoryOffer = subcategory?.offer || 0;
+      
+            const effectiveOffer = Math.max(productOffer, categoryOffer, subcategoryOffer);
+      
+          
+            product.effectiveOffer = effectiveOffer;
+      
+          
+            product.finalPrice = Math.round(product.price * (1 - effectiveOffer / 100) * 100) / 100;
+
             product.totalQuantity = product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0);
           });
 
@@ -347,10 +384,12 @@ const loadShoppingPage = async (req, res) => {
         //   );
         // const subcategories = categories.subcategories.filter(sc => 
         //     sc.isListed === true && !sc.isDeleted);
-          
 
         
-             // Get total number of products for pagination
+
+         // also calculate finalPrice accordingly (if you want)
+   
+          // Get total number of products for pagination
         const totalProducts = await Product.countDocuments({isBlocked:false,category:{$in:categoryIds} ,variants:{ $elemMatch: { quantity: { $gt: 0 } } } });
         const totalPages = Math.ceil(totalProducts / limit);
         const brands= await Brand.find({isBlocked:false})

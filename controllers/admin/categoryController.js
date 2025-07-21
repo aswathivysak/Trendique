@@ -1,6 +1,6 @@
 const Category = require("../../models/categorySchema")
 const Product = require("../../models/productSchema")
-//const { calculateEffectivePrice } = require("./productController");
+const { calculateEffectivePrice } = require("./productController");
 
 const addCategory = async (req, res) => {
     try {

@@ -8,6 +8,29 @@ const path = require("path")
 const fs = require("fs")
 const sharp = require("sharp")
 
+const calculateEffectivePrice = async (product) => {
+ 
+  const category = await Category.findById(product.category).lean();
+
+  const categoryOffer = category?.categoryOffer || 0;
+
+
+  const subcat = category?.subcategories?.find(sc => sc._id.toString() === product.subcategory.toString());
+  const subcategoryOffer = subcat?.offer || 0;
+
+  const productOffer = product.offer || 0; 
+
+  
+  const effectiveOffer = Math.max(categoryOffer, subcategoryOffer, productOffer);
+
+
+  const effectivePrice = product.price * (1 - effectiveOffer / 100);
+
+ 
+  return Math.round(effectivePrice * 100) / 100;
+};
+
+
 
 
 
@@ -509,6 +532,75 @@ const updateVariant = async (req, res) => {
   }
 };
 
+const addProductOffer = async (req, res) => {
+  try {
+    const { productId, percentage, validUntil } = req.body;
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ status: false, message: "Product not found" });
+    }
+
+    if (isNaN(percentage) || percentage < 1 || percentage > 99) {
+      return res.json({ status: false, message: "Invalid percentage value" });
+    }
+
+    if (!validUntil) {
+      return res.json({ status: false, message: "Offer valid date required" });
+    }
+
+    // await Product.updateOne(
+    //   { _id: productId },
+    //   {
+    //     $set: {
+    //       Offer: percentage,
+    //       offerValidUntil: new Date(validUntil)
+    //     }
+    //   }
+    // );
+
+      product.offer = parseInt(percentage);
+      product.offerValidUntil = new Date(validUntil)
+      product.finalPrice = await calculateEffectivePrice(product);
+      await product.save();
+    
+
+    res.json({ status: true, message: "Offer added successfully" });
+  } catch (error) {
+    console.error("Error in addCategoryOffer:", error);
+    res.status(500).json({ status: false, message: "Internal Server Error" });
+  }
+};
+
+const removeProductOffer = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ status: false, message: "Product not found" });
+    }
+ 
+    await Product.updateOne(
+      { _id: productId },
+      {
+        $unset: {
+          offer: "",
+          offerValidUntil: ""
+        }
+      }
+    );
+    
+      product.finalPrice = await calculateEffectivePrice(product);
+      await product.save();
+    
+
+    res.json({ status: true, message: "Offer removed successfully" });
+  } catch (error) {
+    console.error("Error in removeCategoryOffer:", error);
+    return res.status(500).json({ status: false, message: "Internal Server Error" });
+  }
+};
+
 
 
 module.exports={
@@ -525,4 +617,6 @@ module.exports={
      addProductVariants,
      deleteVariant,
      updateVariant,
+     addProductOffer,
+     removeProductOffer
    }

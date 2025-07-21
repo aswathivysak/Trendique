@@ -3,19 +3,22 @@ const {Schema} = mongoose;
 
 const couponSchema = new Schema({
     name:{
+        type:String,
+        required:true,
+       
+     },
+    code:{
         type: String,
         required: true,
-        unique: true
+        unique: true,
+      
     },
-    description: {
-        type: String
-      },
-    createdOn:{
+    startingDate:{
         type: Date,
         default: Date.now,
         required: true
     },
-    expireOn:{
+    expiryDate:{
         type: Date,
         required: true
     },
@@ -29,18 +32,23 @@ const couponSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['flat', 'percentage'],
-        default: 'flat'
+        enum: ['fixed', 'percentage'],
+        default: 'fixed'
       },
       
-    isList:{
+    status:{
         type: Boolean,
         default: true
     },
-    userId:[{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:'User'
-    }]
+    usageLimit: { type: Number, default: 1 },
+    usagePerUser: { type: Number, default: 1 },
+    usedCount: { type: Number, default: 0 }, 
+    usedUsers: [
+        {
+          userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+          count: { type: Number, default: 0 } // How many times this user used it
+        }
+      ],
         
 })
 
