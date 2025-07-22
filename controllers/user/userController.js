@@ -376,16 +376,7 @@ const loadShoppingPage = async (req, res) => {
             product.totalQuantity = product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0);
           });
 
-          //sub category
-        //   const subcategory = categories.subcategories.find(sc =>
-        //     sc._id.toString() === product.subcategory.toString() &&
-        //     sc.isListed === true &&
-        //     !sc.isDeleted
-        //   );
-        // const subcategories = categories.subcategories.filter(sc => 
-        //     sc.isListed === true && !sc.isDeleted);
-
-        
+         
 
          // also calculate finalPrice accordingly (if you want)
    
@@ -424,6 +415,12 @@ const loadShoppingPage = async (req, res) => {
         // console.log(subcategoryId)
         const findCategory=category? await Category.findOne({_id:category}):null;
         const findBrand = brand ? await Brand.findOne({_id:brand}):null;
+        let wishlistIds = [];
+     if (req.session.user) {
+    const userDoc = await User.findById(req.session.user).select('wishlist').lean();
+    wishlistIds = userDoc?.wishlist?.map(id => id.toString()) || [];
+    }
+ 
         const brands= await Brand.find({}).lean();
          const query={
             isBlocked :false,
@@ -496,7 +493,7 @@ const loadShoppingPage = async (req, res) => {
         selectedCategory: category || null,
         selectedBrand: brand || null,
         selectedSubcategory: subcategoryId,
-        
+        wishlistIds,
     });
 
 
