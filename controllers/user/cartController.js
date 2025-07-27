@@ -292,6 +292,9 @@ const changeQuantity = async (req, res) => {
     if (newQuantity < 1) {
       return res.json({ status: false, error: "Quantity cannot be less than 1." });
     }
+    if (newQuantity > 3) {
+      return res.json({ status: false, error: "You can add a maximum of 3 units per product." });
+    }
 
     // Find the matching variant in product variants array
     const variant = product.variants.find(v => v.size === size && v.color === color);
@@ -324,7 +327,8 @@ const changeQuantity = async (req, res) => {
 
     res.json({
       status: true,
-      quantityInput: newQuantity,
+      // quantityInput: newQuantity,
+      newQuantity,
       totalAmount: cart.items[itemIndex].totalPrice,
       grandTotal,
       shippingCharge,

@@ -100,7 +100,8 @@ router.delete('/coupons/delete/:id', adminAuth, couponController.deleteCoupon)
 // Sales Management
 router.get('/sales', adminAuth,  adminController.loadSalesPage);
 router.get('/report/generate', adminAuth, adminController.loadSalesPage)
-//refer and earn
-// router.get('/referrals', adminAuth, adminController.loadReferralPage)
+
+//Dash Board
+ router.get('/dashboard-data', adminController.getDashboardData)
 
 module.exports = router;

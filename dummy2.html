@@ -1,272 +1,321 @@
-<%- include('../partials/user/header') %>
-<div><br><br><br><br><br><br></div>
+<%- include("../../views/partials/admin/header") %>
 
-<!-- breadcrumb -->
-<div class="container">
-  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-    <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
-      Home
-      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-    </a>
-    <span class="stext-109 cl4">Shopping Cart</span>
+<!-- External Libraries -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  body {
+    background-color: #f5f6fa;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  }
+  .icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bg-blue { background-color: #e0f7fa; color: #007bff; }
+  .bg-green { background-color: #e8f5e9; color: #28a745; }
+  .bg-orange { background-color: #ffe5d9; color: #fd7e14; }
+  .bg-purple { background-color: #f3e5f5; color: #6f42c1; }
+  .status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  .delivered { background-color: #d4edda; color: #155724; }
+  .pending { background-color: #fff3cd; color: #856404; }
+  .cancelled { background-color: #f8d7da; color: #721c24; }
+</style>
+
+<div class="container py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="font-weight-bold">📈 Dashboard</h2>
   </div>
-</div>
 
-<!-- Shopping Cart -->
-<form class="bg0 p-t-75 p-b-85" id="cartForm">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
-        <div class="m-l-25 m-r--38 m-lr-0-xl">
-          <div class="wrap-table-shopping-cart">
-            <table class="table-shopping-cart">
-              <tr class="table_head">
-                <th class="column-1">Product</th>
-                <th class="column-2"></th>
-                <th class="column-3">Price</th>
-                <th class="column-4">Quantity</th>
-                <th class="column-5">Total</th>
-                <th class="column-6">Remove</th>
-              </tr>
+  <!-- Summary Cards -->
+  <div class="row mb-4" id="summaryCards">
+    <!-- Summary card values will be injected via JavaScript -->
+  </div>
 
-              <% if(cartItems.length === 0) { %>
-                <tr><td colspan="6" class="text-center">Your cart is empty.</td></tr>
-              <% } else { %>
-                <% cartItems.forEach((item, index) => { %>
-                  <tr class="table_row">
-                    <td class="column-1">
-                      <div class="how-itemcart1">
-                        <img src="/<%= item.productImage %>" alt="<%= item.productName %>">
-                      </div>
-                    </td>
-                    <td class="column-2">
-                      <%= item.productName %> <br>
-                      <small>Size: <b><%= item.size %></b> | Color: <b><%= item.color %></b></small><br>
-                      <small>Brand: <b><%= item.brandName %></b></small>
-                    </td>
-                    <td class="column-3">$ <%= item.productPrice.toFixed(2) %></td>
-
-                    <!-- Quantity controls -->
-                    <td class="column-4">
-                      <div class="wrap-num-product flex-w m-l-auto m-r-0" data-index="<%= index %>">
-                        <button 
-                            type="button" 
-                            class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m" 
-                            onclick="changeQuantity('<%= item.productId %>', -1, <%= item.productPrice %>, <%= index %>, <%= item.productStock %>, '<%= item.size %>', '<%= item.color %>')"
-                            <%= item.quantity <= 1 ? 'disabled' : '' %>
-                            >
-                            -
-                            </button>
-
-                            <input 
-                            class="mtext-104 cl3 txt-center num-product" 
-                            type="number" 
-                            name="quantity" 
-                            id="cartProductQuantity<%= index %>" 
-                            value="<%= item.quantity %>" 
-                            min="1" 
-                            max="<%= item.productStock %>" 
-                            readonly
-                            >
-
-                            <button 
-                            type="button" 
-                            class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m" 
-                            onclick="changeQuantity('<%= item.productId %>', 1, <%= item.productPrice %>, <%= index %>, <%= item.productStock %>, '<%= item.size %>', '<%= item.color %>')"
-                            <%= item.quantity >= item.productStock ? 'disabled' : '' %>
-                            >
-                            +
-                            </button>
-
-                      </div>
-                    </td>
-
-                    <!-- Subtotal with id for JS update -->
-                    <td class="column-5" id="subTotal<%= index %>">$ <%= (item.productPrice * item.quantity).toFixed(2) %></td>
-
-                    <!-- Remove item -->
-                 
-                      <td class="column-6">
-                        <a class="btn btn-sm" href="#" onclick="confirmRemove('<%= item.productId %>', '<%= item.size %>','<%= item.color %>', <%= index %>)">
-                          <i class="fi-rs-trash"></i> Remove
-                        </a>
-                      </td>
-                      
-                      
-                      
-                  </tr>
-                <% }) %>
-              <% } %>
-            </table>
-          </div>
-
-          <div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm">
-            <div class="flex-w flex-m m-r-20 m-tb-5">
-              <input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5" type="text" name="coupon" placeholder="Coupon Code">
-              <div class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
-                Apply coupon
-              </div>
+  <!-- Charts Row -->
+  <div class="row mb-4">
+    <div class="col-md-8 d-flex">
+      <div class="card flex-fill chart-card">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title m-0 fw-bold text-primary">📊 Sales Overview</h5>
+            <div>
+              <select id="rangeSelect" class="form-control form-control-sm d-inline w-auto">
+                <option value="weekly">Weekly</option>
+                <option value="monthly" selected>Monthly</option>
+                <option value="yearly">Yearly</option>
+                <option value="custom">Custom</option>
+              </select>
+              <input type="date" id="startDate" class="form-control form-control-sm d-inline w-auto">
+              <input type="date" id="endDate" class="form-control form-control-sm d-inline w-auto">
+              <button class="btn btn-sm btn-primary" onclick="loadDashboard()">Apply</button>
             </div>
-            <!-- <div class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10" id="updateCartBtn">
-              Update Cart
-            </div> -->
           </div>
+          <canvas id="salesChart"></canvas>
         </div>
       </div>
-
-      <div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
-        <div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
-          <h4 class="mtext-109 cl2 p-b-30">Cart Totals</h4>
-
-          <div class="flex-w flex-t bor12 p-b-13">
-            <div class="size-208">
-              <span class="stext-110 cl2">Subtotal:</span>
-            </div>
-            <div class="size-209">
-              <span class="mtext-110 cl2" id="total">$ <%= grandTotal.toFixed(2) %></span>
-            </div>
-          </div>
-
-          <div class="flex-w flex-t bor12 p-t-15 p-b-30">
-            <div class="size-208 w-full-ssm">
-              <span class="stext-110 cl2">Shipping:</span>
-            </div>
-            <div class="size-209">
-              <span class="mtext-110 cl2" id="shippingCharge">$ <%= shippingCharge.toFixed(2) %></span>
-              <a href="#" onclick="viewShippingCharge()" class="text-blue text-sm">View shipping charge</a>
-            </div>
-          </div>
-
-          <div class="flex-w flex-t p-t-27 p-b-33">
-            <div class="size-208">
-              <span class="mtext-101 cl2">Total:</span>
-            </div>
-            <div class="size-209 p-t-1">
-              <span class="mtext-110 cl2" id="totalPayable">$ <%= totalPayable.toFixed(2) %></span>
-            </div>
-          </div>
-
-          <button class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer">
-            Proceed to Checkout
-          </button>
+    </div>
+    <div class="col-md-4 d-flex">
+      <div class="card flex-fill">
+        <div class="card-body p-4 d-flex flex-column">
+          <h5 class="mb-3">📦 Order Status</h5>
+          <canvas id="statusChart" height="150"></canvas>
         </div>
       </div>
     </div>
   </div>
-</form>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Top Lists -->
+  <div class="row mt-3">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">Top Products</div>
+        <div class="card-body">
+          <ul class="list-group" id="top-products"></ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">Top Categories</div>
+        <div class="card-body">
+          <ul class="list-group" id="top-categories"></ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">Top Brands</div>
+        <div class="card-body">
+          <ul class="list-group" id="top-brands"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
 <script>
-  function viewShippingCharge() {
-    Swal.fire({
-      title: 'Shipping Charge',
-      text: 'Shipping charge is ₹ 50.00 for all orders below 500.',
-      icon: 'info',
-      confirmButtonText: 'OK'
-    });
+  let salesChartInstance, statusChartInstance;
+
+  document.addEventListener("DOMContentLoaded", () => loadDashboard());
+
+  function loadDashboard() {
+    const filter = document.getElementById("rangeSelect").value;
+    const start = document.getElementById("startDate").value;
+    const end = document.getElementById("endDate").value;
+
+    let url = `/admin/dashboard-data?filter=${filter}`;
+    if (filter === 'custom' && start && end) {
+      url += `&start=${start}&end=${end}`;
+    }
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        updateSummaryCards(data);
+        updateSalesChart(data.salesChart);
+        updateStatusChart(data.orderStatus);
+        updateTopLists(data);
+      })
+      .catch(err => console.error('Error loading dashboard data:', err));
   }
 
-  function changeQuantity(productId, count, productPrice, index, maxStock,size, color) {
-    maxStock = parseInt(maxStock);
-    const quantityInput = document.getElementById(`cartProductQuantity${index}`);
-    const subtotalElement = document.getElementById(`subTotal${index}`);
-    const totalElement = document.getElementById('total');
-    const shippingChargeElement = document.getElementById('shippingCharge');
-    const totalPayableElement = document.getElementById('totalPayable');
-  
-    let currentQuantity = parseInt(quantityInput.value);
-    let newQuantity = currentQuantity + count;
-  
-    if (newQuantity < 1) {
-      Swal.fire('Oops!', 'Quantity cannot be less than 1', 'warning');
-      return;
-    }
-    if (newQuantity > 3) {
-      Swal.fire('Oops!', 'You can add a maximum of 3 units per product.', 'warning');
-      return;
-    }
-    if (newQuantity > maxStock) {
-      Swal.fire('Oops!', 'Not enough stock available.', 'warning');
-      return;
-    }
-  
-    $.ajax({
-      url: '/changeQuantity',
-      method: 'POST',
+  function updateSummaryCards(data) {
+    const container = document.getElementById("summaryCards");
+    container.innerHTML = `
+      <div class="col-md-3"><div class="card p-3 d-flex flex-row align-items-center"><div class="icon-box bg-blue mr-3"><i class="fas fa-box fa-lg"></i></div><div><h4 class="mb-0">${data.totalProducts}</h4><small>Total Products</small></div></div></div>
+      <div class="col-md-3"><div class="card p-3 d-flex flex-row align-items-center"><div class="icon-box bg-green mr-3"><i class="fas fa-users fa-lg"></i></div><div><h4 class="mb-0">${data.totalCustomers}</h4><small>Total Customers</small></div></div></div>
+      <div class="col-md-3"><div class="card p-3 d-flex flex-row align-items-center"><div class="icon-box bg-orange mr-3"><i class="fas fa-shopping-bag fa-lg"></i></div><div><h4 class="mb-0">${data.totalOrders}</h4><small>Total Orders</small></div></div></div>
+      <div class="col-md-3"><div class="card p-3 d-flex flex-row align-items-center"><div class="icon-box bg-purple mr-3"><i class="fas fa-rupee-sign fa-lg"></i></div><div><h4 class="mb-0">₹${data.totalRevenue}</h4><small>Total Revenue</small></div></div></div>
+    `;
+  }
+
+  /*function updateSalesChart(chartData) {
+    const labels = chartData.map(d => d._id.label || `${d._id.month || d._id.week || d._id.day || d._id.year}`);
+    const values = chartData.map(d => d.totalSales);
+
+    if (salesChartInstance) salesChartInstance.destroy();
+
+    salesChartInstance = new Chart(document.getElementById("salesChart"), {
+      type: "line",
       data: {
-        productId: productId,
-        count: count,
-        size,
-        color
-        
+        labels: labels,
+        datasets: [{
+          label: "Sales (₹)",
+          data: values,
+          borderColor: "rgba(54, 162, 235, 1)",
+          backgroundColor: "rgba(54, 162, 235, 0.2)",
+          tension: 0.4,
+          fill: true
+        }]
+      }
+    });
+  }*/
+ /* function updateSalesChart(chartData) {
+    const labels = chartData.map(d => {
+      if (d._id.day && d._id.month && d._id.year) {
+        return `${d._id.day}/${d._id.month}/${d._id.year}`; // daily
+      } else if (d._id.week && d._id.year) {
+        return `Week ${d._id.week} - ${d._id.year}`; // weekly
+      } else if (d._id.month && d._id.year) {
+        return `${d._id.month}/${d._id.year}`; // monthly
+      } else if (d._id.year) {
+        return `${d._id.year}`; // yearly
+      } else {
+        return "N/A";
+      }
+    });
+  
+    const values = chartData.map(d => d.totalSales);
+  
+    if (salesChartInstance) salesChartInstance.destroy();
+  
+    salesChartInstance = new Chart(document.getElementById("salesChart"), {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [{
+          label: "Sales (₹)",
+          data: values,
+          borderColor: "rgba(54, 162, 235, 1)",
+          backgroundColor: "rgba(54, 162, 235, 0.2)",
+          tension: 0.4,
+          fill: true
+        }]
       },
-      success: (response) => {
-        if (response.status) {
-          // Update UI only on success
-          quantityInput.value = newQuantity;
-  
-          if (subtotalElement) {
-            subtotalElement.innerText = (newQuantity * productPrice).toFixed(2);
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top'
           }
-          if (totalElement && response.grandTotal !== undefined) {
-            totalElement.innerText = response.grandTotal.toFixed(2);
-          }
-          if (shippingChargeElement && response.shippingCharge !== undefined) {
-            shippingChargeElement.innerText = response.shippingCharge.toFixed(2);
-          }
-          if (totalPayableElement && response.totalPayable !== undefined) {
-            totalPayableElement.innerText = response.totalPayable.toFixed(2);
-          }
-  
-          // Enable or disable buttons accordingly
-          const btnMinus = quantityInput.previousElementSibling;
-          const btnPlus = quantityInput.nextElementSibling;
-          btnMinus.disabled = newQuantity <= 1;
-          btnPlus.disabled = newQuantity >= Math.min(3, maxStock);
-        } else {
-          Swal.fire('Error', response.error || 'Could not update quantity', 'error');
         }
+      }
+    });
+  }*/
+  function updateSalesChart(chartData) {
+    const labels = chartData.map(d => {
+      if (d._id.day && d._id.month && d._id.year) {
+        const date = new Date(d._id.year, d._id.month - 1, d._id.day);
+        return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); // 1 Jul
+      } else if (d._id.month && d._id.year) {
+        return new Date(d._id.year, d._id.month - 1).toLocaleDateString('en-GB', {
+          month: 'short',
+          year: 'numeric'
+        });
+      } else if (d._id.year) {
+        return `${d._id.year}`;
+      } else {
+        return 'N/A';
+      }
+    });
+  
+    const values = chartData.map(d => d.totalSales);
+  
+    if (salesChartInstance) salesChartInstance.destroy();
+  
+    const ctx = document.getElementById("salesChart").getContext("2d");
+  
+    salesChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Sales ₹',
+          data: values,
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 3
+        }]
       },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', 'Server error while updating quantity', 'error');
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => `₹${context.formattedValue}`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: value => `₹${value.toLocaleString()}`
+            }
+          }
+        }
       }
     });
   }
   
-  //Remove cart product
-  function confirmRemove(productId, size, color, index) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you want to remove this item from your cart?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, remove it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Call your backend to remove the item
-        $.ajax({
-          url: '/removeCartItem',
-          method: 'POST',
-          data: { productId, size, color },
-          success: (response) => {
-            if(response.status){
-              Swal.fire('Removed!', 'Your item has been removed.', 'success').then(() => {
-                location.reload();
-              });
-            } else {
-              Swal.fire('Error', response.message || 'Failed to remove item', 'error');
-            }
-          },
-          error: () => {
-            Swal.fire('Error', 'Server error while removing item', 'error');
-          }
-        });
-      }
-    });
-  }
   
 
+  function updateStatusChart(statusData) {
+    const labels = statusData.map(s => s._id);
+    const values = statusData.map(s => s.count);
+
+    if (statusChartInstance) statusChartInstance.destroy();
+
+    statusChartInstance = new Chart(document.getElementById("statusChart"), {
+      type: "doughnut",
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: ['#2ecc71', '#f1c40f', '#e74c3c', '#9b59b6', '#3498db']
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+  }
+
+  function updateTopLists(data) {
+    const renderList = (targetId, items) => {
+      const list = document.getElementById(targetId);
+      list.innerHTML = "";
+      if (!items.length) {
+        list.innerHTML = `<li class="list-group-item">No Data</li>`;
+        return;
+      }
+      items.forEach(item => {
+        list.innerHTML += `<li class="list-group-item d-flex justify-content-between">${item.name}<span class="badge badge-primary">${item.totalQty}</span></li>`;
+      });
+    };
+    renderList("top-products", data.bestProducts);
+    renderList("top-categories", data.bestCategories);
+    renderList("top-brands", data.bestBrands);
+  }
 </script>
 
-<%- include('../partials/user/footer') %>
+<%- include("../../views/partials/admin/footer") %>

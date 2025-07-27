@@ -646,6 +646,7 @@ tbody tr:hover {
       const errorDiv = document.getElementById(inputId + 'Error');
       if (errorDiv) {
         errorDiv.textContent = message;
+        errorDiv.style.color = 'red';
         errorDiv.style.display = 'block';
       }
     }
@@ -707,7 +708,7 @@ tbody tr:hover {
         showError('phone', 'Phone number is required.');
         return false;
       }
-      const phoneRegex = /^[+]?[\d\s\-]{10,15}$/;
+      const phoneRegex = /^[+]?[\d\s\-]{10}$/;
       if (!phoneRegex.test(val)) {
         showError('phone', 'Please enter a valid phone number.');
         return false;

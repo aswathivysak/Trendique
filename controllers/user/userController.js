@@ -89,7 +89,7 @@ const pageNotFound = async (req, res) => {
 
 const loadSignUpPage = async (req, res) => {
     try {
-        res.render('signup')
+        res.render('signup',{ user: null })
     } catch (error) {
         console.log('Sign Up Page Not Found')
         res.status(500).send('Server Error')
@@ -135,15 +135,16 @@ const signup = async (req, res) => {
    
     try {
         const { name, email, phone, password, cpassword } = req.body
+        email = email.trim().toLowerCase();
         
         if(password !== cpassword){
-            return res.render('signup',{message:'Password not matched'})
+            return res.render('signup',{message:'Password not matched',user: null})
         }
 
         const findUser = await User.findOne({email:email})
 
         if(findUser){
-            return res.render('signup',{message:'User already exists'})
+            return res.render('signup',{message:'User already exists',user: null})
         }
 
         const otp = generateOTP()
@@ -157,7 +158,7 @@ const signup = async (req, res) => {
         req.session.userOtp = otp;
         req.session.userData = {name,phone,email,password};
 
-        res.render('verify-otp');
+        res.render('verify-otp',{ user: null });
         console.log("OTP Send",otp);
         
 
@@ -246,7 +247,7 @@ const resendOtp = async (req, res) => {
 const loadLoginPage = async (req, res) => {
     try {
         if(!req.session.user){
-            return res.render('login')
+            return res.render('login',{user:null})
         } else{
             res.redirect('/')
         }
@@ -275,14 +276,22 @@ const login = async (req, res) => {
         if(!findUser){
             return res.render('login',{message:'User not found'})
         }
-        if(findUser.isBlocked){
-            return res.render('login',{message:'You are Blocked by Admin'})
-        }
+        // if(findUser.isBlocked){
+        //     return res.render('login',{message:'You are Blocked by Admin'})
+        // }
+        if (!findUser || findUser.isBlocked) {
+            return res.render('login', {
+              message: findUser?.isBlocked
+                ? 'You are blocked by admin'
+                : 'Invalid email or password',
+                user: null
+            });
+          }
 
         const passwordMatch = await bcrypt.compare(password,findUser.password);
 
         if(!passwordMatch){
-            return res.render('login',{message:'Invalid Password'})
+            return res.render('login',{message:'Invalid Password',user:null})
         }
 
         req.session.user = findUser._id;
@@ -291,7 +300,7 @@ const login = async (req, res) => {
     } catch (error) {
 
         console.error('Login Error',error);
-        res.render('login',{message:'Login Failed Try again'})
+        res.render('login',{message:'Login Failed Try again', user: null})
         
         
     }

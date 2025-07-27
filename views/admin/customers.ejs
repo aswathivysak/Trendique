@@ -37,7 +37,13 @@
           <% } %>
           <% data.forEach((user) => { %>
             <tr>
-              <td><img src="<%= user.profilePicture || 'https://i.pravatar.cc/30?u=' + user._id %>" class="rounded-circle me-2" alt="">
+              <!-- <td><img src="<%= user.profilePicture || 'https://i.pravatar.cc/30?u=' + user._id %>" class="rounded-circle me-2" alt=""> -->
+                <td>
+                  <img src="<%= user.profilePicture 
+                    ? '/uploads/profile/' + user.profilePicture 
+                    : 'https://i.pravatar.cc/40?u=' + user._id %>" 
+                    class="rounded-circle mr-2" width="40" height="40" alt="">
+                 
                 <%= user.name %></td>
               <td><%= user.email %></td>
               <td><%= user._id.toString().slice(-6).toUpperCase() %></td>
