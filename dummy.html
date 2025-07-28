@@ -1,609 +1,598 @@
-<%- include('../partials/user/header') %>
-<div><br><br><br><br></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Order Details</title> 
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" /> 
 
 <style>
-  .disabled-link {
+  body {
+    font-family: Arial, sans-serif;
+    background: #f1f4f8;
+    padding: 40px 15px;
+  }
+  /*------*/
+  .content-title {
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+  .order-info-wrap {
+    background-color: #e6f0ff;
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 3rem;
+    box-shadow: 0 2px 10px rgb(0 123 255 / 0.15);
+  }
+  .icontext {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+  .icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 3rem;
+    box-shadow: 0 4px 10px rgb(13 110 253 / 0.5);
+  }
+  .icontext h6 {
+    margin-bottom: 0;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .icontext p {
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #212529;
+    margin-bottom: 0;
+  }
+  /*------*/
+  .orders-card {
+    max-width: 980px;
+    margin: auto;
+    height: 1500px;
+    background: white;
+    border-radius: 15px;
+    padding: 30px 40px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+  }
+  .order-card {
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    padding: 15px 20px;
+    display: flex;
+   
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+  .order-img {
+    width: 75px;
+    height: 75px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  }
+  .details {
+    flex: 1.8;
+    color: #222;
+  }
+  .details strong {
+    display: block;
+    font-weight: 700;
+    color: #0d6efd;
+    margin-bottom: 3px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .details div {
+    margin: 2px 0;
+  }
+  .center-info {
+    flex: 1.4;
+    text-align: center;
+    color: #333;
+    user-select: none;
+  }
+  .center-info strong {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .center-info small {
+    color: #666;
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+  }
+  .timeline {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    gap: 30px;
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 9%;
+    right: 9%;
+    height: 2px;
+    background: #ddd;
+    transform: translateY(-50%);
+    border-radius: 2px;
+    z-index: 1;
+  }
+  .step {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #0d6efd;
+    box-shadow: 0 0 6px rgba(13, 110, 253, 0.6);
+    position: relative;
+    z-index: 2;
+  }
+  .step.inactive {
+    background: #cfd8dc;
+    box-shadow: none;
+  }
+  .step-label {
+    font-size: 9px;
+    color: #444;
+    margin-top: 4px;
+    text-align: center;
+    width: 65px;
+    user-select: none;
+  }
+  .step-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 65px;
+  }
+  .action-buttons {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+    align-items: flex-end;
+  }
+  .btn-cancel {
+    background-color: #dc3545;
+    color: white;
+    border: 2px solid #dc3545;
+    border-radius: 5px;
+    font-weight: 700;
+    min-width: 90px;
+    padding: 6px 14px;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+    cursor: pointer;
+  }
+  .btn-cancel:hover {
+    background-color: #b02a37;
+    border-color: #b02a37;
+  }
+  .btn-return {
+    background-color: #0d6efd;
+    color: white;
+    border: 2px solid #0d6efd;
+    border-radius: 5px;
+    font-weight: 700;
+    min-width: 90px;
+    padding: 6px 14px;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+    cursor: pointer;
+  }
+  .btn-return:hover {
+    background-color: #084298;
+    border-color: #084298;
+  }
+  .pagination {
+    text-align: center;
+    margin-top: 15px;
+  }
+  .pagination button {
+    border: 1px solid #ddd;
+    background: white;
+    padding: 5px 10px;
+    margin: 0 2px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #555;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+  }
+  .pagination button.active {
+    background-color: #0d6efd;
+    color: white;
     pointer-events: none;
-    opacity: 0.6;
-    cursor: not-allowed;
+  }
+  .pagination button:hover:not(.active) {
+    background-color: #ddd;
+  }
+  /* Responsive */
+  @media (max-width: 600px) {
+    .order-card {
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 12px;
+      position: relative;
+    }
+    .center-info {
+      text-align: left;
+      margin-top: 10px;
+      flex: 100%;
+    }
+    .action-buttons {
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 8px;
+      flex: 100%;
+    }
   }
 </style>
+</head>
+<body>
 
-<!-- breadcrumb -->
-<div class="container">
-  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-    <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
-      Home
-      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-    </a>
-    <span class="stext-109 cl4">Shopping Cart</span>
-  </div>
-</div>
-
-<!-- Shopping Cart -->
-<form class="bg0 p-t-75 p-b-85" id="cartForm">
-  <div class="container">
+<div class="orders-card">
+  <div class="header-container">
     <div class="row">
-      <div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
-        <div class="m-l-25 m-r--38 m-lr-0-xl">
-          <div class="wrap-table-shopping-cart">
-            <table class="table-shopping-cart">
-              <tr class="table_head">
-                <th class="column-1">Product</th>
-                <th class="column-2"></th>
-                <th class="column-3">Price</th>
-                <th class="column-4">Quantity</th>
-                <th class="column-5">Total</th>
-                <th class="column-6">Remove</th>
-              </tr>
-
-              <% if(cartItems.length === 0) { %>
-                <tr><td colspan="6" class="text-center">Your cart is empty.</td></tr>
-              <% } else { %>
-                <% cartItems.forEach((item, index) => { %>
-                  <tr class="table_row">
-                    <td class="column-1">
-                      <div class="how-itemcart1">
-                        <img src="/<%= item.productImage %>" alt="<%= item.productName %>">
-                      </div>
-                    </td>
-                    <td class="column-2">
-                      <%= item.productName %> <br>
-                      <small>Size: <b><%= item.size %></b> | Color: <b><%= item.color %></b></small><br>
-                      <small>Brand: <b><%= item.brandName %></b></small>
-                    </td>
-                    <td class="column-3">$ <%= item.productPrice.toFixed(2) %></td>
-
-                    <!-- Quantity controls -->
-                    <td class="column-4">
-                      <div class="wrap-num-product flex-w m-l-auto m-r-0" data-index="<%= index %>">
-                        <button 
-                            type="button" 
-                            class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m" 
-                            onclick="changeQuantity('<%= item.productId %>', -1, <%= item.productPrice %>, <%= index %>, <%= item.productStock %>,'<%= item.size %>', '<%= item.color %>')"
-                            <%=  (item.quantity <= 1 || item.productStock <= 0) ? 'disabled' : '' %> 
-                            >
-                            -
-                            </button>
-
-                            <input 
-                            class="mtext-104 cl3 txt-center num-product" 
-                            type="number" 
-                            name="quantity" 
-                            id="cartProductQuantity<%= index %>" 
-                            value="<%= item.quantity %>" 
-                            min="1" 
-                            max="<%= item.productStock %>" 
-                            readonly
-                            <%= item.productStock <= 0 ? 'disabled' : '' %>
-                            >
-
-                            <button 
-                            type="button" 
-                            class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m" 
-                            onclick="changeQuantity('<%= item.productId %>', 1, <%= item.productPrice %>, <%= index %>, <%= item.productStock %>,'<%= item.size %>', '<%= item.color %>')"
-                            <%= (item.quantity >=3 || item.quantity >= item.productStock || item.productStock <= 0) ? 'disabled' : '' %>
-                            >
-                            +
-                            </button>
-
-                      </div>
-                      <% if (item.productStock <= 0) { %>
-                        <small class="text-danger">Out of Stock</small>
-                      <% } %>
-                    </td>
-
-                    <!-- Subtotal with id for JS update -->
-                    <td class="column-5" id="subTotal<%= index %>">$ <%= (item.productPrice * item.quantity).toFixed(2) %></td>
-
-                    <!-- Remove item -->
-                 
-                      <td class="column-6">
-                        <a class="btn btn-sm" href="#" onclick="confirmRemove('<%= item.productId %>', '<%= item.size %>','<%= item.color %>', <%= index %>)">
-                          <i class="fi-rs-trash"></i> Remove
-                        </a>
-                      </td>
-                    
-                      
-                      
-                  </tr>
-                <% }) %>
-              <% } %>
-            </table>
+      <div class="col">
+        
+        <!-- breadcrumb -->
+        <div class="container">
+          <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+            <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+              Home
+              <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+            </a>
+            <!-- <span class="stext-109 cl4">Shopping Cart</span> -->
           </div>
+        </div>
+        <h2>Order Details</h2>
+      </div>
+      <div class="col ms-5 ">
+        <% if(orderObj.status === 'delivered') { %>
+          <!-- <a href="/orders/download-invoice/<%= orderObj.orderId %>" style="color: #333; background-color:#dbef8a ;text-decoration:none" class="btn-return">Download Invoice</a> -->
+          <button class="btn btn-primary" style="color: #333; background-color:#dbef8a ;text-decoration:none" onclick="openInvoiceModal('<%= orderObj.orderId %>')">Download Invoice</button>
 
-          <!-- <div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm"> -->
-            <!-- <div class="flex-w flex-m m-r-20 m-tb-5">
-              <input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5" type="text" name="coupon" placeholder="Coupon Code">
-              <div class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
-                Apply coupon
+        <% } %>
+      </div>
+      <div><br><br><br></div>
+    </div>
+
+  <!-- user details -->
+  
+  <div class="card-body p-0">
+    <!-- Customer, Order & Delivery Info -->
+    <div class="row order-info-wrap text-dark g-5">
+      <div class="col-md-4">
+        <article class="icontext">
+          <span class="icon rounded-circle">
+            <i class="fas fa-user"></i> <!-- Person icon -->
+          </span>
+          <h6>Customer</h6>
+          <p><%= orderObj.userId.name %><br /><%= orderObj.userId.phone %></p>
+        </article>
+      </div>
+      <div class="col-md-4">
+        <article class="icontext">
+          <span class="icon rounded-circle">
+            <i class="fas fa-receipt"></i> <!-- Receipt icon -->
+          </span>
+          <h6>Order Info</h6>
+          <p>
+            <strong>Payment:</strong> <%= orderObj.paymentMethod.toUpperCase() %> <br />
+            <strong>Status:</strong> <%= orderObj.status.charAt(0).toUpperCase() + orderObj.status.slice(1) %> <br />
+            <strong>Grand Total:</strong> ₹<%= orderObj.finalAmount.toFixed(2) %> <br />
+           
+            <strong>Delivery Charge:</strong> ₹<%= orderObj.deliveryCharge.toFixed(2) %>
+          </p>
+     
+        </article>
+      </div>
+      <div class="col-md-4">
+        <article class="icontext">
+          <span class="icon rounded-circle">
+            <i class="fas fa-map-marker-alt"></i> <!-- Map marker icon -->
+          </span>
+          <h6>Deliver To</h6>
+          <p>
+            <%= orderObj.address.houseNo %><br />
+            <%= orderObj.address.city %>, <%= orderObj.address.state %> <br />
+            <%= orderObj.address.landmark ? orderObj.address.landmark + ', ' : '' %> <br />
+            <%= orderObj.address.pincode %>
+          </p>
+          <!-- <a href="/orders/download-invoice/<%= orderObj.orderId %>" class="btn btn-sm btn-outline-primary mt-2">Download Invoice</a> -->
+        </article>
+      </div>
+    </div>
+<!-- end -->
+    
+    
+   
+  </div>
+
+  <% if (orderObj && orderObj.orderedItems && orderObj.orderedItems.length > 0) { %>
+    <% orderObj.orderedItems.forEach((item,index) => { %>
+      <div class="order-card">
+       
+      <img src="/<%= item.productImages[0] %>" 
+     alt="<%= item.productName || 'Product Image' %>" 
+     class="order-img" />
+
+
+        <div class="details">
+          <a href="/viewOrderDetails/<%= orderObj._id %>" class="product-name" title="View Order Details"><strong><%= item.productName || 'Product' %></strong></a>
+          <div>Size: <%= item.size || 'N/A' %></div>
+          <div>Color: <%= item.color || 'N/A' %></div>
+          <div>Quantity: <%= item.quantity %></div>
+        </div>
+
+        <div class="center-info">
+          <strong>₹$<%= item.finalPrice.toFixed(2) %></strong>
+          <strong style="color: #0baf5d;">Total :  $<%=(parseInt(item.finalPrice) * parseInt(item.quantity)).toLocaleString()%></strong>
+          <div>
+            <% if(item.status === 'delivered') { %>
+              Delivered On<br><%= new Date(item.deliveredOn || orderObj.deliveredOn).toLocaleDateString() %>
+          
+            <% } else if (
+              item.status === 'cancelled' ||
+              item.status === 'return_requested' ||
+              item.status === 'returning' ||
+              item.status === 'returned'
+            ) { %>
+              
+            
+            <% } else { %>
+              <% 
+                const createdDate = new Date(orderObj.createdOn);
+                const deliveryDays = 5; // or item-specific if available
+                const deliveryDate = new Date(createdDate);
+                deliveryDate.setDate(createdDate.getDate() + deliveryDays);
+              %>
+              Delivery Expected By<br><%= deliveryDate.toLocaleDateString() %>
+            <% } %>
+          </div>
+          <small style="color: #cc1b2d;font-size :larger;">
+           <% if(item.status === 'delivered') { %>
+          Your item has been delivered
+        <% } else if(item.status === 'cancelled') { %>
+          Your item has been cancelled
+        <% } else if(item.status === 'return_requested') { %>
+          Your return request is being processed
+        <% } else if(item.status === 'returning') { %>
+          Your item is being returned
+        <% } else if(item.status === 'returned') { %>
+          Your item has been successfully returned
+        <% } else { %>
+          Your item order has been placed
+        <% } %>
+          </small>
+
+          <div class="timeline" aria-label="Order status timeline">
+            <% 
+              const statuses = ['pending', 'confirmed', 'shipped', 'delivered']; 
+              const currentStatusIndex = statuses.indexOf(item.status);
+            %>
+            <% statuses.forEach((status, idx) => { %>
+              <div class="step-container">
+                <div class="step <%= idx <= currentStatusIndex ? '' : 'inactive' %>"></div>
+                <div class="step-label"><%= status.replace('_', ' ') %></div>
               </div>
-            </div> -->
-            <!-- <div class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10" id="updateCartBtn">
-              Update Cart
-            </div> -->
-          <!-- </div> -->
+            <% }) %>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+                        <% if(
+                          item.status !== 'cancelled' &&
+                          item.status !== 'delivered' &&
+                          item.status !== 'return_requested'&&
+                          item.status !== 'returned'&&
+                          orderObj.status !== 'cancelled'
+                        ) { %>
+                          
+                    <button onclick="confirmCancelOrder('<%= orderObj.orderId %>', <%= index %>)" class="btn-cancel">Cancel Item</button>
+
+                    <% } else if(item.status === 'cancelled') { %>
+                      <button disabled class="btn-cancel" style="opacity: 0.6; cursor: not-allowed;">Item Cancelled</button>
+                    <% } else if(item.status === 'delivered') { %>
+                      <button disabled class="btn-cancel" style="opacity: 0.6; cursor: not-allowed;">Item Delivered</button>
+                    <% } %>
+
+                      <!-- Return Request Button -->
+              <% if(item.status === 'delivered') { %>
+                <button class="btn-return" onclick="requestReturn('<%= orderObj.orderId %>', <%= index %>)">Request Return</button>
+              <% } else if(item.status === 'return_requested') { %>
+                <button disabled class="btn-return" style="opacity: 0.6; cursor: not-allowed;">Return Requested</button>
+              <% } else if(item.status === 'returning') { %>
+                <button disabled class="btn-return" style="opacity: 0.6; cursor: not-allowed;">Returning</button>
+              <% } else if(item.status === 'returned') { %>
+                <button disabled class="btn-return" style="opacity: 0.6; cursor: not-allowed;">Returned</button>
+              <% } %>
+                  
+
+         
         </div>
       </div>
+    <% }) %>
+  <% } else { %>
+    <p class="text-center">No ordered items found.</p>
+  <% } %>
 
-      <div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
-        <div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
-          <h4 class="mtext-109 cl2 p-b-30">Cart Totals</h4>
+  <div class="pagination" role="navigation" aria-label="Pagination">
+    <% if(totalPages && totalPages > 1) { %>
+      <% if(currentPage > 1) { %>
+        <button onclick="location.href='?page=<%= currentPage - 1 %>'" aria-label="Previous page">&lt;</button>
+      <% } else { %>
+        <button disabled aria-label="Previous page">&lt;</button>
+      <% } %>
 
-          <div class="flex-w flex-t bor12 p-b-13">
-            <div class="size-208">
-              <span class="stext-110 cl2">Subtotal:</span>
-            </div>
-            <div class="size-209">
-              <span class="mtext-110 cl2" id="total">$ <%= grandTotal.toFixed(2) %></span>
-            </div>
-          </div>
+      <% for(let i = 1; i <= totalPages; i++) { %>
+        <button
+          class="<%= currentPage === i ? 'active' : '' %>"
+          aria-current="<%= currentPage === i ? 'page' : false %>"
+          onclick="location.href='?page=<%= i %>'"
+        ><%= i %></button>
+      <% } %>
 
-          <div class="flex-w flex-t bor12 p-t-15 p-b-30">
-            <div class="size-208 w-full-ssm">
-              <span class="stext-110 cl2">Shipping:</span>
-            </div>
-            <div class="size-209">
-              <span class="mtext-110 cl2" id="shippingCharge">$ <%= shippingCharge.toFixed(2) %></span>
-              <a href="#" onclick="viewShippingCharge()" class="text-blue text-sm">View shipping charge</a>
-            </div>
-          </div>
+      <% if(currentPage < totalPages) { %>
+        <button onclick="location.href='?page=<%= currentPage + 1 %>'" aria-label="Next page">&gt;</button>
+      <% } else { %>
+        <button disabled aria-label="Next page">&gt;</button>
+      <% } %>
+    <% } %>
+  </div>
+</div>
+<!-- Bootstrap 5 CSS & JS -->
 
-          <div class="flex-w flex-t p-t-27 p-b-33">
-            <div class="size-208">
-              <span class="mtext-101 cl2">Total:</span>
-            </div>
-            <div class="size-209 p-t-1">
-              <span class="mtext-110 cl2" id="totalPayable">$ <%= totalPayable.toFixed(2) %></span>
-            </div>
-          </div>
-         
-          <!-- <a href="/checkout" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"> 
-            Proceed to Checkout
-          </a> -->
-          <% const hasOutOfStock = cartItems.some(item => item.productStock <= 0); %>
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script> -->
 
-          <a 
-            href="<%= hasOutOfStock ? 'javascript:void(0)' : '/checkout' %>" 
-            id="proceedCheckout"
-            class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
-            data-disabled="<%= hasOutOfStock %>"
-          >
-            Proceed to Checkout
-          </a>
-          
-        </div>
+<!-- Invoice Download Confirmation Modal -->
+<div class="modal fade" id="invoiceDownloadModal" tabindex="-1" aria-labelledby="invoiceDownloadLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="invoiceDownloadLabel">Download Invoice</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Do you want to download the invoice for this order?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button id="confirmDownloadBtn" type="button" class="btn btn-primary">Download</button>
       </div>
     </div>
   </div>
-</form>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- Script to show alert if out-of-stock -->
+</div>
 
 <script>
-  document.getElementById('proceedCheckout').addEventListener('click', function(event) {
-    const isDisabled = this.getAttribute('data-disabled') === 'true';
-    if (isDisabled) {
-      event.preventDefault(); // prevent navigation
-      Swal.fire({
-        icon: 'warning',
-        title: 'Out of Stock',
-        text: 'Some products are out of stock. Please update your cart before proceeding to checkout.',
-        confirmButtonText: 'OK'
-      });
-    }
+  let currentOrderId = null;
+  
+  function openInvoiceModal(orderId) {
+    currentOrderId = orderId;
+    const modal = new bootstrap.Modal(document.getElementById('invoiceDownloadModal'));
+    modal.show();
+  }
+
+  document.getElementById('confirmDownloadBtn').addEventListener('click', () => {
+    if (!currentOrderId) return;
+    const url = `/orders/download-invoice?orderId=${currentOrderId}`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = ''; // server provides filename
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    const modalEl = document.getElementById('invoiceDownloadModal');
+    bootstrap.Modal.getInstance(modalEl).hide();
   });
 </script>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include SweetAlert2 from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  function viewShippingCharge() {
+  function confirmCancelOrder(orderId, itemIndex) {
     Swal.fire({
-      title: 'Shipping Charge',
-      text: 'Shipping charge is ₹ 50.00 for all orders below 500.',
-      icon: 'info',
-      confirmButtonText: 'OK'
-    });
-  }
-
- 
-
-
-  function changeQuantity(productId, count, productPrice, index, maxStock, size, color) {
-    maxStock = parseInt(maxStock);
-    const quantityInput = document.getElementById(`cartProductQuantity${index}`);
-    const subtotalElement = document.getElementById(`subTotal${index}`);
-    const totalElement = document.getElementById('total');
-    const shippingChargeElement = document.getElementById('shippingCharge');
-    const totalPayableElement = document.getElementById('totalPayable');
-
-    const currentQuantity = parseInt(quantityInput.value);
-    const attemptedQuantity = currentQuantity + count;
-
-    // 🔴 Show SweetAlerts before sending AJAX
-
-    if (attemptedQuantity < 1) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Oops!',
-        text: 'You could not decrease quantity below 1.'
-      });
-      return;
-    }
-
-    if (attemptedQuantity > 3) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Oops!',
-        text: 'You could not increase quantity. Maximum 3 units allowed.'
-      });
-      return;
-    }
-
-    if (attemptedQuantity > maxStock) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Oops!',
-        text: 'Not enough stock available.'
-      });
-      return;
-    }
-
-    // ✅ Send to backend
-    $.ajax({
-      url: '/changeQuantity',
-      method: 'POST',
-      data: { productId, count, size, color },
-      success: (response) => {
-        if (response.status) {
-          const newQuantity = response.newQuantity;
-          quantityInput.value = newQuantity;
-
-          if (subtotalElement) {
-            subtotalElement.innerText = (newQuantity * productPrice).toFixed(2);
-          }
-          if (totalElement) {
-            totalElement.innerText = response.grandTotal.toFixed(2);
-          }
-          if (shippingChargeElement) {
-            shippingChargeElement.innerText = response.shippingCharge.toFixed(2);
-          }
-          if (totalPayableElement) {
-            totalPayableElement.innerText = response.totalPayable.toFixed(2);
-          }
-
-          // Disable buttons if needed
-          const btnMinus = quantityInput.previousElementSibling;
-          const btnPlus = quantityInput.nextElementSibling;
-          btnMinus.disabled = newQuantity <= 1;
-          btnPlus.disabled = newQuantity >= Math.min(3, maxStock);
-        } else {
-          Swal.fire('Error', response.error || 'Could not update quantity', 'error');
-        }
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', 'Server error while updating quantity', 'error');
-      }
-    });
-  }
-
-
-
- /* function changeQuantity(productId, count, productPrice, index, maxStock,size, color) {
-    maxStock = parseInt(maxStock);
-    const quantityInput = document.getElementById(`cartProductQuantity${index}`);
-    const subtotalElement = document.getElementById(`subTotal${index}`);
-    const totalElement = document.getElementById('total');
-    const shippingChargeElement = document.getElementById('shippingCharge');
-    const totalPayableElement = document.getElementById('totalPayable');
-   
-  
-    let currentQuantity = parseInt(quantityInput.value);
-    let newQuantity = currentQuantity + count;
-  
-    if (newQuantity < 1) {
-      Swal.fire('Oops!', 'Quantity cannot be less than 1', 'warning');
-      return;
-    }
-    if (newQuantity > 3) {
-      Swal.fire('Oops!', 'You can add a maximum of 3 units per product.', 'warning');
-      return;
-    }
-    
-    if (newQuantity > maxStock) {
-      Swal.fire('Oops!', 'Not enough stock available.', 'warning');
-      return;
-    }
-  
-    $.ajax({
-      url: '/changeQuantity',
-      method: 'POST',
-      data: {
-        productId: productId,
-        count: count,
-        size: size,
-        color: color
-      },
-      success: (response) => {
-        if (response.status) {
-          
-          
-          // Update UI only on success
-          quantityInput.value = newQuantity;
-  
-          if (subtotalElement) {
-            subtotalElement.innerText = (newQuantity * productPrice).toFixed(2);
-          }
-          if (totalElement && response.grandTotal !== undefined) {
-            totalElement.innerText = response.grandTotal.toFixed(2);
-          }
-          if (shippingChargeElement && response.shippingCharge !== undefined) {
-            shippingChargeElement.innerText = response.shippingCharge.toFixed(2);
-          }
-          if (totalPayableElement && response.totalPayable !== undefined) {
-            totalPayableElement.innerText = response.totalPayable.toFixed(2);
-          }
-  
-          // Enable or disable buttons accordingly
-          const btnMinus = quantityInput.previousElementSibling;
-          const btnPlus = quantityInput.nextElementSibling;
-          btnMinus.disabled = newQuantity <= 1;
-          btnPlus.disabled = newQuantity >= Math.min(3, maxStock);
-        } else {
-          Swal.fire('Error', response.error || 'Could not update quantity', 'error');
-        }
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', 'Server error while updating quantity', 'error');
-      }
-    });
-  }*/
-  /*function changeQuantity(productId, count, productPrice, index, maxStock, size, color) {
-    maxStock = parseInt(maxStock);
-    const quantityInput = document.getElementById(`cartProductQuantity${index}`);
-    const subtotalElement = document.getElementById(`subTotal${index}`);
-    const totalElement = document.getElementById('total');
-    const shippingChargeElement = document.getElementById('shippingCharge');
-    const totalPayableElement = document.getElementById('totalPayable');
-  
-    let currentQuantity = parseInt(quantityInput.value);
-    let newQuantity = currentQuantity + count;
-  
-    // 🔴 Block invalid before sending request
-    if (newQuantity < 1) {
-      Swal.fire('Oops!', 'Quantity cannot be less than 1', 'warning');
-      return; // 🔴 Stop here
-    }
-  
-    if (newQuantity > 3) {
-      Swal.fire('Oops!', 'You can add a maximum of 3 units per product.', 'warning');
-      return; // 🔴 Stop here
-    }
-  
-    if (newQuantity > maxStock) {
-      Swal.fire('Oops!', 'Not enough stock available.', 'warning');
-      return; // 🔴 Stop here
-    }
-  
-    // ✅ Send to backend now
-    $.ajax({
-      url: '/changeQuantity',
-      method: 'POST',
-      data: {
-        productId,
-        count,
-        size,
-        color
-      },
-      success: (response) => {
-        if (response.status) {
-          // 🔴 UI update only if backend allows it
-          const newQuantity = response.newQuantity; // ✅ Correct
-
-          if (subtotalElement) {
-            subtotalElement.innerText = (newQuantity * productPrice).toFixed(2);
-          }
-          if (totalElement && response.grandTotal !== undefined) {
-            totalElement.innerText = response.grandTotal.toFixed(2);
-          }
-          if (shippingChargeElement && response.shippingCharge !== undefined) {
-            shippingChargeElement.innerText = response.shippingCharge.toFixed(2);
-          }
-          if (totalPayableElement && response.totalPayable !== undefined) {
-            totalPayableElement.innerText = response.totalPayable.toFixed(2);
-          }
-  
-          // Disable/enable +/- buttons
-          const btnMinus = quantityInput.previousElementSibling;
-          const btnPlus = quantityInput.nextElementSibling;
-          btnMinus.disabled = newQuantity <= 1;
-          btnPlus.disabled = newQuantity >= Math.min(3, maxStock);
-        } else {
-          Swal.fire('Error', response.error || 'Could not update quantity', 'error');
-        }
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', 'Server error while updating quantity', 'error');
-      }
-    });
-  }*/
-  
-  
-  //Remove cart product
-  function confirmRemove(productId, size, color, index) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you want to remove this item from your cart?',
-      icon: 'warning',
+      title: 'Cancel Order Item',
+      input: 'textarea',
+      inputLabel: 'Reason for cancellation (optional):',
+      inputPlaceholder: 'Write your reason here...',
       showCancelButton: true,
-      confirmButtonText: 'Yes, remove it!'
+      confirmButtonText: 'Cancel Item',
+      cancelButtonText: 'Keep Item',
     }).then((result) => {
       if (result.isConfirmed) {
-        // Call your backend to remove the item
-        $.ajax({
-          url: '/removeCartItem',
-          method: 'POST',
-          data: { productId, size, color },
-          success: (response) => {
-            if(response.status){
-              Swal.fire('Removed!', 'Your item has been removed.', 'success').then(() => {
-                location.reload();
-              });
-            } else {
-              Swal.fire('Error', response.message || 'Failed to remove item', 'error');
-            }
-          },
-          error: () => {
-            Swal.fire('Error', 'Server error while removing item', 'error');
-          }
-        });
+        cancelOrderItem(orderId, itemIndex, result.value);
       }
     });
   }
   
-
+  function cancelOrderItem(orderId, itemIndex, reason) {
+    $.ajax({
+      url: '/cancelOrder',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ orderId, itemIndex, reason }),
+      success: (response) => {
+        Swal.fire('Cancelled!', 'The order item has been cancelled.', 'success').then(() => {
+          window.location.reload();
+        });
+      },
+      error: (error) => {
+        Swal.fire('Error!', 'There was an error cancelling the order item.', 'error');
+        console.error(error);
+      }
+    });
+  }
+  
 </script>
-<!-- <script>
-  function changeQuantity(productId, count, productPrice, index, maxStock, size, color) {
-    const quantityInput = document.getElementById(`cartProductQuantity${index}`);
-    const subtotalElement = document.getElementById(`subTotal${index}`);
-    const totalElement = document.getElementById('total');
-    const shippingChargeElement = document.getElementById('shippingCharge');
-    const totalPayableElement = document.getElementById('totalPayable');
 
-    $.ajax({
-      url: '/changeQuantity',
-      method: 'POST',
-      data: {
-        productId,
-        count,
-        size,
-        color
-      },
-      success: (response) => {
-        if (response.status) {
-          const newQuantity = response.quantityInput;
-
-          // ✅ Update input box value
-          quantityInput.value = newQuantity;
-
-          // ✅ Update subtotal
-          if (subtotalElement) {
-            subtotalElement.innerText = (newQuantity * productPrice).toFixed(2);
+  <script>
+    function requestReturn(orderId, itemIndex) {
+      Swal.fire({
+        title: 'Request Return',
+        input: 'textarea',
+        inputLabel: 'Reason for return (required):',
+        inputPlaceholder: 'Please provide the reason for return',
+        showCancelButton: true,
+        confirmButtonText: 'Submit Return Request',
+        cancelButtonText: 'Cancel',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'You must provide a return reason!'
           }
-
-          // ✅ Update totals
-          if (totalElement && response.grandTotal !== undefined) {
-            totalElement.innerText = response.grandTotal.toFixed(2);
-          }
-          if (shippingChargeElement && response.shippingCharge !== undefined) {
-            shippingChargeElement.innerText = response.shippingCharge.toFixed(2);
-          }
-          if (totalPayableElement && response.totalPayable !== undefined) {
-            totalPayableElement.innerText = response.totalPayable.toFixed(2);
-          }
-
-          // ✅ Enable/disable plus and minus buttons
-          const btnMinus = quantityInput.previousElementSibling;
-          const btnPlus = quantityInput.nextElementSibling;
-          btnMinus.disabled = newQuantity <= 1;
-          btnPlus.disabled = newQuantity >= Math.min(3, maxStock);
-
-        } else {
-          console.log('Showing SweetAlert: Error from server:', response.error); // 👈 log error
-          Swal.fire('Error', response.error || 'Could not update quantity', 'warning');
         }
-      },
-      error: (err) => {
-        console.error('AJAX Request Failed:', err);
-        Swal.fire('Error', 'Server error while updating quantity', 'error');
-      }
-    });
-  }
-</script> -->
-<!-- <script>
-  function changeQuantity(productId, count, productPrice, index, maxStock, size, color) {
-    maxStock = parseInt(maxStock);
-    const quantityInput = document.getElementById(`cartProductQuantity${index}`);
-    const subtotalElement = document.getElementById(`subTotal${index}`);
-    const totalElement = document.getElementById('total');
-    const shippingChargeElement = document.getElementById('shippingCharge');
-    const totalPayableElement = document.getElementById('totalPayable');
-
-    let currentQuantity = parseInt(quantityInput.value);
-    let attemptedQuantity = currentQuantity + count;
-
-    // Block attempt before request (for UX)
-    if (attemptedQuantity < 1) {
-      Swal.fire('Oops!', 'Quantity cannot be less than 1', 'warning');
-      return;
-    }
-
-    if (attemptedQuantity > 3) {
-      Swal.fire('Oops!', 'You can add a maximum of 3 units per product.', 'warning');
-      return;
-    }
-
-    if (attemptedQuantity > maxStock) {
-      Swal.fire('Oops!', 'Not enough stock available.', 'warning');
-      return;
-    }
-
-    // Make the server request
-    $.ajax({
-      url: '/changeQuantity',
-      method: 'POST',
-      data: {
-        productId,
-        count,
-        size,
-        color
-      },
-      success: (response) => {
-        if (response.status) {
-          const newQuantity = response.newQuantity;
-
-          // ✅ Update input box
-          quantityInput.value = newQuantity;
-
-          // ✅ Update subtotal and totals
-          if (subtotalElement) {
-            subtotalElement.innerText = (newQuantity * productPrice).toFixed(2);
-          }
-          if (totalElement && response.grandTotal !== undefined) {
-            totalElement.innerText = response.grandTotal.toFixed(2);
-          }
-          if (shippingChargeElement && response.shippingCharge !== undefined) {
-            shippingChargeElement.innerText = response.shippingCharge.toFixed(2);
-          }
-          if (totalPayableElement && response.totalPayable !== undefined) {
-            totalPayableElement.innerText = response.totalPayable.toFixed(2);
-          }
-
-          // ✅ Enable/disable buttons
-          const btnMinus = quantityInput.previousElementSibling;
-          const btnPlus = quantityInput.nextElementSibling;
-          btnMinus.disabled = newQuantity <= 1;
-          btnPlus.disabled = newQuantity >= Math.min(3, maxStock);
-
-        } else {
-          Swal.fire('Error', response.error || 'Could not update quantity', 'warning');
-
-          // ⛔ Roll back input visually (safety fallback)
-          quantityInput.value = currentQuantity;
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: '/orders/return-request',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ orderId, itemIndex, reason: result.value }),
+            success: () => {
+              Swal.fire('Requested!', 'Your return request has been submitted.', 'success').then(() => {
+                location.reload();
+              });
+            },
+            error: (xhr) => {
+              Swal.fire('Error!', xhr.responseText || 'Failed to submit return request.', 'error');
+            }
+          });
         }
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', 'Server error while updating quantity', 'error');
-      }
-    });
-  }
-</script> -->
+      });
+    }
+</script>
 
 
 
-<%- include('../partials/user/footer') %>
+ </body>
+</html>

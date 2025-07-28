@@ -28,38 +28,6 @@
     font-size: 0.6em;
   }
   
-  /* Enable submenu on hover */
-/*.dropdown-submenu {
-    position: relative;
-  }
-  
-  .dropdown-submenu > .dropdown-menu {
-    top: 0;
-    left: 100%;
-    margin-left: 0.1rem;
-    margin-right: 0.1rem;
-    display: none;
-    position: absolute;
-    z-index: 1000;
-  }
-  
-  .dropdown-submenu:hover > .dropdown-menu {
-    display: block;
-  }
-  
-  
-  .dropdown-submenu > a:after {
-    content: "▶";
-    float: right;
-    margin-left: 5px;
-    font-size: 0.6em;
-  }*/
- 
-  
-  /* Wish list */
- /* .btn-addwish-b2 .icon-heart2 { display: none; }
-  .btn-addwish-b2.wishlisted .icon-heart1 { display: none; }
-  .btn-addwish-b2.wishlisted .icon-heart2 { display: inline; }*/
   .btn-addwish-b2 .icon-heart2 { 
     display: none; 
   }
@@ -106,29 +74,8 @@
                  
                   </ul>
                 </div>
-             <!-- Category -->
-                <!-- <div class="dropdown me-3">
-                    <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                      Select Category
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="categoryDropdown" id="categoryMenu">
-                      <% category.forEach(cat => { %>
-                        <li>
-                          <button class="dropdown-item category-item" type="button" data-category-id="<%= cat._id %>">
-                            <%= cat.name %>
-                          </button>
-                        </li>
-                      <% }) %>
-                    </ul>
-                  </div>
-                  <div class="dropdown">
-                    <button class="btn dropdown-toggle" type="button" id="subcategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false" disabled>
-                      Select Subcategory
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="subcategoryDropdown" id="subcategoryMenu">
-                      <li><span class="dropdown-item-text">Select a category first</span></li>
-                    </ul>
-                  </div> -->
+
+          
                   <div class="dropdown">
                     <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
                       Category
@@ -141,7 +88,11 @@
                             <ul class="dropdown-menu">
                               <% cat.subcategories.forEach(subcat => { 
                                    if (subcat.isListed && !subcat.isDeleted) { %>
-                                <li><a class="dropdown-item" href="/filter?subcategory=<%= subcat._id %>"><%= subcat.name %></a></li>
+                                <li>
+                                  <!-- <a class="dropdown-item" href="/filter?subcategory=<%= subcat._id %>"><%= subcat.name %></a> -->
+                                  <a class="dropdown-item subcategory-filter" href="#" data-subcategory-id="<%= subcat._id %>"><%= subcat.name %></a>
+
+                                </li>
                               <% } }) %>
                             </ul>
                           <% } %>
@@ -163,9 +114,13 @@
                   <ul class="dropdown-menu" aria-labelledby="brandDropdown">
                     <% for(let i = 0; i < brands.length; i++) { %>
                         <li>
-                          <a class="dropdown-item" href="/filter?brand=<%=brands[i]._id%>" data-filter=".<%= brands[i].brandName.toLowerCase().replace(/\s+/g, '-') %>">
+                          <!-- <a class="dropdown-item" href="/filter?brand=<%=brands[i]._id%>" data-filter=".<%= brands[i].brandName.toLowerCase().replace(/\s+/g, '-') %>">
+                            <%= brands[i].brandName %>
+                          </a> -->
+                          <a class="dropdown-item brand-filter" href="#" data-brand-id="<%= brands[i]._id %>">
                             <%= brands[i].brandName %>
                           </a>
+                          
                         </li>
                       <% } %>
                    
@@ -193,18 +148,7 @@
             </div>
         </div>
 
-        <!-- Search product panel -->
-        <!-- <div class="dis-none panel-search w-full p-t-10 p-b-15">
-            <div class="bor8 dis-flex p-l-15">
-                <button class="icon-close-search cl2 p-r-15" type="button">
-                    <i class="zmdi zmdi-close"></i>
-                </button>
-                <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
-                    <i class="zmdi zmdi-search"></i>
-                </button>
-                <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product" placeholder="Search" />
-            </div>
-        </div> -->
+       
         <div class="panel-search dis-none w-full p-t-10 p-b-15">
         <form action="/shop" method="GET" class="w-full p-t-10 p-b-15">
             <div class="bor8 dis-flex p-l-15">
@@ -274,48 +218,7 @@
                   </div>
                   
 
-                <!-- Color -->
-                <!-- <div class="filter-col3 p-r-15 p-b-27">
-                    <div class="mtext-102 cl2 p-b-15">Color</div>
-                    <ul>
-                        <li class="p-b-6">
-                            <span class="fs-15 lh-12 m-r-6" style="color: #222;">
-                                <i class="zmdi zmdi-circle"></i>
-                            </span>
-                            <a href="#" class="filter-link stext-106 trans-04">Black</a>
-                        </li>
-                        <li class="p-b-6">
-                            <span class="fs-15 lh-12 m-r-6" style="color: #4272d7;">
-                                <i class="zmdi zmdi-circle"></i>
-                            </span>
-                            <a href="#" class="filter-link stext-106 trans-04 filter-link-active">Blue</a>
-                        </li>
-                        <li class="p-b-6">
-                            <span class="fs-15 lh-12 m-r-6" style="color: #b3b3b3;">
-                                <i class="zmdi zmdi-circle"></i>
-                            </span>
-                            <a href="#" class="filter-link stext-106 trans-04">Grey</a>
-                        </li>
-                        <li class="p-b-6">
-                            <span class="fs-15 lh-12 m-r-6" style="color: #00ad5f;">
-                                <i class="zmdi zmdi-circle"></i>
-                            </span>
-                            <a href="#" class="filter-link stext-106 trans-04">Green</a>
-                        </li>
-                        <li class="p-b-6">
-                            <span class="fs-15 lh-12 m-r-6" style="color: #fa4251;">
-                                <i class="zmdi zmdi-circle"></i>
-                            </span>
-                            <a href="#" class="filter-link stext-106 trans-04">Red</a>
-                        </li>
-                        <li class="p-b-6">
-                            <span class="fs-15 lh-12 m-r-6" style="color: #aaa;">
-                                <i class="zmdi zmdi-circle-o"></i>
-                            </span>
-                            <a href="#" class="filter-link stext-106 trans-04">White</a>
-                        </li>
-                    </ul>
-                </div> -->
+              
 
                 <!-- Color Filter -->
 <div class="filter-col3 p-r-15 p-b-27">
@@ -403,7 +306,7 @@
   
 
                 <!-- Tags -->
-                <div class="filter-col4 p-b-27">
+                <!-- <div class="filter-col4 p-b-27">
                     <div class="mtext-102 cl2 p-b-15">Tags</div>
                     <div class="flex-w p-t-4 m-r--5">
                         <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">Fashion</a>
@@ -412,7 +315,7 @@
                         <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">Streetstyle</a>
                         <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">Crafts</a>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -518,6 +421,7 @@
 <script src="vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
 
 <script>
   $(".js-addwish-b2, .js-addwish-detail").on("click", function (e) {
@@ -644,93 +548,38 @@
       });
     });
   </script>
- <!-- <script>
-    const categoriesData = <%- JSON.stringify(category) %>;
+
   
-    const categoryItems = document.querySelectorAll('.category-item');
-    const subcategoryMenu = document.getElementById('subcategoryMenu');
-    const subcategoryDropdownButton = document.getElementById('subcategoryDropdown');
-    const categoryDropdownButton = document.getElementById('categoryDropdown');
-   
-    categoryItems.forEach(item => {
-      item.addEventListener('click', () => {
-        const selectedCategoryId = item.getAttribute('data-category-id');
-        const selectedCategory = categoriesData.find(cat => cat._id === selectedCategoryId);
+  <script>
+    // Subcategory click handler
+    document.querySelectorAll('.subcategory-filter').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const subcategoryId = this.dataset.subcategoryId;
+        const params = new URLSearchParams(window.location.search);
   
-        if (!selectedCategory) return;
+        params.set('subcategory', subcategoryId);
+        params.set('page', '1'); // Reset to page 1 on filter change
   
-        // Update category button text
-        categoryDropdownButton.textContent = selectedCategory.name;
-  
-        // Enable and reset subcategory button
-        subcategoryDropdownButton.disabled = false;
-        subcategoryDropdownButton.textContent = 'Select Subcategory';
-  
-        // Clear old subcategories
-        subcategoryMenu.innerHTML = '';
-  
-        if (selectedCategory.subcategories && selectedCategory.subcategories.length > 0) {
-          const filteredSubcats = selectedCategory.subcategories.filter(subcat => subcat.isListed && !subcat.isDeleted);
-  
-          if (filteredSubcats.length > 0) {
-            filteredSubcats.forEach(subcat => {
-              const li = document.createElement('li');
-              li.innerHTML = `<a class="dropdown-item" href="/filter?subcategory=${subcat._id}">${subcat.name}</a>`;
-              subcategoryMenu.appendChild(li);
-            });
-          } else {
-            subcategoryMenu.innerHTML = '<li><span class="dropdown-item-text">No subcategories available</span></li>';
-          }
-        } else {
-          subcategoryMenu.innerHTML = '<li><span class="dropdown-item-text">No subcategories available</span></li>';
-        }
+        window.location.href = '/filter?' + params.toString();
       });
     });
-  </script> -->
-  <script>
-    document.querySelectorAll('.category-item').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const categoryId = btn.dataset.categoryId;
   
-        const subcategoryDropdown = document.getElementById('subcategoryDropdown');
-        const subcategoryMenu = document.getElementById('subcategoryMenu');
-        
-        // Enable subcategory dropdown
-        subcategoryDropdown.disabled = false;
-        subcategoryDropdown.innerText = 'Select Subcategory';
+    // Brand click handler
+    document.querySelectorAll('.brand-filter').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const brandId = this.dataset.brandId;
+        const params = new URLSearchParams(window.location.search);
   
-        // Fetch subcategories
-        const response = await fetch(`/api/subcategories/${categoryId}`);
-        const subcategories = await response.json();
+        params.set('brand', brandId);
+        params.set('page', '1'); // Reset to page 1 on filter change
   
-        // Build nested list
-        subcategoryMenu.innerHTML = '';
-        if (subcategories.length === 0) {
-          subcategoryMenu.innerHTML = '<li><span class="dropdown-item-text">No subcategories</span></li>';
-          return;
-        }
-  
-        subcategories.forEach(sub => {
-          const li = document.createElement('li');
-          if (sub.children.length === 0) {
-            li.innerHTML = `<button class="dropdown-item subcategory-item" type="button" data-sub-id="${sub._id}">${sub.name}</button>`;
-          } else {
-            // Create nested submenu
-            li.classList.add('dropdown-submenu');
-            li.innerHTML = `
-              <a class="dropdown-item dropdown-toggle" href="#">${sub.name}</a>
-              <ul class="dropdown-menu">
-                ${sub.children.map(child => `
-                  <li><button class="dropdown-item subcategory-item" data-sub-id="${child._id}">${child.name}</button></li>
-                `).join('')}
-              </ul>
-            `;
-          }
-          subcategoryMenu.appendChild(li);
-        });
+        window.location.href = '/filter?' + params.toString();
       });
     });
   </script>
+  
   
   <!-- Color and Size filter -->
   <script>
@@ -770,50 +619,7 @@
     handleFilterClick('sizeFilterList', 'size');
 
 
-    //Add to Wishlist
-
-   /* function addToWishlist(productId) {
-      $.ajax({
-        url: '/addToWishlist',
-        method: 'POST',
-        data: { productId: productId },
-        success: (response) => {
-          if (response.status) {
-            Swal.fire({
-              title: 'Added to wishlist',
-              text: 'The product has been added to your wishlist',
-              icon: 'success',
-              timer: 2000
-            });
   
-            // Toggle icon to filled red heart
-           /* const icon = document.querySelector(`.wishlist-btn[onclick="addToWishlist('${productId}')"] i`);
-            if (icon) {
-              icon.classList.remove('far');
-              icon.classList.add('fas');
-              icon.style.color = 'red';
-            }
-  
-          } else {
-            Swal.fire({
-              title: 'Already in wishlist',
-              text: response.message,
-              icon: 'info',
-              timer: 2000
-            });
-          }
-        },
-        error: (error) => {
-          Swal.fire({
-            title: 'Error',
-            text: 'There was an error adding the product to your wishlist',
-            icon: 'error',
-            timer: 2000
-          });
-        }
-      });
-    }*/
-
 
       function addToWishlist(productId, event) {
         event.preventDefault();
@@ -842,8 +648,10 @@
       }
     
   </script>
-  
-  
 
+
+  
+  
+  
 
 <%- include('../partials/user/footer') %>

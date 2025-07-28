@@ -440,7 +440,7 @@ const getOrderSuccessPage = async (req, res) => {
         orderObj: order,
         totalPages,
         currentPage,
-        
+        user: req.session.user,
       });
   
     } catch (err) {

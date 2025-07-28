@@ -1,321 +1,921 @@
-<%- include("../../views/partials/admin/header") %>
+<%- include('../partials/user/header') %>
 
-<!-- External Libraries -->
-<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script> -->
 
+<div>
+    <br><br><br>
+</div>
 <style>
-  body {
-    background-color: #f5f6fa;
-    font-family: 'Segoe UI', sans-serif;
+  /* Dropdown submenu style */
+  .dropdown-submenu {
+    position: relative;
   }
-  .card {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  .dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-left: 0.1rem;
+    display: none;
+    position: absolute;
   }
-  .icon-box {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .dropdown-submenu:hover > .dropdown-menu {
+    display: block;
   }
-  .bg-blue { background-color: #e0f7fa; color: #007bff; }
-  .bg-green { background-color: #e8f5e9; color: #28a745; }
-  .bg-orange { background-color: #ffe5d9; color: #fd7e14; }
-  .bg-purple { background-color: #f3e5f5; color: #6f42c1; }
-  .status-badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
+  .dropdown-submenu > a::after {
+    content: "▶";
+    float: right;
+    margin-left: 5px;
+    font-size: 0.6em;
   }
-  .delivered { background-color: #d4edda; color: #155724; }
-  .pending { background-color: #fff3cd; color: #856404; }
-  .cancelled { background-color: #f8d7da; color: #721c24; }
+  
+  /* Enable submenu on hover */
+/*.dropdown-submenu {
+    position: relative;
+  }
+  
+  .dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-left: 0.1rem;
+    margin-right: 0.1rem;
+    display: none;
+    position: absolute;
+    z-index: 1000;
+  }
+  
+  .dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+  }
+  
+  
+  .dropdown-submenu > a:after {
+    content: "▶";
+    float: right;
+    margin-left: 5px;
+    font-size: 0.6em;
+  }*/
+ 
+  
+  /* Wish list */
+ /* .btn-addwish-b2 .icon-heart2 { display: none; }
+  .btn-addwish-b2.wishlisted .icon-heart1 { display: none; }
+  .btn-addwish-b2.wishlisted .icon-heart2 { display: inline; }*/
+  .btn-addwish-b2 .icon-heart2 { 
+    display: none; 
+  }
+  
+  .btn-addwish-b2.wishlisted .icon-heart1 { 
+    display: inline; /* empty heart visible by default */
+  }
+  
+  .btn-addwish-b2.wishlisted:hover .icon-heart1 { 
+    display: none;
+  }
+  
+  .btn-addwish-b2.wishlisted:hover .icon-heart2 { 
+    display: inline; /* show filled heart on hover */
+  }
+  
+  .btn-addwish-b2:not(.wishlisted) .icon-heart1 { 
+    display: inline; /* empty heart visible for not wishlisted */
+  }
+  
+  .btn-addwish-b2:not(.wishlisted) .icon-heart2 { 
+    display: none; /* no filled heart for not wishlisted */
+  }
+  
+  
 </style>
 
-<div class="container py-4">
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="font-weight-bold">📈 Dashboard</h2>
-  </div>
 
-  <!-- Summary Cards -->
-  <div class="row mb-4" id="summaryCards">
-    <!-- Summary card values will be injected via JavaScript -->
-  </div>
+<!-- Product Section -->
+<div class="bg0 m-t-23 p-b-140">
+    <div class="container">
+        <!-- Filter Buttons -->
+        <div class="flex-w flex-l-m filter-tope-group m-tb-10">
+            <!-- <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">All Products</button> -->
+            <div class="d-flex gap-3 m-3 flex-wrap">
+                <!-- All Products Dropdown -->
+                <div class="dropdown">
+                  <button class="btn dropdown-toggle" type="button" id="allProductsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    All Products
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="allProductsDropdown">
+                 
+                    <li><a class="dropdown-item" href="/shop" data-filter="*">View All</a></li>
+                 
+                  </ul>
+                </div>
 
-  <!-- Charts Row -->
-  <div class="row mb-4">
-    <div class="col-md-8 d-flex">
-      <div class="card flex-fill chart-card">
-        <div class="card-body p-4 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title m-0 fw-bold text-primary">📊 Sales Overview</h5>
-            <div>
-              <select id="rangeSelect" class="form-control form-control-sm d-inline w-auto">
-                <option value="weekly">Weekly</option>
-                <option value="monthly" selected>Monthly</option>
-                <option value="yearly">Yearly</option>
-                <option value="custom">Custom</option>
-              </select>
-              <input type="date" id="startDate" class="form-control form-control-sm d-inline w-auto">
-              <input type="date" id="endDate" class="form-control form-control-sm d-inline w-auto">
-              <button class="btn btn-sm btn-primary" onclick="loadDashboard()">Apply</button>
-            </div>
-          </div>
-          <canvas id="salesChart"></canvas>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 d-flex">
-      <div class="card flex-fill">
-        <div class="card-body p-4 d-flex flex-column">
-          <h5 class="mb-3">📦 Order Status</h5>
-          <canvas id="statusChart" height="150"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
+              <!-- ==================== Filter Form ==================== -->
+              <form id="filterForm" method="GET" action="/filter" style="display: none;">
+                <input type="hidden" name="category" id="filterCategory" value="<%= selectedCategory || '' %>">
+                <input type="hidden" name="subcategory" id="filterSubcategory" value="<%= selectedSubcategory || '' %>">
+                <input type="hidden" name="brand" id="filterBrand" value="<%= selectedBrand || '' %>">
+              </form>
 
-  <!-- Top Lists -->
-  <div class="row mt-3">
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">Top Products</div>
-        <div class="card-body">
-          <ul class="list-group" id="top-products"></ul>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">Top Categories</div>
-        <div class="card-body">
-          <ul class="list-group" id="top-categories"></ul>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card">
-        <div class="card-header">Top Brands</div>
-        <div class="card-body">
-          <ul class="list-group" id="top-brands"></ul>
-        </div>
-      </div>
-    </div>
-  </div>
+
+<!-- ==================== Category Dropdown ==================== -->
+<div class="dropdown me-3">
+  <button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Category
+  </button>
+  <ul class="dropdown-menu">
+    <% category.forEach(cat => { %>
+      <li class="dropdown-submenu">
+        <a class="dropdown-item dropdown-toggle" href="#" onclick='applyFilter("category", "<%= cat._id.toString() %>")'>
+          <%= cat.name %>
+        </a>
+        <% if (cat.subcategories && cat.subcategories.length > 0) { %>
+          <ul class="dropdown-menu">
+            <% cat.subcategories.forEach(sub => { %>
+              <li>
+                <a class="dropdown-item" href="#" onclick='applyFilter("subcategory", "<%= sub._id.toString() %>")'>
+                  <%= sub.name %>
+                </a>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+      </li>
+    <% }) %>
+  </ul>
 </div>
 
-<!-- Scripts -->
+<!-- ==================== Brand Dropdown ==================== -->
+<div class="dropdown me-3">
+  <button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Brand
+  </button>
+  <ul class="dropdown-menu">
+    <% brands.forEach(brand => { %>
+      <li>
+        <a class="dropdown-item" href="#" onclick='applyFilter("brand", "<%= brand._id.toString() %>")'>
+          <%= brand.brandName %>
+        </a>
+      </li>
+    <% }) %>
+  </ul>
+</div>
+
+
+             <!-- Category -->
+                <!-- <div class="dropdown me-3">
+                    <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                      Select Category
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="categoryDropdown" id="categoryMenu">
+                      <% category.forEach(cat => { %>
+                        <li>
+                          <button class="dropdown-item category-item" type="button" data-category-id="<%= cat._id %>">
+                            <%= cat.name %>
+                          </button>
+                        </li>
+                      <% }) %>
+                    </ul>
+                  </div>
+                  <div class="dropdown">
+                    <button class="btn dropdown-toggle" type="button" id="subcategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                      Select Subcategory
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="subcategoryDropdown" id="subcategoryMenu">
+                      <li><span class="dropdown-item-text">Select a category first</span></li>
+                    </ul>
+                  </div> -->
+
+                  <!-- This is right -->
+                  <!-- <div class="dropdown">
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                      Category
+                    </button>
+                    <ul class="dropdown-menu">
+                      <% category.forEach(cat => { %>
+                        <li class="dropdown-submenu">
+                          <a class="dropdown-item dropdown-toggle" href="#"><%= cat.name %></a>
+                          <% if (cat.subcategories && cat.subcategories.length > 0) { %>
+                            <ul class="dropdown-menu">
+                              <% cat.subcategories.forEach(subcat => { 
+                                   if (subcat.isListed && !subcat.isDeleted) { %>
+                                <li><a class="dropdown-item" href="/filter?subcategory=<%= subcat._id %>"><%= subcat.name %></a></li>
+                              <% } }) %>
+                            </ul>
+                          <% } %>
+                        </li>
+                      <% }) %>
+                    </ul>
+                  </div> -->
+                  
+                  
+                  <!-- end  -->
+                  
+              
+                  <!-- Brand Dropdown -->
+               
+                <!-- <div class="dropdown">
+                  <button class="btn dropdown-toggle" type="button" id="brandDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Brand
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="brandDropdown">
+                    <% for(let i = 0; i < brands.length; i++) { %>
+                        <li>
+                          <a class="dropdown-item" href="/filter?brand=<%=brands[i]._id%>" data-filter=".<%= brands[i].brandName.toLowerCase().replace(/\s+/g, '-') %>">
+                            <%= brands[i].brandName %>
+                          </a>
+                        </li>
+                      <% } %>
+                   
+                  </ul>
+                </div>
+              </div> -->
+              
+            
+            <!-- <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".women">Women</button> -->
+            <!-- <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".men">Category</button> -->
+        </div>
+
+        <!-- Filter and Search toggles -->
+        <div class="flex-w flex-c-m m-tb-10">
+            <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
+                <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
+                <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+                Filter
+            </div>
+
+            <div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
+                <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
+                <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+                Search
+            </div>
+        </div>
+
+        <!-- Search product panel -->
+        <!-- <div class="dis-none panel-search w-full p-t-10 p-b-15">
+            <div class="bor8 dis-flex p-l-15">
+                <button class="icon-close-search cl2 p-r-15" type="button">
+                    <i class="zmdi zmdi-close"></i>
+                </button>
+                <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
+                    <i class="zmdi zmdi-search"></i>
+                </button>
+                <input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product" placeholder="Search" />
+            </div>
+        </div> -->
+        <div class="panel-search dis-none w-full p-t-10 p-b-15">
+        <form action="/shop" method="GET" class="w-full p-t-10 p-b-15">
+            <div class="bor8 dis-flex p-l-15">
+              <button class="icon-close-search cl2 p-r-15" type="button">
+                <i class="zmdi zmdi-close"></i>
+              </button>
+              <button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04" type="submit">
+                <i class="zmdi zmdi-search"></i>
+              </button>
+              <input class="mtext-107 cl2 size-114 plh2 p-r-15" 
+                     type="text" 
+                     name="search" 
+                     placeholder="Search" 
+                     value="<%= typeof search !== 'undefined' ? search : '' %>"
+              />
+            </div>
+          </form>
+        </div>
+          
+
+        <!-- Filter panel -->
+        <div class="dis-none panel-filter w-full p-t-10">
+            <div class="wrap-filter flex-w bg6 w-full p-lr-40 p-t-27 p-lr-15-sm">
+                <!-- Sort By -->
+                <div class="filter-col1 p-r-15 p-b-27">
+                    <div class="mtext-102 cl2 p-b-15">Sort By</div>
+                   
+                    <ul>
+                        <li><a href="/shop?sort=default" class="filter-link stext-106 trans-04">Default</a></li>
+                        <li><a href="/shop?sort=popularity" class="filter-link stext-106 trans-04">Popularity</a></li>
+                        <!-- <li><a href="/shop?sort=rating" class="filter-link stext-106 trans-04">Average rating</a></li> -->
+                        <li><a href="/shop?sort=newest" class="filter-link stext-106 trans-04 filter-link-active">Newness</a></li>
+                        <li><a href="/shop?sort=price_asc" class="filter-link stext-106 trans-04">Price: Low to High</a></li>
+                        <li><a href="/shop?sort=price_desc" class="filter-link stext-106 trans-04">Price: High to Low</a></li>
+                        <li><a href="/shop?sort=name_asc" class="filter-link stext-106 trans-04">Name: A to Z</a></li>
+                        <li><a href="/shop?sort=name_desc" class="filter-link stext-106 trans-04">Name: Z to A</a></li>
+                      </ul>
+                      
+                </div>
+
+               
+                <div class="filter-col2 p-r-15 p-b-27">
+                    <div class="mtext-102 cl2 p-b-15">Price</div>
+                    <ul id="priceFilterList">
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04 filter-link-active" data-price="">All</a>
+                      </li>
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="0-500">$0.00 - $500.00</a>
+                      </li>
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="500-1000">$500.00 - $1000.00</a>
+                      </li>
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="1000-1500">$1000.00 - $1500.00</a>
+                      </li>
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="1500-2000">$1500.00 - $2000.00</a>
+                      </li>
+                      <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="2000 - 4000">$2000.00 - $4000.00</a>
+                      </li>
+                       <li class="p-b-6">
+                        <a href="#" class="filter-link stext-106 trans-04" data-price="4000+"> $4000.00+</a>
+                      </li>
+                    </ul>
+                  </div>
+                  
+
+                <!-- Color -->
+                <!-- <div class="filter-col3 p-r-15 p-b-27">
+                    <div class="mtext-102 cl2 p-b-15">Color</div>
+                    <ul>
+                        <li class="p-b-6">
+                            <span class="fs-15 lh-12 m-r-6" style="color: #222;">
+                                <i class="zmdi zmdi-circle"></i>
+                            </span>
+                            <a href="#" class="filter-link stext-106 trans-04">Black</a>
+                        </li>
+                        <li class="p-b-6">
+                            <span class="fs-15 lh-12 m-r-6" style="color: #4272d7;">
+                                <i class="zmdi zmdi-circle"></i>
+                            </span>
+                            <a href="#" class="filter-link stext-106 trans-04 filter-link-active">Blue</a>
+                        </li>
+                        <li class="p-b-6">
+                            <span class="fs-15 lh-12 m-r-6" style="color: #b3b3b3;">
+                                <i class="zmdi zmdi-circle"></i>
+                            </span>
+                            <a href="#" class="filter-link stext-106 trans-04">Grey</a>
+                        </li>
+                        <li class="p-b-6">
+                            <span class="fs-15 lh-12 m-r-6" style="color: #00ad5f;">
+                                <i class="zmdi zmdi-circle"></i>
+                            </span>
+                            <a href="#" class="filter-link stext-106 trans-04">Green</a>
+                        </li>
+                        <li class="p-b-6">
+                            <span class="fs-15 lh-12 m-r-6" style="color: #fa4251;">
+                                <i class="zmdi zmdi-circle"></i>
+                            </span>
+                            <a href="#" class="filter-link stext-106 trans-04">Red</a>
+                        </li>
+                        <li class="p-b-6">
+                            <span class="fs-15 lh-12 m-r-6" style="color: #aaa;">
+                                <i class="zmdi zmdi-circle-o"></i>
+                            </span>
+                            <a href="#" class="filter-link stext-106 trans-04">White</a>
+                        </li>
+                    </ul>
+                </div> -->
+
+                <!-- Color Filter -->
+<div class="filter-col3 p-r-15 p-b-27">
+    <div class="mtext-102 cl2 p-b-15">Color</div>
+    <ul id="colorFilterList">
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #222;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04 filter-link-active" data-color="">All</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #000;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Black">Black</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #4272d7;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Blue">Blue</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #f73109;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Red">Red</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #f211f6;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Pink">Pink</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #d58514;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Orange">Orange</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #0a9531;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Green">Green</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #ebeb0b;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="Yellow">Yellow</a>
+      </li>
+      <li class="p-b-6">
+        <span class="fs-15 lh-12 m-r-6" style="color: #e5e7ea;">
+          <i class="zmdi zmdi-circle"></i>
+        </span>
+        <a href="#" class="filter-link stext-106 trans-04" data-color="White">White</a>
+      </li>
+      <!-- Add more colors similarly -->
+    </ul>
+  </div>
+  
+  <!-- Size Filter -->
+  <div class="filter-col4 p-r-15 p-b-27">
+    <div class="mtext-102 cl2 p-b-15">Size</div>
+    <ul id="sizeFilterList">
+      <li class="p-b-6">
+        <a href="#" class="filter-link stext-106 trans-04 filter-link-active" data-size="">All</a>
+      </li>
+      <li class="p-b-6">
+        <a href="#" class="filter-link stext-106 trans-04" data-size="S">Small (S)</a>
+      </li>
+      <li class="p-b-6">
+        <a href="#" class="filter-link stext-106 trans-04" data-size="M">Medium (M)</a>
+      </li>
+      <li class="p-b-6">
+        <a href="#" class="filter-link stext-106 trans-04" data-size="L">Large (L)</a>
+      </li>
+      <li class="p-b-6">
+        <a href="#" class="filter-link stext-106 trans-04" data-size="XL">Extra Large (XL)</a>
+      </li>
+    </ul>
+  </div>
+  
+
+                <!-- Tags -->
+                <div class="filter-col4 p-b-27">
+                    <div class="mtext-102 cl2 p-b-15">Tags</div>
+                    <div class="flex-w p-t-4 m-r--5">
+                        <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">Fashion</a>
+                        <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">Lifestyle</a>
+                        <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">Denim</a>
+                        <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">Streetstyle</a>
+                        <a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">Crafts</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="row isotope-grid">
+            <% products.forEach(product => { %>
+            <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
+                <div class="block2">
+                    <div class="block2-pic hov-img0 position-relative">
+                        <img src="<%= product.images[0] %>" alt="IMG-PRODUCT" />
+                        <% if (product.effectiveOffer && product.effectiveOffer > 0) { %>
+                          <div class="offer-badge position-absolute bg-danger text-white px-2 py-1" style="top:10px; left:10px; font-size: 0.8rem; z-index: 10;">
+                            <%= product.effectiveOffer %>% OFF
+                          </div>
+                        <% } %>
+                        <a href="#" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">Quick View</a>
+                    </div>
+                    <div class="block2-txt flex-w flex-t p-t-14">
+                        <div class="block2-txt-child1 flex-col-l">
+                            <a href="/productDetails?id=<%=product._id%>" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6"><%= product.name %></a>
+                            <span class="stext-105 cl3">₹ <%= product.finalPrice %></span> <strike>₹ <%= product.price %></strike>
+
+                        </div>
+                        <div class="block2-txt-child2 flex-r p-t-3">
+                          <% const safeWishlistIds = typeof wishlistIds !== 'undefined' ? wishlistIds : []; %>
+                            <a href="#"
+                                onclick="addToWishlist('<%= product._id %>', event)"
+                                class="btn-addwish-b2 <%=  wishlistIds.includes(product._id.toString()) ? 'wishlisted' : '' %>"
+                                data-product-id="<%= product._id %>">
+                                <img class="icon-heart1" src="images/icons/icon-heart-01.png" alt="Empty Heart" />
+                                <img class="icon-heart2" src="images/icons/icon-heart-02.png" alt="Filled Heart" />
+                              </a>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% }) %>
+        </div>
+        <div class="pagination">
+            <% if (currentPage > 1) { %>
+                <a href="/shop?page=<%= currentPage - 1 %>" class="prev-arrow">
+                    <i class="fa fa-long-arrow-left" aria-hidden="true"></i>
+                </a>
+            <% } %>
+        
+            <% if (totalPages > 5 && currentPage > 3) { %>
+                <a href="/shop?page=1">1</a>
+                <% if (currentPage > 4) { %>
+                    <a href="#" class="dot-dot">
+                        <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+                    </a>
+                <% } %>
+            <% } %>
+        
+            <% for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { %>
+                <a href="/shop?page=<%= i %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+        
+            <% if (totalPages > 5 && currentPage < totalPages - 2) { %>
+                <% if (currentPage < totalPages - 3) { %>
+                    <a href="#" class="dot-dot">
+                        <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+                    </a>
+                <% } %>
+                <a href="/shop?page=<%= totalPages %>"><%= totalPages %></a>
+            <% } %>
+        
+            <% if (currentPage < totalPages) { %>
+                <a href="/shop?page=<%= currentPage + 1 %>" class="next-arrow">
+                    <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+                </a>
+            <% } %>
+        </div>
+        
+
+        <!-- Load More Button -->
+        <div class="flex-c-m flex-w w-full p-t-45">
+            <a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">Load More</a>
+        </div>
+    </div>
+</div>
+
+<!-- Back to top -->
+<div class="btn-back-to-top" id="myBtn">
+    <span class="symbol-btn-back-to-top"><i class="zmdi zmdi-chevron-up"></i></span>
+</div>
+
+<!-- Include required JS libraries -->
+<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<script src="vendor/animsition/js/animsition.min.js"></script>
+<script src="vendor/bootstrap/js/popper.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="vendor/select2/select2.min.js"></script>
+<script src="vendor/daterangepicker/moment.min.js"></script>
+<script src="vendor/daterangepicker/daterangepicker.js"></script>
+<script src="vendor/slick/slick.min.js"></script>
+<script src="js/slick-custom.js"></script>
+<script src="vendor/parallax100/parallax100.js"></script>
+<script src="vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
+<script src="vendor/isotope/isotope.pkgd.min.js"></script>
+<!-- <script src="vendor/sweetalert/sweetalert.min.js"></script> -->
+<script src="vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+
 <script>
-  let salesChartInstance, statusChartInstance;
+  $(".js-addwish-b2, .js-addwish-detail").on("click", function (e) {
+    e.preventDefault();
+});
 
-  document.addEventListener("DOMContentLoaded", () => loadDashboard());
-
-  function loadDashboard() {
-    const filter = document.getElementById("rangeSelect").value;
-    const start = document.getElementById("startDate").value;
-    const end = document.getElementById("endDate").value;
-
-    let url = `/admin/dashboard-data?filter=${filter}`;
-    if (filter === 'custom' && start && end) {
-      url += `&start=${start}&end=${end}`;
-    }
-
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        updateSummaryCards(data);
-        updateSalesChart(data.salesChart);
-        updateStatusChart(data.orderStatus);
-        updateTopLists(data);
-      })
-      .catch(err => console.error('Error loading dashboard data:', err));
-  }
-
-  function updateSummaryCards(data) {
-    const container = document.getElementById("summaryCards");
-    container.innerHTML = `
-      <div class="col-md-3"><div class="card p-3 d-flex flex-row align-items-center"><div class="icon-box bg-blue mr-3"><i class="fas fa-box fa-lg"></i></div><div><h4 class="mb-0">${data.totalProducts}</h4><small>Total Products</small></div></div></div>
-      <div class="col-md-3"><div class="card p-3 d-flex flex-row align-items-center"><div class="icon-box bg-green mr-3"><i class="fas fa-users fa-lg"></i></div><div><h4 class="mb-0">${data.totalCustomers}</h4><small>Total Customers</small></div></div></div>
-      <div class="col-md-3"><div class="card p-3 d-flex flex-row align-items-center"><div class="icon-box bg-orange mr-3"><i class="fas fa-shopping-bag fa-lg"></i></div><div><h4 class="mb-0">${data.totalOrders}</h4><small>Total Orders</small></div></div></div>
-      <div class="col-md-3"><div class="card p-3 d-flex flex-row align-items-center"><div class="icon-box bg-purple mr-3"><i class="fas fa-rupee-sign fa-lg"></i></div><div><h4 class="mb-0">₹${data.totalRevenue}</h4><small>Total Revenue</small></div></div></div>
-    `;
-  }
-
-  /*function updateSalesChart(chartData) {
-    const labels = chartData.map(d => d._id.label || `${d._id.month || d._id.week || d._id.day || d._id.year}`);
-    const values = chartData.map(d => d.totalSales);
-
-    if (salesChartInstance) salesChartInstance.destroy();
-
-    salesChartInstance = new Chart(document.getElementById("salesChart"), {
-      type: "line",
-      data: {
-        labels: labels,
-        datasets: [{
-          label: "Sales (₹)",
-          data: values,
-          borderColor: "rgba(54, 162, 235, 1)",
-          backgroundColor: "rgba(54, 162, 235, 0.2)",
-          tension: 0.4,
-          fill: true
-        }]
-      }
-    });
-  }*/
- /* function updateSalesChart(chartData) {
-    const labels = chartData.map(d => {
-      if (d._id.day && d._id.month && d._id.year) {
-        return `${d._id.day}/${d._id.month}/${d._id.year}`; // daily
-      } else if (d._id.week && d._id.year) {
-        return `Week ${d._id.week} - ${d._id.year}`; // weekly
-      } else if (d._id.month && d._id.year) {
-        return `${d._id.month}/${d._id.year}`; // monthly
-      } else if (d._id.year) {
-        return `${d._id.year}`; // yearly
-      } else {
-        return "N/A";
-      }
-    });
-  
-    const values = chartData.map(d => d.totalSales);
-  
-    if (salesChartInstance) salesChartInstance.destroy();
-  
-    salesChartInstance = new Chart(document.getElementById("salesChart"), {
-      type: "line",
-      data: {
-        labels: labels,
-        datasets: [{
-          label: "Sales (₹)",
-          data: values,
-          borderColor: "rgba(54, 162, 235, 1)",
-          backgroundColor: "rgba(54, 162, 235, 0.2)",
-          tension: 0.4,
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'top'
-          }
-        }
-      }
-    });
-  }*/
-  function updateSalesChart(chartData) {
-    const labels = chartData.map(d => {
-      if (d._id.day && d._id.month && d._id.year) {
-        const date = new Date(d._id.year, d._id.month - 1, d._id.day);
-        return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); // 1 Jul
-      } else if (d._id.month && d._id.year) {
-        return new Date(d._id.year, d._id.month - 1).toLocaleDateString('en-GB', {
-          month: 'short',
-          year: 'numeric'
+    // Select2 initialization
+    $(".js-select2").each(function () {
+        $(this).select2({
+            minimumResultsForSearch: 20,
+            dropdownParent: $(this).next(".dropDownSelect2"),
         });
-      } else if (d._id.year) {
-        return `${d._id.year}`;
-      } else {
-        return 'N/A';
-      }
     });
-  
-    const values = chartData.map(d => d.totalSales);
-  
-    if (salesChartInstance) salesChartInstance.destroy();
-  
-    const ctx = document.getElementById("salesChart").getContext("2d");
-  
-    salesChartInstance = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Sales ₹',
-          data: values,
-          borderColor: 'rgba(54, 162, 235, 1)',
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          fill: true,
-          tension: 0.4,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          borderWidth: 3
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            display: true,
-            position: 'top'
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => `₹${context.formattedValue}`
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: value => `₹${value.toLocaleString()}`
-            }
-          }
-        }
-      }
+
+    // Parallax initialization
+    $(".parallax100").parallax100();
+
+    // MagnificPopup initialization
+    $(".gallery-lb").each(function () {
+        $(this).magnificPopup({
+            delegate: "a",
+            type: "image",
+            gallery: {
+                enabled: true,
+            },
+            mainClass: "mfp-fade",
+        });
     });
-  }
-  
-  
 
-  function updateStatusChart(statusData) {
-    const labels = statusData.map(s => s._id);
-    const values = statusData.map(s => s.count);
+    // PerfectScrollbar initialization
+    $(".js-pscroll").each(function () {
+        $(this).css("position", "relative");
+        $(this).css("overflow", "hidden");
+        var ps = new PerfectScrollbar(this, {
+            wheelSpeed: 1,
+            scrollingThreshold: 1000,
+            wheelPropagation: false,
+        });
 
-    if (statusChartInstance) statusChartInstance.destroy();
-
-    statusChartInstance = new Chart(document.getElementById("statusChart"), {
-      type: "doughnut",
-      data: {
-        labels: labels,
-        datasets: [{
-          data: values,
-          backgroundColor: ['#2ecc71', '#f1c40f', '#e74c3c', '#9b59b6', '#3498db']
-        }]
-      },
-      options: {
-        plugins: {
-          legend: { position: 'bottom' }
-        }
-      }
+        $(window).on("resize", function () {
+            ps.update();
+        });
     });
-  }
 
-  function updateTopLists(data) {
-    const renderList = (targetId, items) => {
-      const list = document.getElementById(targetId);
-      list.innerHTML = "";
-      if (!items.length) {
-        list.innerHTML = `<li class="list-group-item">No Data</li>`;
-        return;
-      }
-      items.forEach(item => {
-        list.innerHTML += `<li class="list-group-item d-flex justify-content-between">${item.name}<span class="badge badge-primary">${item.totalQty}</span></li>`;
-      });
-    };
-    renderList("top-products", data.bestProducts);
-    renderList("top-categories", data.bestCategories);
-    renderList("top-brands", data.bestBrands);
-  }
+    
+    $(".js-addcart-detail").each(function () {
+        var nameProduct = $(this)
+            .parent()
+            .parent()
+            .parent()
+            .parent()
+            .find(".js-name-detail")
+            .html();
+        $(this).on("click", function () {
+            swal(nameProduct, "is added to cart !", "success");
+        });
+    });
+
+    // Main custom JS for Isotope filtering and Search toggle
+    $(document).ready(function () {
+        // Initialize Isotope grid
+        var $grid = $(".isotope-grid").isotope({
+            itemSelector: ".isotope-item",
+            layoutMode: "fitRows",
+        });
+
+        // Filter button click
+        $(".filter-tope-group").on("click", "button", function () {
+            var filterValue = $(this).attr("data-filter");
+            $grid.isotope({ filter: filterValue });
+
+            // Active class toggle
+            $(".filter-tope-group button").removeClass("how-active1");
+            $(this).addClass("how-active1");
+        });
+
+        // Show search panel
+        $(".js-show-search").on("click", function () {
+            $(".panel-search").removeClass("dis-none");
+            $(this).addClass("dis-none");
+            $(".icon-close-search").removeClass("dis-none");
+        });
+
+        // Close search panel
+        $(".panel-search .icon-close-search").on("click", function () {
+            $(".panel-search").addClass("dis-none");
+            $(".js-show-search").removeClass("dis-none");
+            $(".icon-close-search").addClass("dis-none");
+        });
+
+        // Show filter panel toggle
+        $(".js-show-filter").on("click", function () {
+            $(".panel-filter").toggleClass("dis-none");
+            $(this).find(".icon-filter, .icon-close-filter").toggleClass("dis-none");
+        });
+    });
 </script>
 
-<%- include("../../views/partials/admin/footer") %>
+<!-- Price filter -->
+
+<script>
+    document.querySelectorAll('#priceFilterList a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Remove active class from all links and add to clicked one
+        document.querySelectorAll('#priceFilterList a').forEach(el => el.classList.remove('filter-link-active'));
+        this.classList.add('filter-link-active');
+  
+        const price = this.dataset.price; // get data-price value
+  
+        // Get current URL parameters
+        const params = new URLSearchParams(window.location.search);
+  
+        // Set or delete price param
+        if (price) {
+          params.set('price', price);
+        } else {
+          params.delete('price');
+        }
+  
+        // Redirect to /filter with updated query params
+        window.location.href = '/filter?' + params.toString();
+      });
+    });
+  </script>
+ <script>
+    /*const categoriesData = <%- JSON.stringify(category) %>;
+  
+    const categoryItems = document.querySelectorAll('.category-item');
+    const subcategoryMenu = document.getElementById('subcategoryMenu');
+    const subcategoryDropdownButton = document.getElementById('subcategoryDropdown');
+    const categoryDropdownButton = document.getElementById('categoryDropdown');
+   
+    categoryItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const selectedCategoryId = item.getAttribute('data-category-id');
+        const selectedCategory = categoriesData.find(cat => cat._id === selectedCategoryId);
+  
+        if (!selectedCategory) return;
+  
+        // Update category button text
+        categoryDropdownButton.textContent = selectedCategory.name;
+  
+        // Enable and reset subcategory button
+        subcategoryDropdownButton.disabled = false;
+        subcategoryDropdownButton.textContent = 'Select Subcategory';
+  
+        // Clear old subcategories
+        subcategoryMenu.innerHTML = '';
+  
+        if (selectedCategory.subcategories && selectedCategory.subcategories.length > 0) {
+          const filteredSubcats = selectedCategory.subcategories.filter(subcat => subcat.isListed && !subcat.isDeleted);
+  
+          if (filteredSubcats.length > 0) {
+            filteredSubcats.forEach(subcat => {
+              const li = document.createElement('li');
+              li.innerHTML = `<a class="dropdown-item" href="/filter?subcategory=${subcat._id}">${subcat.name}</a>`;
+              subcategoryMenu.appendChild(li);
+            });
+          } else {
+            subcategoryMenu.innerHTML = '<li><span class="dropdown-item-text">No subcategories available</span></li>';
+          }
+        } else {
+          subcategoryMenu.innerHTML = '<li><span class="dropdown-item-text">No subcategories available</span></li>';
+        }
+      });
+    });*/
+  </script> 
+  <script>
+    /*document.querySelectorAll('.category-item').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const categoryId = btn.dataset.categoryId;
+  
+        const subcategoryDropdown = document.getElementById('subcategoryDropdown');
+        const subcategoryMenu = document.getElementById('subcategoryMenu');
+        
+        // Enable subcategory dropdown
+        subcategoryDropdown.disabled = false;
+        subcategoryDropdown.innerText = 'Select Subcategory';
+  
+        // Fetch subcategories
+        const response = await fetch(`/api/subcategories/${categoryId}`);
+        const subcategories = await response.json();
+  
+        // Build nested list
+        subcategoryMenu.innerHTML = '';
+        if (subcategories.length === 0) {
+          subcategoryMenu.innerHTML = '<li><span class="dropdown-item-text">No subcategories</span></li>';
+          return;
+        }
+  
+        subcategories.forEach(sub => {
+          const li = document.createElement('li');
+          if (sub.children.length === 0) {
+            li.innerHTML = `<button class="dropdown-item subcategory-item" type="button" data-sub-id="${sub._id}">${sub.name}</button>`;
+          } else {
+            // Create nested submenu
+            li.classList.add('dropdown-submenu');
+            li.innerHTML = `
+              <a class="dropdown-item dropdown-toggle" href="#">${sub.name}</a>
+              <ul class="dropdown-menu">
+                ${sub.children.map(child => `
+                  <li><button class="dropdown-item subcategory-item" data-sub-id="${child._id}">${child.name}</button></li>
+                `).join('')}
+              </ul>
+            `;
+          }
+          subcategoryMenu.appendChild(li);
+        });
+      });
+    });
+  </script>
+  
+  <!-- Color and Size filter -->
+  <script>
+    function handleFilterClick(filterListId, queryParamName) {
+      document.querySelectorAll(`#${filterListId} a`).forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+  
+          // Remove active class from all
+          document.querySelectorAll(`#${filterListId} a`).forEach(el => el.classList.remove('filter-link-active'));
+  
+          // Add active class to clicked
+          this.classList.add('filter-link-active');
+  
+          // Get selected value (color or size)
+          const value = this.getAttribute(`data-${queryParamName}`);
+  
+          // Get current URL params
+          const params = new URLSearchParams(window.location.search);
+  
+          // Set or delete query param based on selection
+          if (value) {
+            params.set(queryParamName, value);
+          } else {
+            params.delete(queryParamName);
+          }
+          params.set('page', '1'); // Reset page on filter change
+  
+          // Redirect with updated params
+          window.location.href = '/filter?' + params.toString();
+        });
+      });
+    }
+  
+    // Initialize handlers for color and size filters
+    handleFilterClick('colorFilterList', 'color');
+    handleFilterClick('sizeFilterList', 'size');
+
+
+    //Add to Wishlist
+
+   /* function addToWishlist(productId) {
+      $.ajax({
+        url: '/addToWishlist',
+        method: 'POST',
+        data: { productId: productId },
+        success: (response) => {
+          if (response.status) {
+            Swal.fire({
+              title: 'Added to wishlist',
+              text: 'The product has been added to your wishlist',
+              icon: 'success',
+              timer: 2000
+            });
+  
+            // Toggle icon to filled red heart
+           /* const icon = document.querySelector(`.wishlist-btn[onclick="addToWishlist('${productId}')"] i`);
+            if (icon) {
+              icon.classList.remove('far');
+              icon.classList.add('fas');
+              icon.style.color = 'red';
+            }
+  
+          } else {
+            Swal.fire({
+              title: 'Already in wishlist',
+              text: response.message,
+              icon: 'info',
+              timer: 2000
+            });
+          }
+        },
+        error: (error) => {
+          Swal.fire({
+            title: 'Error',
+            text: 'There was an error adding the product to your wishlist',
+            icon: 'error',
+            timer: 2000
+          });
+        }
+      });
+    }*/
+
+
+      function addToWishlist(productId, event) {
+        event.preventDefault();
+    
+        $.ajax({
+          url: '/addToWishlist',
+          method: 'POST',
+          data: { productId },
+          success: (response) => {
+            if (response.status) {
+              Swal.fire('Added to wishlist', '', 'success');
+    
+              // Select the link by data attribute instead of onclick string for reliability
+              const link = document.querySelector(`a[data-product-id="${productId}"]`);
+              if (link) {
+                link.classList.add('wishlisted');
+              }
+            } else {
+              Swal.fire('Already in wishlist', response.message, 'info');
+            }
+          },
+          error: () => {
+            Swal.fire('Error', 'Failed to add to wishlist', 'error');
+          }
+        });
+      }
+    
+  </script>
+
+
+  <script>
+    function applyFilter(type, value) {
+      if (type === 'category') {
+        document.getElementById('filterCategory').value = value;
+        document.getElementById('filterSubcategory').value = '';
+      } else if (type === 'subcategory') {
+        document.getElementById('filterSubcategory').value = value;
+      } else if (type === 'brand') {
+        document.getElementById('filterBrand').value = value;
+      }
+  
+      document.getElementById('filterForm').submit();
+    }
+  </script>
+  
+  
+  
+
+<%- include('../partials/user/footer') %>

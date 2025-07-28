@@ -393,7 +393,7 @@ const loadShoppingPage = async (req, res) => {
         const totalProducts = await Product.countDocuments({isBlocked:false,category:{$in:categoryIds} ,variants:{ $elemMatch: { quantity: { $gt: 0 } } } });
         const totalPages = Math.ceil(totalProducts / limit);
         const brands= await Brand.find({isBlocked:false})
-        const catgoriesWithIds = categories.map(category=>({_id:category._id,name:category.name}))
+        const catgoriesWithIds = categories.map(category=>({_id:category._id,name:category.name,subcategories: category.subcategories || []}))
         res.render('shop', {
           user: userData,
           products: products,
@@ -403,7 +403,11 @@ const loadShoppingPage = async (req, res) => {
           currentPage:page,
           totalPages:totalPages,
           search,
-          wishlistIds
+          wishlistIds,
+
+          selectedCategory: req.query.category || '',
+          selectedSubcategory: req.query.subcategory || '',
+          selectedBrand: req.query.brand || '',
         });
       } catch (error) {
         console.error('Error loading shop page:', error);
@@ -504,6 +508,8 @@ const loadShoppingPage = async (req, res) => {
         selectedBrand: brand || null,
         selectedSubcategory: subcategoryId,
         wishlistIds,
+
+
     });
 
 
