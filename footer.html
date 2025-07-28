@@ -3,12 +3,11 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
 
 <style>
-  /* Same styles as add page */
   .form-section {
-    background: #ffffff;
+    background: #fff;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
   }
   .preview-container {
     margin-top: 10px;
@@ -41,7 +40,7 @@
 
 <div class="container mt-5">
   <h3 class="mb-4">Edit Product</h3>
-  <form id="editProductForm"  data-product-id="<%= product._id %>"  class="row g-4 form-section" enctype="multipart/form-data" method="POST" action="">
+  <form id="editProductForm" data-product-id="<%= product._id %>" class="row g-4 form-section" enctype="multipart/form-data" method="POST" action="/admin/editProduct/<%= product._id %>/edit">
     <div class="col-md-6">
       <label class="form-label">Product Name</label>
       <input type="text" id="name" name="name" class="form-control" required value="<%= product.name %>">
@@ -57,7 +56,7 @@
           <select id="category" name="category" class="form-select" required>
             <option value="" disabled>Select Category</option>
             <% for (let i = 0; i < cat.length; i++) { %>
-              <option value="<%= cat[i]._id %>" <%= product.category && product.category._id.toString() === cat[i]._id.toString()?'selected' : '' %> ><%= cat[i].name %></option>
+              <option value="<%= cat[i]._id %>" <%= product.category && product.category._id.toString() === cat[i]._id.toString() ? 'selected' : '' %>><%= cat[i].name %></option>
             <% } %>
           </select>
           <div id="category-error" class="text-danger"></div>
@@ -66,7 +65,6 @@
           <label class="form-label">Subcategory</label>
           <select id="subcategory" name="subcategory" class="form-select" required>
             <option value="" disabled>Select Subcategory</option>
-            <!-- dynamically filled  -->
           </select>
           <div id="subcategory-error" class="text-danger"></div>
         </div>
@@ -76,7 +74,7 @@
       <select id="brand" name="brand" class="form-select" required>
         <option value="" disabled>Select Brand</option>
         <% for (let i = 0; i < brands.length; i++) { %>
-          <option value="<%= brands[i]._id %>"<%= product.brand && product.brand._id.toString() === brands[i]._id.toString()?'selected' : '' %>><%= brands[i].brandName %></option>
+          <option value="<%= brands[i]._id %>" <%= product.brand && product.brand._id.toString() === brands[i]._id.toString() ? 'selected' : '' %>><%= brands[i].brandName %></option>
         <% } %>
       </select>
       <div id="brand-error" class="text-danger"></div>
@@ -104,27 +102,11 @@
         <% for (let i = 0; i < 4; i++) { %>
           <div class="image-upload-item">
             <label for="image<%= i+1 %>">Image <%= i+1 %></label>
-            <input
-              type="file"
-              id="image<%= i+1 %>"
-              name="image<%= i+1 %>"
-              class="form-control"
-              accept="image/*"
-              onchange="previewImage(event, <%= i+1 %>)"
-            >
+            <input type="file" id="image<%= i+1 %>" name="image<%= i+1 %>" class="form-control" accept="image/*" onchange="previewImage(event, <%= i+1 %>)">
             <div class="preview-container" style="<%= product.images[i] ? 'display:block' : 'display:none' %>">
-              <img
-                id="preview<%= i+1 %>"
-                class="image-preview"
-                src="<%= product.images[i] ? '/' + product.images[i] : '#' %>"
-                alt="Preview"
-              >
+              <img id="preview<%= i+1 %>" class="image-preview" src="<%= product.images[i] ? '/' + product.images[i] : '#' %>" alt="Preview">
             </div>
-            <input
-              type="hidden"
-              id="croppedImage<%= i+1 %>"
-              name="croppedImage<%= i+1 %>"
-            >
+            <input type="hidden" id="croppedImage<%= i+1 %>" name="croppedImage<%= i+1 %>">
             <% if (product.images[i]) { %>
               <input type="hidden" name="oldImage<%= i+1 %>" value="<%= product.images[i] %>">
             <% } %>
@@ -133,7 +115,6 @@
         <% } %>
       </div>
     </div>
-   
 
     <div class="col-12 d-flex justify-content-end">
       <button type="reset" class="btn btn-outline-secondary me-2" id="resetBtn">Cancel</button>
@@ -142,6 +123,10 @@
   </form>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
 <script>
   // Categories data from server
   const categories = <%- JSON.stringify(cat) %>;
@@ -149,7 +134,7 @@
   const categorySelect = document.getElementById('category');
   const subcategorySelect = document.getElementById('subcategory');
 
-  // Function to populate subcategory dropdown on page load and category change
+  // Populate subcategories when page loads or category changes
   function populateSubcategories(selectedCatId, selectedSubcatId) {
     subcategorySelect.innerHTML = '<option value="" disabled>Select Subcategory</option>';
     if (!selectedCatId) return;
@@ -168,212 +153,133 @@
     }
   }
 
-  // Initial populate on page load
   window.onload = function() {
-   
     populateSubcategories('<%= product.category._id.toString() %>', '<%= product.subcategory.toString() %>');
   };
 
-  // Change subcategories when category changes
   categorySelect.addEventListener('change', function() {
     populateSubcategories(this.value);
   });
 
+  // CropperJS & Image Preview Logic
+  let croppers = {};
 
-  
-  // Your existing previewImage and validation JS can be added here
+  function previewImage(event, index) {
+    const input = event.target;
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const previewContainer = input.parentElement.querySelector('.preview-container');
+        previewContainer.style.display = 'block';
+
+        const preview = document.getElementById(`preview${index}`);
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+
+        if (croppers[index]) {
+          croppers[index].destroy();
+        }
+
+        croppers[index] = new Cropper(preview, {
+          aspectRatio: 1,
+          viewMode: 1,
+          ready: function() {
+            this.cropper.crop();
+          }
+        });
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Form submission & validation
   const form = document.getElementById('editProductForm');
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    const formData = new FormData(form);
-    const productId = form.dataset.productId;
+    let isValid = true;
+    const requiredFields = ['name', 'category', 'subcategory', 'brand', 'regularPrice', 'finalPrice', 'material', 'status'];
 
-    try {
-      const response = await fetch(`/admin/editProduct/${productId}/edit`, {
-        method: 'POST',  // or PUT if you prefer
-        body: formData
-      });
+    // Clear errors
+    requiredFields.forEach(field => {
+      const errElem = document.getElementById(`${field}-error`);
+      if (errElem) errElem.textContent = '';
+    });
 
-      const data = await response.json();
-
-      if (data.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: data.message || 'Product updated successfully',
-          confirmButtonText: 'OK'
-        }).then(() => {
-          window.location.href = '/admin/products';
-        });
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: data.message || 'Failed to update product',
-        });
+    // Validate required fields
+    requiredFields.forEach(field => {
+      const input = document.getElementsByName(field)[0];
+      if (!input || !input.value.trim()) {
+        isValid = false;
+        const errorEl = document.getElementById(`${field}-error`);
+        if (errorEl) errorEl.textContent = 'This field is required.';
       }
-    } catch (error) {
-      console.error('Error updating product:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'An unexpected error occurred. Please try again later.'
-      });
+    });
+
+    // Validate prices
+    const regularPrice = parseFloat(document.querySelector('input[name="regularPrice"]').value);
+    const finalPrice = parseFloat(document.querySelector('input[name="finalPrice"]').value);
+
+    if (isNaN(regularPrice) || regularPrice <= 0) {
+      Swal.fire('Invalid Regular Price!', 'Regular price must be greater than zero', 'error');
+      return;
     }
+    if (isNaN(finalPrice) || finalPrice <= 0) {
+      Swal.fire('Invalid Final Price!', 'Final price must be greater than zero', 'error');
+      return;
+    }
+    if (finalPrice > regularPrice) {
+      Swal.fire('Invalid Price!', 'Final price cannot be higher than regular price', 'error');
+      return;
+    }
+
+    // Check images count (cropped / uploaded / existing)
+    const existingImages = <%- JSON.stringify(product.images) %>;
+    let imageCount = 0;
+    for (let i = 0; i < 4; i++) {
+      const imgInput = document.getElementById(`image${i+1}`);
+      const croppedInput = document.getElementById(`croppedImage${i+1}`);
+      const hasNewUpload = imgInput && imgInput.files.length > 0;
+      const hasCropped = croppedInput && croppedInput.value;
+      const hasExisting = existingImages[i] && existingImages[i] !== "";
+
+      if (hasNewUpload || hasCropped || hasExisting) imageCount++;
+    }
+    if (imageCount < 4) {
+      Swal.fire('Images Required!', 'Please upload all 4 product images', 'error');
+      return;
+    }
+
+    // Assign cropped images base64 to hidden inputs
+    for (let i = 0; i < 4; i++) {
+      if (croppers[i+1]) {
+        const base64 = croppers[i+1].getCroppedCanvas().toDataURL('image/jpeg');
+        const hiddenInput = document.getElementById(`croppedImage${i+1}`);
+        if (hiddenInput) hiddenInput.value = base64;
+      }
+    }
+
+    const formData = new FormData(this);
+    const productId = this.dataset.productId;
+
+    fetch(`/admin/editProduct/${productId}/edit`, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        Swal.fire('Success!', 'Product updated successfully', 'success')
+          .then(() => window.location.href = '/admin/products');
+      } else {
+        Swal.fire('Error!', data.message || 'Failed to update product', 'error');
+      }
+    })
+    .catch(() => {
+      Swal.fire('Error!', 'An unexpected error occurred', 'error');
+    });
   });
-
-  let croppers = {};
-    let croppedImagesStatus = [false, false, false, false];
-
-    function previewImage(event, index) {
-        const input = event.target;
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const previewContainer = input.parentElement.querySelector('.preview-container');
-                previewContainer.style.display = 'block';
-                
-                const preview = document.getElementById(`preview${index}`);
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-
-                if (croppers[index]) {
-                    croppers[index].destroy();
-                }
-
-                croppers[index] = new Cropper(preview, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    ready: function() {
-                        this.cropper.crop();
-                        croppedImagesStatus[index] = true;
-                    }
-                });
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-
-<script>
-  // Add your previewImage and validation logic same as add page
 </script>
 
 <%- include("../../views/partials/admin/footer") %>
-
-
-
-
-
-
-
-
-
-const editProduct = async (req, res) => {
-  try{
-    const id = req.params.id
-    const {
-      name,
-      description,
-      brand,
-      category,
-      subcategory,
-      regularPrice,
-      finalPrice,
-      material,
-      status
-    } = req.body;
-    console.log({ category, subcategory });
-
-    if (!mongoose.Types.ObjectId.isValid(category)) {
-      return res.status(400).json({ success: false, message: "Invalid category id" });
-    }
-    if (!mongoose.Types.ObjectId.isValid(subcategory)) {
-      return res.status(400).json({ success: false, message: "Invalid subcategory id" });
-    }
-
-    const existingProduct = await Product.findOne({
-      name: name,
-      _id: { $ne: id },
-    })
-
-    if (existingProduct) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Product with this name already exists. Please try another name." })
-    }
-    const updateFields = {
-      name,
-      description,
-      brand,
-      category,
-      subcategory,
-      regularPrice,
-      finalPrice,
-      material,
-      status
-    }
-    const product = await Product.findById(id)
-    if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" })
-    }
-    for (let i = 1; i <= 4; i++) {
-      const croppedImageData = req.body[`croppedImage${i}`];
-      
-      if (croppedImageData && croppedImageData.startsWith('data:image')) {
-        const base64Data = croppedImageData.replace(/^data:image\/\w+;base64,/, '');
-        const imageBuffer = Buffer.from(base64Data, 'base64');
-        
-        const filename = Date.now() + "-" + `cropped-image-${i}` + ".webp";
-        const filepath = path.join(__dirname, "../../public/uploads/product-images", filename);
-    
-        await sharp(imageBuffer)
-          .webp({ quality: 80 })
-          .toFile(filepath);
-    
-        const imagePath = `uploads/product-images/${filename}`;
-    
-        if (product.productImage[i - 1]) {
-          product.productImage[i - 1] = imagePath;
-        } else {
-          product.productImage.push(imagePath);
-        }
-      } else if (req.files && req.files[`image${i}`] && req.files[`image${i}`].length > 0) {
-        const file = req.files[`image${i}`][0];
-        const filename = Date.now() + "-" + file.originalname.replace(/\s/g, "") + ".webp";
-        const filepath = path.join(__dirname, "../../public/uploads/product-images", filename);
-    
-        await sharp(file.buffer)
-          .resize(800, 800, { fit: "inside", withoutEnlargement: true })
-          .webp({ quality: 80 })
-          .toFile(filepath);
-    
-        const imagePath = `uploads/product-images/${filename}`;
-    
-        if (product.productImage[i - 1]) {
-          product.productImage[i - 1] = imagePath;
-        } else {
-          product.productImage.push(imagePath);
-        }
-      }
-    }
-    
-
-    Object.assign(product, updateFields);
-    await product.save();
-
-    res.json({ success: true, message: "Product updated successfully" });
-
-  }catch (err){
-    console.error("Error in editProduct:", err);
-    res.status(500).json({ success: false, message: "An error occurred while updating the product" });
-  }
-}
-

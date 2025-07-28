@@ -96,7 +96,7 @@
       <div id="status-error" class="text-danger"></div>
     </div>
 
-    <div class="col-md-6">
+    <!-- <div class="col-md-6">
       <h4>Product Images</h4>
       <div class="image-upload-container">
         <% for (let i = 0; i < 4; i++) { %>
@@ -114,7 +114,30 @@
           </div>
         <% } %>
       </div>
+    </div> -->
+    <div class="col-md-6">
+      <h4>Product Images</h4>
+      <div class="image-upload-container">
+        <% for (let i = 0; i < 4; i++) { %>
+          <div class="image-upload-item">
+            <label for="image<%= i+1 %>">Image <%= i+1 %></label>
+            <input type="file" id="image<%= i+1 %>" name="image<%= i+1 %>" class="form-control" accept="image/*" onchange="previewImage(event, <%= i+1 %>)">
+            <div class="preview-container" style="<%= product.images[i] ? 'display:block' : 'display:none' %>">
+              <img id="preview<%= i+1 %>" class="image-preview" src="<%= product.images[i] ? '/' + product.images[i] : '#' %>" alt="Preview">
+            </div>
+            <input type="hidden" id="croppedImage<%= i+1 %>" name="croppedImage<%= i+1 %>">
+            <% if (product.images[i]) { %>
+              <input type="hidden" name="oldImage<%= i+1 %>" value="<%= product.images[i] %>">
+              <div class="card-body">
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteSingleImage('<%= product.images[i] %>', '<%= product._id %>', <%= i %>)">Delete</button>
+            </div>
+            <% } %>
+            <div id="image<%= i+1 %>-error" class="text-danger"></div>
+          </div>
+        <% } %>
+      </div>
     </div>
+  
 
     <div class="col-12 d-flex justify-content-end">
       <button type="reset" class="btn btn-outline-secondary me-2" id="resetBtn">Cancel</button>
@@ -280,6 +303,59 @@
       Swal.fire('Error!', 'An unexpected error occurred', 'error');
     });
   });
+
+  
+function deleteSingleImage(imageName, productId, index) {
+  Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+      if (result.isConfirmed) {
+          fetch('/admin/deleteImage', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  imageNameToServer: imageName,
+                  productIdToServer: productId,
+                  imageIndex: index
+              }),
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.status) {
+                  Swal.fire(
+                      'Deleted!',
+                      'Your image has been deleted.',
+                      'success'
+                  ).then(() => {
+                      location.reload();
+                  });
+              } else {
+                  Swal.fire(
+                      'Error!',
+                      'Failed to delete image',
+                      'error'
+                  );
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              Swal.fire(
+                  'Error!',
+                  'An error occurred while deleting the image',
+                  'error'
+              );
+          });
+      }
+  });
+}
 </script>
 
 <%- include("../../views/partials/admin/footer") %>
