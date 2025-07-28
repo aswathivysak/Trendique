@@ -1,0 +1,340 @@
+<%- include('../partials/user/header') %>
+<div><br><br><br></div>
+
+<style>
+  /* Container card styling */
+  .address-card {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 30px 40px;
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.1);
+    border-radius: 15px;
+    background: #fff;
+  }
+
+  /* Form grid - two columns */
+  .form-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .form-group {
+    flex: 1 1 45%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+
+  /* Full width for some inputs */
+  .form-group.full-width {
+    flex-basis: 100%;
+  }
+
+  label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+
+  input.form-control,
+  select.form-select,
+  textarea.form-control {
+    border-radius: 8px;
+    background: #eee;
+    border: 1px solid #ccc;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease;
+  }
+
+  input.form-control:focus,
+  select.form-select:focus,
+  textarea.form-control:focus {
+    border-color: #333;
+    background: #fff;
+    outline: none;
+  }
+
+  textarea.form-control {
+    resize: vertical;
+    min-height: 70px;
+  }
+
+  /* Radio group container */
+  .radio-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .radio-group label {
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+  }
+
+  .radio-group input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+
+  /* Buttons */
+  .btn-group {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+  }
+
+  .btn-save {
+    background: #000;
+    color: #fff;
+    border-radius: 25px;
+    padding: 8px 30px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .btn-save:hover {
+    background: #333;
+  }
+
+  .btn-cancel {
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 8px 20px;
+    text-decoration: underline;
+  }
+
+  /* Error message styling */
+  .error-message {
+    color: #d93025;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    min-height: 18px;
+  }
+
+  /* Add invalid input styling */
+  .is-invalid {
+    border-color: #d93025 !important;
+    background-color: #fddede;
+  }
+</style>
+
+<div class="address-card">
+  <h4 class="text-center mb-4">ADD NEW ADDRESS</h4>
+  <form id="addAddressForm" novalidate>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" class="form-control" placeholder="Enter your name" />
+        <div class="error-message" id="name-error"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Mobile Number</label>
+        <input type="tel" id="phone" name="phone" class="form-control" placeholder="Enter your Mobile number" />
+        <div class="error-message" id="phone-error"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="pincode">Pincode</label>
+        <input type="number" id="pincode" name="pincode" class="form-control" placeholder="Enter your pincode" maxlength="6" />
+        <div class="error-message" id="pincode-error"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="houseNo">House No.</label>
+        <input type="text" id="houseNo" name="houseNo" class="form-control" placeholder="Enter your houseno" />
+        <div class="error-message" id="houseNo-error"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="city">City</label>
+        <input type="text" id="city" name="city" class="form-control" placeholder="Enter city" />
+        <div class="error-message" id="city-error"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="state">State</label>
+        <input type="text" id="state" name="state" class="form-control" placeholder="Enter state" />
+        <div class="error-message" id="state-error"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="landMark">Landmark</label>
+        <input type="text" id="landMark" name="landMark" class="form-control" placeholder="Enter landmark" />
+        <div class="error-message" id="landMark-error"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="altPhone">Alternate Mobile Number</label>
+        <input type="tel" id="altPhone" name="altPhone" class="form-control" placeholder="Alternate Mobile number " />
+        <div class="error-message" id="altPhone-error"></div>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Address Type</label>
+        <div class="radio-group" id="addressType-group">
+          <label><input type="radio" name="addressType" value="Home" /> Home</label>
+          <label><input type="radio" name="addressType" value="Work" /> Work</label>
+          <label><input type="radio" name="addressType" value="Other" /> Other</label>
+        </div>
+        <div class="error-message" id="addressType-error"></div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button type="submit" class="btn-save">Save</button>
+      <button type="button" class="btn-cancel" onclick="window.history.back()">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  document.getElementById('addAddressForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    // Clear previous errors
+    const fields = ['name', 'phone', 'pincode', 'houseNo', 'city', 'state', 'landMark', 'altPhone', 'addressType'];
+    fields.forEach(id => {
+      const errorElem = document.getElementById(id + '-error');
+      if(errorElem) errorElem.textContent = '';
+
+      // For radios (addressType) no element with id, skip .is-invalid
+      if(id !== 'addressType') {
+        const inputElem = document.getElementById(id);
+        if(inputElem) inputElem.classList.remove('is-invalid');
+      } else {
+        // Clear any previous invalid style on radio container (optional)
+        const group = document.getElementById('addressType-group');
+        if(group) group.classList.remove('is-invalid');
+      }
+    });
+
+    // Get form values
+    const form = e.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    // Validation patterns
+    const namePattern = /^[A-Za-z\s]+$/;
+    const pinCodePattern = /^\d{6}$/;
+    const phonePattern = /^\d{10}$/;
+
+    let valid = true;
+
+    if (!data.name || !namePattern.test(data.name.trim())) {
+      document.getElementById('name-error').textContent = 'Please enter a valid name (only alphabets)';
+      form.name.classList.add('is-invalid');
+      valid = false;
+    }
+
+    if (!data.addressType) {
+      document.getElementById('addressType-error').textContent = 'Please select address type';
+      // Optional: highlight radio group container if needed
+      const group = document.getElementById('addressType-group');
+      if(group) group.classList.add('is-invalid');
+      valid = false;
+    }
+
+    if (!data.pincode || !pinCodePattern.test(data.pincode.trim())) {
+      document.getElementById('pincode-error').textContent = 'Please enter a valid 6-digit pincode';
+      form.pincode.classList.add('is-invalid');
+      valid = false;
+    }
+
+    if (!data.houseNo || !namePattern.test(data.houseNo.trim())) {
+      document.getElementById('houseNo-error').textContent = 'Please enter house number (only alphabets and spaces)';
+      form.houseNo.classList.add('is-invalid');
+      valid = false;
+    }
+
+    if (!data.city || !namePattern.test(data.city.trim())) {
+      document.getElementById('city-error').textContent = 'Please enter a valid city name (only alphabets)';
+      form.city.classList.add('is-invalid');
+      valid = false;
+    }
+
+    if (!data.state || !namePattern.test(data.state.trim())) {
+      document.getElementById('state-error').textContent = 'Please enter a valid state name (only alphabets)';
+      form.state.classList.add('is-invalid');
+      valid = false;
+    }
+
+    if (data.landMark && !namePattern.test(data.landMark.trim())) {
+      document.getElementById('landMark-error').textContent = 'Please enter a valid landmark (only alphabets)';
+      form.landMark.classList.add('is-invalid');
+      valid = false;
+    }
+
+    if (!data.phone || !phonePattern.test(data.phone.trim())) {
+      document.getElementById('phone-error').textContent = 'Please enter a valid 10-digit mobile number';
+      form.phone.classList.add('is-invalid');
+      valid = false;
+    }
+
+    if (data.altPhone && !phonePattern.test(data.altPhone.trim())) {
+      document.getElementById('altPhone-error').textContent = 'Please enter a valid 10-digit alternate mobile number';
+      form.altPhone.classList.add('is-invalid');
+      valid = false;
+    }
+
+    if (data.phone && data.altPhone && data.phone.trim() === data.altPhone.trim()) {
+      document.getElementById('altPhone-error').textContent = 'Alternate phone cannot be same as primary phone';
+      form.altPhone.classList.add('is-invalid');
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    try {
+      const response = await fetch('/add-address', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Address added successfully',
+          timer: 1500,
+          showConfirmButton: false,
+        }).then(() => {
+          window.location.href = '/userProfile';
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops',
+          text: result.message || 'Failed to add address',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }
+    } catch (error) {
+      console.error('Add address error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message || 'Internal server error',
+      });
+    }
+  });
+</script>
+
+<%- include('../partials/user/footer') %>

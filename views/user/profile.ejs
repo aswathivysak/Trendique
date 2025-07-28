@@ -1,0 +1,850 @@
+<%- include('../partials/user/header') %>
+<div><br><br><br></div>
+
+<style>
+  /* All your original styles here (copied from your old profile page) */
+  .profile-page {
+    display: flex;
+    max-width: 1100px;
+    margin: 60px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .user-greeting {
+    background: #000;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    margin-bottom: 40px;
+    line-height: 1.2;
+  }
+  .user-greeting .username {
+    display: block;
+    font-size: 1rem;
+    margin-top: 4px;
+    font-weight: 600;
+    opacity: 0.8;
+  }
+  .sidebar1 {
+    width: 260px;
+    background-color: #f9f9f9;
+    padding: 40px 30px;
+    box-sizing: border-box;
+    border-right: 1px solid #ddd;
+  }
+  .sidebar1 .nav-link {
+    display: block;
+    margin-bottom: 15px;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #333;
+    text-decoration: none;
+    border: 1.5px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .sidebar1 .nav-link.active,
+  .sidebar1 .nav-link:hover {
+    background-color: #5c4aff;
+    color: white;
+    border-color: #4a3aff;
+    box-shadow: 0 4px 15px rgba(74, 58, 255, 0.5);
+  }
+  .profile-main {
+    flex: 1;
+    padding: 40px 50px;
+    box-sizing: border-box;
+    position: relative;
+  }
+  .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  .profile-header h2 {
+    font-weight: 900;
+    font-size: 28px;
+    letter-spacing: 0.05em;
+    margin: 0;
+    user-select: none;
+  }
+  .underline {
+    height: 2px;
+    width: 160px;
+    background-color: #bbb;
+    margin: 12px 0 40px 0;
+    user-select: none;
+  }
+  .profile-image-wrapper {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid #ddd;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    position: relative;
+    cursor: pointer;
+  }
+  .profile-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+  }
+  .edit-icon {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background-color: white;
+    border-radius: 50%;
+    padding: 8px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.25);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+  }
+  .edit-icon:hover {
+    background-color: #e9ecef;
+  }
+  form {
+    max-width: 600px;
+  }
+  .input-wrapper {
+    margin-bottom: 36px;
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    user-select: none;
+  }
+  input.form-control {
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: #f5f5f5;
+    transition: border-color 0.3s ease;
+  }
+  input.form-control:focus {
+    outline: none;
+    border-color: #4a3aff;
+    background: white;
+  }
+  .buttons {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+  }
+  .btn {
+    font-weight: 700;
+  }
+  .btn-primary {
+    background-color: #e63946;
+    border: none;
+    padding: 14px 44px;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .btn-primary:hover {
+    background-color: #b83239;
+  }
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+  }
+  .btn-dark {
+    background-color: #343a40;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+  }
+  .btn-outline-primary {
+    border: 1.5px solid #5c4aff;
+    color: #5c4aff;
+    background: transparent;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .btn-outline-primary:hover {
+    background-color: #5c4aff;
+    color: white;
+  }
+  .btn-sm {
+    font-size: 0.8rem;
+  }
+  /* Show/hide content */
+  .section-content {
+    display: none;
+  }
+  .section-content.active {
+    display: block;
+  }
+/* My Order */
+.card {
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 0.1);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.card-header {
+  background-color: #0d6efd;
+  color: white;
+  font-weight: 700;
+  font-size: 1.25rem;
+  user-select: none;
+  border-radius: 12px 12px 0 0;
+}
+table thead th {
+  border-bottom: 2px solid #0d6efd;
+}
+tbody tr:hover {
+  background-color: #e9f0ff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.btn-small {
+  font-size: 0.85rem;
+  padding: 5px 10px;
+  border-radius: 6px;
+}
+.status-badge {
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  user-select: none;
+}
+.status-pending {
+  background-color: #ffc107;
+  color: #212529;
+}
+.status-delivered {
+  background-color: #198754;
+}
+.status-cancelled {
+  background-color: #dc3545;
+}
+.status-shipped {
+  background-color: #0dcaf0;
+  color: #212529;
+}
+/* Responsive overflow for small devices */
+.table-responsive {
+  overflow-x: auto;
+}
+/* Pagination styling */
+.pagination {
+  justify-content: center;
+  margin-top: 25px;
+}
+.page-link {
+  color: #0d6efd;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.page-link:hover {
+  background-color: #0d6efd;
+  color: white;
+  text-decoration: none;
+}
+.page-item.active .page-link {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+  cursor: default;
+  pointer-events: none;
+}
+  
+</style>
+
+<div class="profile-page">
+  <!-- Sidebar -->
+  <nav class="sidebar1" aria-label="User Navigation">
+    <div class="user-greeting">
+      Hello<br />
+      <span class="username"><%= user ? user.name : 'Guest' %></span>
+    </div>
+
+    <a href="#profile" class="nav-link active" data-target="profile">Profile</a>
+    <a href="#orders" class="nav-link" data-target="orders">My Orders</a>
+    <a href="#Wallet" class="nav-link" data-target="wallet">Wallet</a>
+    <a href="#wallet-history" class="nav-link" data-target="Wallet-History">Wallet History</a>
+    <!-- <a href="#" class="nav-link" data-target="Referral">Referral</a> -->
+    <a href="#" class="nav-link" data-target="address">Address</a>
+    <a href="/logout" class="nav-link">Logout</a>
+  </nav>
+
+  <!-- Main content -->
+  <section class="profile-main">
+    <!-- Profile Section -->
+    <div id="profile" class="section-content active">
+      <div class="profile-header">
+        <h2>PROFILE</h2>
+
+        <div class="profile-image-wrapper" title="Change profile picture">
+          <img id="profileImagePreview"
+               src="<%= user && user.profilePicture ? ('/uploads/profile/' + user.profilePicture) : '/images/default-avatar.png' %>"
+               alt="Profile Image" />
+          <label for="profileImageInput" class="edit-icon" title="Change Profile Picture">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                 class="bi bi-pencil-fill text-primary" viewBox="0 0 16 16">
+              <path d="M12.854.146a.5.5 0 0 1 .11.637l-.057.07L5.207 8.5H4.5v-.707l7.7-7.7a.5.5 0 0 1 .653-.064zM11.207 2.5 13.5 4.793l-8 8H3v-2.5l8-8z"/>
+            </svg>
+          </label>
+        </div>
+        <input type="file" id="profileImageInput" name="profileImage" accept="image/*" style="display:none;" />
+        <div id="uploadStatus"></div>
+      </div>
+
+      <div class="underline"></div>
+
+      <form method="POST" action="/updateProfile" id="profileForm">
+        <div class="input-wrapper">
+          <label for="firstName">First Name</label>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="text" id="firstName" name="name" class="form-control" value="<%= user ? user.name : '' %>" readonly />
+            <button type="button" class="btn btn-sm btn-outline-primary edit-btn" onclick="toggleEdit('firstName', this)">Edit</button>
+          </div>
+          <div id="nameError" class="error-message" style="display:none;"></div>
+        </div>
+
+        <div class="input-wrapper">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" class="form-control" value="<%= user ? user.email : '' %>" readonly />
+          <div id="emailError" class="error-message" style="display:none;"></div>
+        </div>
+
+        <div class="input-wrapper">
+          <label for="phone">Phone Number</label>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <input type="tel" id="phone" name="phone" class="form-control" value="<%= user ? user.phone : '' %>" readonly />
+            <button type="button" class="btn btn-sm btn-outline-primary edit-btn" onclick="toggleEdit('phone', this)">Edit</button>
+          </div>
+          <div id="phoneError" class="error-message" style="display:none;"></div>
+        </div>
+
+        <div class="buttons">
+          <a href="/change-email" class="btn btn-dark">Change Email</a>
+          <a href="/change-password" class="btn btn-danger">Change Password</a>
+          <button type="submit" class="btn btn-sml btn-dark">Save Changes</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Orders Section -->
+    <div id="orders" class="section-content">
+      <h2>My Orders</h2>
+      <div class="underline"></div>
+      <div class="card">
+        <!-- <div class="card-header">
+          Your Orders
+        </div> -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th scope="col">Order ID</th>
+                  <th scope="col">Order Date</th>
+                  <th scope="col">Products</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Example row -->
+                <% if (orders && orders.length > 0) { %>
+                  <% orders.forEach(order => { %>
+                <tr>
+                  <td># <%= order.orderId.toString().slice(-6) %></td>
+                  <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
+                  
+                  <td>
+                    <% order.orderedItems.forEach(item => { %>
+                    <div class="d-flex flex-column">
+                      <span><%= item.product?.productName || item.productName %> (x<%= item.quantity %>)</span>
+                     </div>
+                     <% }) %>
+                  </td>
+                  <td>
+                    <!-- <span class="status-badge status-pending"><%= order.status %></span> -->
+                    <span class="badge bg-<%= 
+                    order.status.toLowerCase() === 'pending' ? 'warning' :
+                    order.status.toLowerCase() === 'processing' ? 'info' :
+                    order.status.toLowerCase() === 'shipped' ? 'primary' :
+                    order.status.toLowerCase() === 'delivered' ? 'success' :
+                    order.status.toLowerCase() === 'cancelled' ? 'danger' :
+                    order.status.toLowerCase() === 'return request' ? 'warning' :
+                    order.status.toLowerCase() === 'returned' ? 'secondary' :
+                    order.status.toLowerCase() === 'confirmed' ? 'success' :
+                    'secondary'
+                  %>">
+                    <%= order.status %>
+                  </span>
+                  </td>
+                  <td>₹<%= order.finalAmount %></td>
+                  <td>
+                    <a href="/viewOrderDetails/<%= order._id %>" class="btn btn-primary btn-small d-block mb-1">View Details</a>
+                    <!-- <button class="btn btn-outline-danger btn-small d-block">Cancel Order</button> -->
+                  </td>
+                </tr>
+                <% }) %>
+    
+                
+                <% } else { %>
+                  <tr>
+                    <td colspan="5" class="text-center">No orders found.</td>
+                  </tr>
+                <% } %>
+    
+              </tbody>
+            </table>
+          </div>
+    
+         <!-- Pagination -->
+         <% if (totalPages > 1) { %>
+          <div class="d-flex justify-content-center mt-3">
+            <ul class="pagination">
+              <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                  <a class="page-link" href="?page=<%= i %>#orders"><%= i %></a>
+                </li>
+              <% } %>
+            </ul>
+          </div>
+        <% } %>
+        </div>
+      </div>
+        
+    </div>
+
+    <!-- Wallet Section -->
+    <div id="wallet" class="section-content">
+      <h2>Wallet</h2>
+      <div class="underline"></div>
+      
+      <div class="card-body contact-from-area">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center mt-4">
+            <!-- Wallet Balance -->
+            <h4 class="mb-4">Wallet Balance: ₹<%= user.wallet.toFixed(2) %></h4>
+
+            <!-- Add Money Form -->
+            <form id="addWalletForm">
+              <div class="form-group">
+                <label for="walletAmount" class="h5">Enter Amount to Add</label>
+                <input type="number" min="1" id="walletAmount" class="form-control" placeholder="Enter amount in ₹" required />
+              </div>
+              <button type="button" class="btn btn-success mt-3" onclick="addMoneyToWallet()">Add Money</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+     <!-- Wallet History Section -->
+     <div id="Wallet-History" class="section-content">
+      <h2>Wallet History</h2>
+      <div class="underline"></div>
+      <p>Your wallet details will appear here.</p>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Transaction</th>
+                <th>Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (walletTransactions.length > 0) { %>
+                <% walletTransactions.forEach(txn => { %>
+                  <tr>
+                    <td><%= new Date(txn.date).toLocaleString() %></td>
+                    <td><%= txn.status === 'credit' ? 'Credited to Wallet' : 'Debited for Order' %></td>
+                    <td class="<%= txn.status === 'credit' ? 'text-success' : 'text-danger' %>">
+                      ₹ <%= txn.amount.toFixed(2) %>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="3" class="text-center">No wallet transactions yet.</td>
+                </tr>
+              <% } %>
+            </tbody>          
+          </table>
+        </div>
+        <div class="d-flex justify-content-center mt-3">
+          <div class="overflow-auto" style="max-width: 100%;">
+            <ul class="pagination flex-wrap justify-content-center">
+              <% 
+                const visiblePages = 5;
+                const startPage = Math.max(1, walletCurrentPage - Math.floor(visiblePages / 2));
+                const endPage = Math.min(walletTotalPages, startPage + visiblePages - 1);
+              %>
+
+              <% if (walletCurrentPage > 1) { %>
+                <li class="page-item">
+                  <a class="page-link" href="?walletPage=<%= walletCurrentPage - 1 %>#wallet-history">&laquo;</a>
+                </li>
+              <% } %>
+
+              <% if (startPage > 1) { %>
+                <li class="page-item">
+                  <a class="page-link" href="?walletPage=1#wallet-history">1</a>
+                </li>
+                <% if (startPage > 2) { %>
+                  <li class="page-item disabled"><span class="page-link">...</span></li>
+                <% } %>
+              <% } %>
+
+              <% for (let i = startPage; i <= endPage; i++) { %>
+                <li class="page-item <%= i === walletCurrentPage ? 'active' : '' %>">
+                  <a class="page-link" href="?walletPage=<%= i %>#wallet-history"><%= i %></a>
+                </li>
+              <% } %>
+
+              <% if (endPage < walletTotalPages) { %>
+                <% if (endPage < walletTotalPages - 1) { %>
+                  <li class="page-item disabled"><span class="page-link">...</span></li>
+                <% } %>
+                <li class="page-item">
+                  <a class="page-link" href="?walletPage=<%= walletTotalPages %>#wallet-history"><%= walletTotalPages %></a>
+                </li>
+              <% } %>
+
+              <% if (walletCurrentPage < walletTotalPages) { %>
+                <li class="page-item">
+                  <a class="page-link" href="?walletPage=<%= walletCurrentPage + 1 %>#wallet-history">&raquo;</a>
+                </li>
+              <% } %>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+      
+    </div>
+    <!-- Referral section -->
+    <!-- <div id="Referral" class="section-content">
+      <h2>Referral</h2>
+      <div class="underline"></div>
+      <p>Your wallet details will appear here.</p>
+     
+    </div> -->
+
+
+    <!-- Address Section -->
+    <div id="address" class="section-content">
+      <h2>Address</h2>
+      <div class="underline"></div>
+    
+      <% if (!addresses || addresses.length === 0) { %>
+        <p>No addresses found. <a href="/addAddress">Add an address</a></p>
+      <% } else { %>
+        <div class="address-list">
+          <% addresses.forEach((addr) => { %>
+            <div class="address-card" style="border:1px solid #ccc; padding:15px; margin-bottom:15px; border-radius:8px; position: relative;">
+              <strong><%= addr.addressType %></strong><br>
+              <%= addr.name %><br>
+              House No: <%= addr.houseNo %><br>
+              City: <%= addr.city %><br>
+              State: <%= addr.state %><br>
+              Landmark: <%= addr.landMark || 'N/A' %><br>
+              Pincode: <%= addr.pincode %><br>
+              Phone: <%= addr.phone %><br>
+              Alternate Phone: <%= addr.altPhone || 'N/A' %><br>
+    
+              <div style="margin-top:10px; display: flex; justify-content: flex-end; gap: 10px;">
+                <a href="/editAddress?id=<%= addr._id %>" class="btn btn-sm btn-outline-primary">Edit</a>
+                <a href="/deleteAddress?id=<%= addr._id %>" class="btn btn-sm btn-outline-danger"
+                   onclick="return confirm('Are you sure you want to delete this address?')">Delete</a>
+              </div>
+            </div>
+          <% }) %>
+          <a href="/addAddress" class="btn btn-primary mt-3">Add New Address</a>
+        </div>
+      <% } %>
+    </div>
+    
+    
+    
+  </section>
+</div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.querySelectorAll('.sidebar1 .nav-link[data-target]');
+    const sections = document.querySelectorAll('.section-content');
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+
+        navLinks.forEach(l => l.classList.remove('active'));
+        sections.forEach(s => s.classList.remove('active'));
+
+        link.classList.add('active');
+        const target = link.getAttribute('data-target');
+        document.getElementById(target).classList.add('active');
+      });
+    });
+
+    const originalValues = {};
+
+    window.toggleEdit = function(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.hasAttribute('readonly')) {
+        originalValues[inputId] = input.value;
+        input.removeAttribute('readonly');
+        input.focus();
+        btn.textContent = 'Cancel';
+        btn.classList.remove('btn-outline-primary');
+        btn.classList.add('btn-danger');
+      } else {
+        if (originalValues[inputId] !== undefined) {
+          input.value = originalValues[inputId];
+        }
+        input.setAttribute('readonly', true);
+        btn.textContent = 'Edit';
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-outline-primary');
+        delete originalValues[inputId];
+      }
+    };
+
+    function showError(inputId, message) {
+      const errorDiv = document.getElementById(inputId + 'Error');
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.color = 'red';
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    function clearError(inputId) {
+      const errorDiv = document.getElementById(inputId + 'Error');
+      if (errorDiv) {
+        errorDiv.textContent = '';
+        errorDiv.style.display = 'none';
+      }
+    }
+
+    function validateName() {
+      const nameInput = document.getElementById('firstName');
+      const val = nameInput.value.trim();
+      clearError('firstName');
+      if (nameInput.hasAttribute('readonly')) return true;
+
+      if (val === '') {
+        showError('firstName', 'Name is required.');
+        return false;
+      }
+      if (val.length < 3) {
+        showError('firstName', 'Name must be at least 3 characters.');
+        return false;
+      }
+      if (!/^[a-zA-Z\s]+$/.test(val)) {
+        showError('firstName', 'Name can only contain letters and spaces.');
+        return false;
+      }
+      return true;
+    }
+
+    function validateEmail() {
+      const emailInput = document.getElementById('email');
+      const val = emailInput.value.trim();
+      clearError('email');
+      if (emailInput.hasAttribute('readonly')) return true;
+
+      if (val === '') {
+        showError('email', 'Email is required.');
+        return false;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(val)) {
+        showError('email', 'Please enter a valid email address.');
+        return false;
+      }
+      return true;
+    }
+
+    function validatePhone() {
+      const phoneInput = document.getElementById('phone');
+      const val = phoneInput.value.trim();
+      clearError('phone');
+      if (phoneInput.hasAttribute('readonly')) return true;
+
+      if (val === '') {
+        showError('phone', 'Phone number is required.');
+        return false;
+      }
+      const phoneRegex = /^[+]?[\d\s\-]{10}$/;
+      if (!phoneRegex.test(val)) {
+        showError('phone', 'Please enter a valid phone number.');
+        return false;
+      }
+      return true;
+    }
+
+    ['firstName', 'email', 'phone'].forEach(id => {
+      const input = document.getElementById(id);
+      if (!input) return;
+      input.addEventListener('input', () => {
+        if (id === 'firstName') validateName();
+        if (id === 'email') validateEmail();
+        if (id === 'phone') validatePhone();
+      });
+    });
+
+    const form = document.getElementById('profileForm');
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        const validName = validateName();
+        const validEmail = validateEmail();
+        const validPhone = validatePhone();
+
+        if (!validName || !validEmail || !validPhone) {
+          e.preventDefault();
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops!',
+            text: 'Please fix the errors in the form before submitting.',
+            confirmButtonText: 'Okay'
+          });
+        }
+      });
+    }
+
+    const profileImageInput = document.getElementById("profileImageInput");
+    const uploadStatus = document.getElementById("uploadStatus");
+    const profileImagePreview = document.getElementById("profileImagePreview");
+
+    if (profileImageInput && uploadStatus && profileImagePreview) {
+      profileImageInput.addEventListener("change", async function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("profileImage", file);
+
+        uploadStatus.innerHTML = `<span class="text-info">Uploading...</span>`;
+
+        try {
+          const res = await fetch("/upload-profile-pic", {
+            method: "POST",
+            body: formData
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            uploadStatus.innerHTML = `<span class="text-success">Uploaded successfully!</span>`;
+            profileImagePreview.src = `/uploads/profile/${data.filename}?t=${new Date().getTime()}`;
+          } else {
+            uploadStatus.innerHTML = `<span class="text-danger">${data.error || "Upload failed"}</span>`;
+          }
+        } catch (err) {
+          uploadStatus.innerHTML = `<span class="text-danger">Something went wrong</span>`;
+        }
+
+        setTimeout(() => {
+          uploadStatus.innerHTML = '';
+        }, 3000);
+      });
+    }
+  });
+
+  //Add money to wallet
+  function addMoneyToWallet() {
+    const amount = parseFloat(document.getElementById("walletAmount").value);
+    if (!amount || amount <= 0) {
+      Swal.fire("Invalid Amount", "Please enter a valid amount to add.", "warning");
+      return;
+    }
+   $.ajax({
+      url: '/createWalletOrder',
+      method: 'POST',
+      data: { amount },
+      success: function (response) {
+        const options = {
+          key: "rzp_test_ClMWweWS70Dbkd", 
+          amount: response.amount,
+          currency: "INR",
+          name: "Wallet Top-up",
+          description: "Add money to wallet",
+          order_id: response.orderId,
+          handler: function (payment) {
+            // Step 2: On payment success, confirm to backend
+            $.ajax({
+              url: '/verifyWalletPayment',
+              method: 'POST',
+              data: {
+                payment,
+                orderId: response.orderId,
+                amount
+              },
+              success: function (res) {
+                if (res.status) {
+                  Swal.fire("Success", "Amount added to wallet!", "success").then(() => {
+                    location.reload();
+                  });
+                } else {
+                  Swal.fire("Failed", "Payment verification failed.", "error");
+                }
+              }
+            });
+          },
+          prefill: {
+            name: "Customer Name",
+            email: "customer@example.com",
+            contact: "9999999999"
+          },
+          theme: {
+            color: "#3399cc"
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      }
+    });
+  }
+</script>
+
+<script>
+  function cancelOrder(orderId) {
+    alert(`Cancel order: ${orderId} (replace this alert with your real logic)`);
+  }
+</script></p>
+
+<%- include('../partials/user/footer') %>

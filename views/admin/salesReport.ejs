@@ -1,0 +1,241 @@
+<%- include("../../views/partials/admin/header") %>
+<style>
+    :root {
+     --primary-color: #1e90ff;
+     --secondary-color: #2d3436;
+     --success-color: #00b894;
+     --danger-color: #d63031;
+     --info-color: #0984e3;
+     --light-gray: #dfe6e9;
+     --background-color: #f5f6fa;
+     --white: #ffffff;
+     --shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+     --transition: all 0.3s ease;
+   }
+
+</style>
+
+
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Sales Report</title>
+   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+   <div class="container mx-auto px-4 py-8">
+       <!-- Report Header -->
+       <div class="mb-8">
+           <h1 class="text-3xl font-bold text-gray-800 mb-4">Sales Report</h1>
+           
+           <!-- Date Range Filter -->
+           <form id="reportForm" method="GET" action="/admin/report/generate" class="bg-white p-6 rounded-lg shadow-md">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <!-- Report Type -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
+                  <select
+                    class="form-select w-full border border-gray-300 rounded-md p-2"
+                    id="rangeType"
+                    name="rangeType"
+                    required
+                    onchange="toggleDateInputs(this.value)"
+                  >
+                    <option value="day">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="custom">Custom Range</option>
+                  </select>
+                </div>
+              
+                <!-- Start and End Dates side-by-side -->
+                <div class="col-span-2 flex space-x-4 custom-range" style="display:none;">
+                  <div class="flex-1">
+                    <label for="startDate" class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                    <input
+                      type="date"
+                      id="startDate"
+                      name="startDate"
+                      class="form-control w-full border border-gray-300 rounded-md p-2"
+                    />
+                  </div>
+                  <div class="flex-1">
+                    <label for="endDate" class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                    <input
+                      type="date"
+                      id="endDate"
+                      name="endDate"
+                      class="form-control w-full border border-gray-300 rounded-md p-2"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+               <div class="mt-4 flex justify-end space-x-3">
+                   <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                       Generate Report
+                   </button>
+                   <a href="/admin/report/generate?rangeType=<%= rangeType %>&startDate=<%= startDate %>&endDate=<%= endDate %>&format=pdf"  class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Download PDF</a>
+                   <a href="/admin/report/generate?rangeType=<%= rangeType %>&startDate=<%= startDate %>&endDate=<%= endDate %>&format=excel" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">Download Excel</a>
+                   
+               </div>
+           </form>
+       </div>
+       <% if (salesData && salesData.length > 0) { %>
+       <!-- Summary Cards -->
+       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+           <div class="bg-white p-6 rounded-lg shadow-md">
+               <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Sales Amount</h3>
+               <p class="text-2xl font-bold text-green-600">₹<%= totalAmount %></p>
+           </div>
+           <div class="bg-white p-6 rounded-lg shadow-md">
+               <h3 class="text-lg font-semibold text-gray-700 mb-2">Orders</h3>
+               <p class="text-2xl font-bold text-blue-600"><%= totalSale %></p>
+           </div>
+           <div class="bg-white p-6 rounded-lg shadow-md">
+               <h3 class="text-lg font-semibold text-gray-700 mb-2">Discounts</h3>
+               <p class="text-2xl font-bold text-red-600">₹<%= totalDiscount %></p>
+           </div>
+           <div class="bg-white p-6 rounded-lg shadow-md">
+               <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Offers</h3>
+               <p class="text-2xl font-bold text-purple-600">₹<%= totalOffer %></p>
+           </div>
+       </div>
+
+       <!-- Detailed Sales Table -->
+       <div class="bg-white rounded-lg shadow-md overflow-hidden">
+           <h2 class="text-xl font-semibold text-gray-800 p-6 border-b">Detailed Sales</h2>
+           <div class="overflow-x-auto">
+               <table class="w-full">
+                   <thead class="bg-gray-50">
+                       <tr>
+                           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cutomer</th>
+                           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">payment</th>
+                           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
+                           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Offer</th>
+                       </tr>
+                   </thead>
+                   <tbody class="bg-white divide-y divide-gray-200">
+                    <% salesData.forEach((sale) => { %>
+                       <tr>
+                           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <%= sale.orderId %>
+                           </td>
+                           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                               <%= sale.user%>
+                           </td>
+                           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <%= sale.date %>
+                           </td>
+                           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <%= sale.payment %>
+                           </td>
+                           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                               ₹<%= sale.totalAmount.toLocaleString() %>
+                           </td>
+                           <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+                               ₹<%= sale.discount.toLocaleString() %>
+                           </td>
+                           <td class="px-6 py-4 whitespace-nowrap text-sm text-purple-600">
+                               ₹<%= sale.offer.toLocaleString() %>
+                           </td>
+                       </tr>
+                       <% }); %>
+                   </tbody>
+               </table>
+           </div>
+       </div>
+       <% } else { %>
+        <div class="alert alert-warning">No sales data found for the selected range.</div>
+        <% } %>
+        <nav>
+            <ul class="pagination justify-content-center">
+              <% for(let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= i == currentPage ? 'active' : '' %>">
+                  <a class="page-link" href="/admin/report/generate?page=<%= i %>&rangeType=<%=rangeType %>&startDate=<%= startDate %>&endDate=<%= endDate %>"><%= i %></a>
+                </li>
+              <% } %>
+            </ul>
+          </nav>
+   </div>
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+   <script>
+   
+
+       
+       
+   </script>
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function toggleDateInputs(value) {
+        const customRangeElements = document.querySelectorAll(".custom-range");
+        customRangeElements.forEach(el => {
+          el.style.display = value === 'custom' ? 'flex' : 'none';
+        });
+      }
+      
+      document.addEventListener('DOMContentLoaded', function() {
+        const rangeType = document.getElementById('rangeType').value;
+        toggleDateInputs(rangeType);
+      
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+          const selectedRange = document.getElementById('rangeType').value;
+      
+          if (selectedRange === 'custom') {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+      
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+      
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+      
+            if (!start || !end) {
+              e.preventDefault();
+              Swal.fire({
+                icon: 'warning',
+                title: 'Invalid date',
+                text: 'Please select start date and end date'
+              });
+              return;
+            }
+      
+            if (startDate > endDate) {
+              e.preventDefault();
+              Swal.fire({
+                icon: 'warning',
+                title: 'Invalid date',
+                text: 'Start date cannot be greater than end date'
+              });
+              return;
+            }
+      
+            if (startDate > today || endDate > today) {
+              e.preventDefault();
+              Swal.fire({
+                icon: 'warning',
+                title: 'Invalid date',
+                text: 'Dates cannot be in the future'
+              });
+              return;
+            }
+          }
+        });
+      });
+      
+</script>
+
+
+  <%- include("../../views/partials/admin/footer") %>

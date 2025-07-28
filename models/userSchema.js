@@ -42,24 +42,33 @@ const userSchema = new Schema({
         type:String,
         required:false
     },
-    cart:[{
-        productId: {
-            type: Schema.Types.ObjectId,
-            ref: 'Product'
-        },
-        quantity: {
-            type: Number,
-            default: 1
-        }
+    wishlist:[{
+        type: Schema.Types.ObjectId,
+        ref:"Wishlist"
     }],
+   
     wallet:{
         type: Number,
         default: 0
     },
-    wishlist:[{
-        type: Schema.Types.ObjectId,
-        ref: 'Product'
-    }],
+    walletTransactions: [
+        {
+            date: Date,
+            status: String, // e.g., "Added", "Refund", "Used for Order"
+            amount: Number,
+        }
+        ],
+    history: [
+        {
+            amount: Number,
+            status: String, // 'credit' or 'debit'
+            date: Date
+        }
+        ],
+    // wishlist:[{
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'Product'
+    // }],
     orderHistory:[{
         type: Schema.Types.ObjectId,
         ref: 'Order'

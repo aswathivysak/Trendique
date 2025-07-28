@@ -1,0 +1,260 @@
+<%- include("../../views/partials/admin/header") %>
+
+<style>
+  .input-group {
+    display: flex;
+    align-items: center;
+    max-width: 150px;
+    gap: 4px;
+  }
+  .input-group button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #ced4da;
+    background: #f8f9fa;
+    cursor: pointer;
+    font-size: 20px;
+    user-select: none;
+  }
+  .input-group input {
+    width: 60px;
+    text-align: center;
+    border: 1px solid #ced4da;
+    height: 32px;
+    padding: 0;
+  }
+  table.table thead th, table.table tbody td {
+    vertical-align: middle;
+    text-align: center;
+  }
+  table.table tbody td input[type="color"] {
+    border: none;
+    width: 30px;
+    height: 30px;
+    cursor: default;
+  }
+  td.actions-cell {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+  }
+  .card.p-4 {
+    max-width: 420px;   
+    padding: 15px !important;  
+    margin: auto;       
+    box-sizing: border-box;
+  }
+</style>
+
+<section class="container my-4">
+  <h2 class="mb-4">Manage Variants for Product: <%= product.name %></h2>
+
+  <!-- Variant List -->
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th style="width: 5%;">#</th>
+          <th style="width: 15%;">Color</th>
+          <th style="width: 20%;">Size</th>
+          <th style="width: 15%;">Quantity</th>
+          <th style="width: 25%;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (!product.variants || product.variants.length === 0) { %>
+          <tr><td colspan="5" class="text-center">No variants found.</td></tr>
+        <% } else { %>
+          <% product.variants.forEach((variant, index) => { %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><input type="text" value="<%= variant.color %>" disabled></td>
+              <td><%= variant.size %></td>
+              <td><%= variant.quantity %></td>
+              <td class="actions-cell">
+                <!-- <a href="/admin/product/<%= product._id %>/variants/<%= variant._id %>/edit" class="btn btn-info btn-sm" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </a> -->
+                <button class="btn btn-info btn-sm" onclick="openEditVariantModal('<%= variant._id %>', '<%= variant.color %>', '<%= variant.size %>', <%= variant.quantity %>)" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                
+                <form method="POST" action="/admin/product/<%= product._id %>/variants/<%= variant._id %>/delete" style="display:inline;">
+                  <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this variant?');" title="Delete">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Add Variant Form -->
+  <div class="card p-4">
+    <h3>Add New Variant</h3>
+    <form action="/admin/product/<%= product._id %>/variants/add" method="POST" id="addVariantForm" style="max-width: 400px;">
+      <input type="hidden" name="productId" value="<%= product._id %>" />
+
+      <div class="mb-3">
+        <label for="color" class="form-label">Color</label>
+        <input
+        type="text"
+        id="color"
+        name="color"
+        class="form-control"
+        placeholder="Enter color name or hex code"
+        required
+      />
+      
+      </div>
+
+      <div class="mb-3">
+        <label for="size" class="form-label">Size</label>
+        <input
+          type="text"
+          id="size"
+          name="size"
+          placeholder="e.g., S, M, L"
+          class="form-control"
+          required
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="quantity" class="form-label">Quantity</label>
+        <div class="input-group">
+          <button type="button" id="decrement">-</button>
+          <input
+            type="number"
+            id="quantity"
+            name="quantity"
+            min="0"
+            value="0"
+            required
+          />
+          <button type="button" id="increment">+</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Add Variant</button>
+    </form>
+  </div>
+</section>
+<!-- Edit Variant Modal -->
+<div class="modal fade" id="editVariantModal" tabindex="-1" aria-labelledby="editVariantModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="editVariantForm" method="POST">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editVariantModalLabel">Edit Variant</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="variantId" name="variantId" />
+
+            <div class="mb-3">
+              <label for="editColor" class="form-label">Color</label>
+              <input type="text" class="form-control" id="editColor" name="color" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="editSize" class="form-label">Size</label>
+              <input type="text" class="form-control" id="editSize" name="size" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="editQuantity" class="form-label">Quantity</label>
+              <input type="number" class="form-control" id="editQuantity" name="quantity" min="0" required />
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+  const quantityInput = document.getElementById('quantity');
+  document.getElementById('increment').addEventListener('click', () => {
+    quantityInput.value = parseInt(quantityInput.value || '0') + 1;
+  });
+  document.getElementById('decrement').addEventListener('click', () => {
+    if (parseInt(quantityInput.value) > 0) {
+      quantityInput.value = parseInt(quantityInput.value) - 1;
+    }
+  });
+
+  / Validate color name using browser CSS parser
+  function isValidColorName(colorName) {
+    const s = new Option().style;
+    s.color = colorName;
+    return s.color !== '';
+  }
+
+  // Validate size (e.g., S, M, L, XL, or numbers)
+  function isValidSize(size) {
+    const sizeRegex = /^[a-zA-Z0-9]{1,4}$/;
+    return sizeRegex.test(size.trim());
+  }
+
+  // Validate quantity (non-negative integer)
+  function isValidQuantity(qty) {
+    const n = Number(qty);
+    return Number.isInteger(n) && n >= 0;
+  }
+
+  document.getElementById('addVariantForm').addEventListener('submit', function(e) {
+    const color = document.getElementById('color').value.trim();
+    const size = document.getElementById('size').value.trim();
+    const quantity = document.getElementById('quantity').value.trim();
+
+    function showError(message) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: message,
+      });
+    }
+
+    if (!isValidColorName(color)) {
+      e.preventDefault();
+      showError('Please enter a valid CSS color name (e.g., red, blue, green).');
+      return;
+    }
+
+    if (!isValidSize(size)) {
+      e.preventDefault();
+      showError('Please enter a valid size (1-4 letters/numbers, e.g., S, M, L, XL).');
+      return;
+    }
+
+    if (!isValidQuantity(quantity)) {
+      e.preventDefault();
+      showError('Please enter a valid quantity (a non-negative integer).');
+      return;
+    }
+  });
+</script>
+<script>
+  function openEditVariantModal(id, color, size, quantity) {
+    const modal = new bootstrap.Modal(document.getElementById('editVariantModal'));
+    document.getElementById('variantId').value = id;
+    document.getElementById('editColor').value = color;
+    document.getElementById('editSize').value = size;
+    document.getElementById('editQuantity').value = quantity;
+    modal.show();
+  
+    // Update the form action dynamically to include the variant ID
+    document.getElementById('editVariantForm').action = `/admin/product/<%= product._id %>/variants/${id}/edit`;
+  }
+  
+</script>
+
+<%- include("../../views/partials/admin/footer") %>

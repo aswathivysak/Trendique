@@ -7,7 +7,11 @@ const app= express()
 const connectDB = require("./config/db");
 const userRouter = require('./routes/userRoutes');
 const adminRouter = require('./routes/adminRoutes');
+const wishlistCountMiddleware = require('./middlewares/wishlistCount');
+const cartItem = require('./middlewares/cartitems');
+
 connectDB()
+
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
@@ -18,7 +22,6 @@ app.use(
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
-        // store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
         cookie: { secure: false, httpOnly: true, maxAge: 72 * 60 * 60 * 1000 },
       }),
     )
@@ -27,11 +30,14 @@ app.use((req,res,next) => {
     res.set('Cache-Control','no-store')
     next();
 })
+
 app.set('view engine', 'ejs');
 app.set('views', [path.join(__dirname, 'views/user'), path.join(__dirname, 'views/admin')]);
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+app.use(wishlistCountMiddleware);
+app.use(cartItem);
 app.use('/',userRouter)
 app.use('/admin', adminRouter);
 
