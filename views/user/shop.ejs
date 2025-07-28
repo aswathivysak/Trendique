@@ -7,8 +7,29 @@
     <br><br><br>
 </div>
 <style>
+  /* Dropdown submenu style */
+  .dropdown-submenu {
+    position: relative;
+  }
+  .dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-left: 0.1rem;
+    display: none;
+    position: absolute;
+  }
+  .dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+  }
+  .dropdown-submenu > a::after {
+    content: "▶";
+    float: right;
+    margin-left: 5px;
+    font-size: 0.6em;
+  }
+  
   /* Enable submenu on hover */
-.dropdown-submenu {
+/*.dropdown-submenu {
     position: relative;
   }
   
@@ -26,13 +47,13 @@
     display: block;
   }
   
-  /* Fix caret for submenu */
+  
   .dropdown-submenu > a:after {
     content: "▶";
     float: right;
     margin-left: 5px;
     font-size: 0.6em;
-  }
+  }*/
  
   
   /* Wish list */
@@ -86,7 +107,7 @@
                   </ul>
                 </div>
              <!-- Category -->
-                <div class="dropdown me-3">
+                <!-- <div class="dropdown me-3">
                     <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                       Select Category
                     </button>
@@ -107,126 +128,32 @@
                     <ul class="dropdown-menu" aria-labelledby="subcategoryDropdown" id="subcategoryMenu">
                       <li><span class="dropdown-item-text">Select a category first</span></li>
                     </ul>
+                  </div> -->
+                  <div class="dropdown">
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                      Category
+                    </button>
+                    <ul class="dropdown-menu">
+                      <% category.forEach(cat => { %>
+                        <li class="dropdown-submenu">
+                          <a class="dropdown-item dropdown-toggle" href="#"><%= cat.name %></a>
+                          <% if (cat.subcategories && cat.subcategories.length > 0) { %>
+                            <ul class="dropdown-menu">
+                              <% cat.subcategories.forEach(subcat => { 
+                                   if (subcat.isListed && !subcat.isDeleted) { %>
+                                <li><a class="dropdown-item" href="/filter?subcategory=<%= subcat._id %>"><%= subcat.name %></a></li>
+                              <% } }) %>
+                            </ul>
+                          <% } %>
+                        </li>
+                      <% }) %>
+                    </ul>
                   </div>
+                  
+                  
                   <!-- end  -->
                   
-                  
-                <!-- Category Dropdown with Submenus -->
-<!-- Category Dropdown with Submenus -->
-<!-- <div class="dropdown me-3">
-    <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-      Category
-    </button>
-    <ul class="dropdown-menu" aria-labelledby="categoryDropdown" style="min-width: 200px;">
-      <% category.forEach(cat => { %>
-        <li class="dropdown-submenu">
-          Parent Category item
-          <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown">
-            <%= cat.name %>
-          </a>
-  
-          Subcategory submenu
-          <% if (cat.subcategories && cat.subcategories.length > 0) { %>
-            <ul class="dropdown-menu">
-              <% cat.subcategories.forEach(subcat => { %>
-                <% if (subcat.isListed && !subcat.isDeleted) { %>
-                  <li>
-                    <a class="dropdown-item" href="/filter?subcategory=<%= subcat._id %>"><%= subcat.name %></a>
-                  </li>
-                <% } %>
-              <% }) %>
-            </ul>
-          <% } %>
-        </li>
-      <% }) %>
-    </ul>
-  </div>
-   -->
-
-              <!-- Category Dropdown with Submenus -->
-<!-- <div class="dropdown me-3">
-    <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-      Category
-    </button>
-    <ul class="dropdown-menu" aria-labelledby="categoryDropdown" style="min-width: 200px;">
-      <% category.forEach(cat => { %>
-        <li class="dropdown-submenu">
-          Parent Category item
-          <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown">
-            <%= cat.name %>
-          </a>
-  
-          Subcategory submenu
-          <% if (cat.subcategories && cat.subcategories.length > 0) { %>
-            <ul class="dropdown-menu">
-              <% cat.subcategories.forEach(subcat => { %>
-                <% if (subcat.isListed && !subcat.isDeleted) { %>
-                  <li>
-                    <a class="dropdown-item" href="/filter?subcategory=<%= subcat._id %>"><%= subcat.name %></a>
-                  </li>
-                <% } %>
-              <% }) %>
-            </ul>
-          <% } %>
-        </li>
-      <% }) %>
-    </ul>
-  </div> -->
-  
               
-                <!-- Category Dropdown -->
-                <!-- <div class="dropdown">
-                  <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    Category
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
-                    <% for(let i = 0; i < category.length; i++) { %>
-                        <li>
-                          <a class="dropdown-item" href="/filter?category=<%=category[i]._id%>" data-filter=".<%= category[i].name.toLowerCase().replace(/\s+/g, '-') %>">
-                            <%= category[i].name %>
-                          </a>
-                        </li>
-                      <% } %>
-                  </ul>
-                </div> -->
-                            <!-- Category Dropdown -->
-                        <!-- <div class="dropdown me-3">
-                            <button class="btn dropdown-toggle" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            Category
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="categoryDropdown">
-                            <% for(let i = 0; i < category.length; i++) { %>
-                                <li>
-                                <a class="dropdown-item" href="/filter?category=<%= category[i]._id %>">
-                                    <%= category[i].name %>
-                                </a>
-                                </li>
-                            <% } %>
-                            </ul>
-                        </div> -->
-                        
-                        <!-- Subcategory Dropdown -->
-                        <!-- <div class="dropdown">
-                            <button class="btn dropdown-toggle" type="button" id="subcategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            Subcategory
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="subcategoryDropdown">
-                            <% category.forEach(cat => { 
-                                if(cat.subcategories && cat.subcategories.length > 0) { %>
-                                <li class="dropdown-header"><%= cat.name %></li>
-                                <% cat.subcategories.forEach(subcat => { %>
-                                <li>
-                                    <a class="dropdown-item" href="/filter?subcategory=<%= subcat._id %>">
-                                    <%= subcat.name %>
-                                    </a>
-                                </li>
-                                <% }) %>
-                                <li><hr class="dropdown-divider"></li>
-                            <% } 
-                                }) %>
-                            </ul>
-                        </div>  -->
-
                   <!-- Brand Dropdown -->
                
                 <div class="dropdown">
@@ -308,7 +235,7 @@
                     <ul>
                         <li><a href="/shop?sort=default" class="filter-link stext-106 trans-04">Default</a></li>
                         <li><a href="/shop?sort=popularity" class="filter-link stext-106 trans-04">Popularity</a></li>
-                        <li><a href="/shop?sort=rating" class="filter-link stext-106 trans-04">Average rating</a></li>
+                        <!-- <li><a href="/shop?sort=rating" class="filter-link stext-106 trans-04">Average rating</a></li> -->
                         <li><a href="/shop?sort=newest" class="filter-link stext-106 trans-04 filter-link-active">Newness</a></li>
                         <li><a href="/shop?sort=price_asc" class="filter-link stext-106 trans-04">Price: Low to High</a></li>
                         <li><a href="/shop?sort=price_desc" class="filter-link stext-106 trans-04">Price: High to Low</a></li>
@@ -717,14 +644,14 @@
       });
     });
   </script>
-  <script>
+ <!-- <script>
     const categoriesData = <%- JSON.stringify(category) %>;
   
     const categoryItems = document.querySelectorAll('.category-item');
     const subcategoryMenu = document.getElementById('subcategoryMenu');
     const subcategoryDropdownButton = document.getElementById('subcategoryDropdown');
     const categoryDropdownButton = document.getElementById('categoryDropdown');
-  
+   
     categoryItems.forEach(item => {
       item.addEventListener('click', () => {
         const selectedCategoryId = item.getAttribute('data-category-id');
@@ -759,7 +686,52 @@
         }
       });
     });
+  </script> -->
+  <script>
+    document.querySelectorAll('.category-item').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const categoryId = btn.dataset.categoryId;
+  
+        const subcategoryDropdown = document.getElementById('subcategoryDropdown');
+        const subcategoryMenu = document.getElementById('subcategoryMenu');
+        
+        // Enable subcategory dropdown
+        subcategoryDropdown.disabled = false;
+        subcategoryDropdown.innerText = 'Select Subcategory';
+  
+        // Fetch subcategories
+        const response = await fetch(`/api/subcategories/${categoryId}`);
+        const subcategories = await response.json();
+  
+        // Build nested list
+        subcategoryMenu.innerHTML = '';
+        if (subcategories.length === 0) {
+          subcategoryMenu.innerHTML = '<li><span class="dropdown-item-text">No subcategories</span></li>';
+          return;
+        }
+  
+        subcategories.forEach(sub => {
+          const li = document.createElement('li');
+          if (sub.children.length === 0) {
+            li.innerHTML = `<button class="dropdown-item subcategory-item" type="button" data-sub-id="${sub._id}">${sub.name}</button>`;
+          } else {
+            // Create nested submenu
+            li.classList.add('dropdown-submenu');
+            li.innerHTML = `
+              <a class="dropdown-item dropdown-toggle" href="#">${sub.name}</a>
+              <ul class="dropdown-menu">
+                ${sub.children.map(child => `
+                  <li><button class="dropdown-item subcategory-item" data-sub-id="${child._id}">${child.name}</button></li>
+                `).join('')}
+              </ul>
+            `;
+          }
+          subcategoryMenu.appendChild(li);
+        });
+      });
+    });
   </script>
+  
   <!-- Color and Size filter -->
   <script>
     function handleFilterClick(filterListId, queryParamName) {

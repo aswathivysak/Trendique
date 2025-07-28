@@ -445,13 +445,14 @@ const loadShoppingPage = async (req, res) => {
          if (findCategory) {
             query.category = findCategory._id;
         }
-        if (findBrand) {
-            query.brand = findBrand._id;
-        }
         if (subcategoryId) {
             // subcategory is stored as string, so query directly with string
             query.subcategory = subcategoryId;
           }
+        if (findBrand) {
+            query.brand = findBrand._id;
+        }
+       
           if (req.query.price) {
             const priceRange = req.query.price;
           
