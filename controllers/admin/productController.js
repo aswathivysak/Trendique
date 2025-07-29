@@ -145,7 +145,7 @@ const addProducts = async (req, res) => {
       subcategory:subcategory,
       price,
       finalPrice: finalPriceParsed,
-      material: material || "Cotton",
+      material: material || "Cotton", 
       images: imageFilenames,
       status: status || "available"
     });
@@ -351,8 +351,10 @@ const editProduct = async (req, res) => {
       return res.status(404).json({ success: false, message: "Product not found" })
     }
 
-    if (!product.productImage) {
-      product.productImage = [];
+    
+
+    if (!product.images) {
+      product.images = [];
     }
     
     for (let i = 1; i <= 4; i++) {
@@ -370,7 +372,7 @@ const editProduct = async (req, res) => {
           .toFile(filepath);
     
         const imagePath = `uploads/product-images/${filename}`;
-        product.productImage[i - 1] = imagePath;
+        product.images[i - 1] = imagePath;
     
       } else if (fileField && fileField.length > 0) {
         const file = fileField[0];
@@ -383,11 +385,11 @@ const editProduct = async (req, res) => {
           .toFile(filepath);
     
         const imagePath = `uploads/product-images/${filename}`;
-        product.productImage[i - 1] = imagePath;
+        product.images[i - 1] = imagePath;
     
       } else {
-        if (!product.productImage[i - 1]) {
-          product.productImage[i - 1] = '';
+        if (!product.images[i - 1]) {
+          product.images[i - 1] = '';
         }
       }
     }
@@ -398,7 +400,7 @@ const editProduct = async (req, res) => {
     product.brand = brand;
     product.category = category;
     product.subcategory = subcategory;
-    product.regularPrice = regularPrice;
+    product.price = regularPrice;
     product.finalPrice = finalPrice;
     product.material = material;
     product.status = status;
@@ -412,6 +414,36 @@ const editProduct = async (req, res) => {
     res.status(500).json({ success: false, message: "An error occurred while updating the product" });
   }
 }
+ 
+const deleteSingleImage = async (req, res) => {
+  try {
+    const { imageNameToServer, productIdToServer, imageIndex } = req.body;
+    console.log("images",imageNameToServer,productIdToServer,imageIndex)
+    const product = await Product.findById(productIdToServer);
+
+    if (!product) {
+      return res.status(404).json({ status: false, message: "Product not found" });
+    }
+
+    
+    product.images.splice(imageIndex, 1);
+    await product.save();
+
+    const imagePath = path.join(__dirname, "../../public", imageNameToServer);
+
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+      console.log(`Image ${imageNameToServer} deleted successfully`);
+    } else {
+      console.log(`Image ${imageNameToServer} not found`);
+    }
+
+    res.json({ status: true, message: "Image deleted successfully" });
+  } catch (error) {
+    console.error("Error in deleteSingleImage:", error);
+    res.status(500).json({ status: false, message: "An error occurred while deleting the image" });
+  }
+};
 
 
 //Product varient section
@@ -613,6 +645,7 @@ module.exports={
      deleteProduct,
      getEditProduct,
      editProduct,
+     deleteSingleImage,
      showProductVariants,
      addProductVariants,
      deleteVariant,

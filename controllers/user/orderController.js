@@ -812,6 +812,29 @@ const deleteCoupon=async (req, res) => {
 }
 
 
+const retryPayment = async (req, res) => {
+  try {
+    const orderId = req.query.id;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ error: "Order not found" });
+
+    if (order.status !== "failed") {
+      return res.status(400).json({ error: "Order is not failed" });
+    }
+
+    const razorPayOrder = await generateOrderRazorpay(orderId, order.finalAmount);
+
+    res.json({
+      razorPayOrder,
+      key_id: process.env.RAZORPAY_KEY_ID
+    });
+  } catch (error) {
+    console.error("Retry payment error:", error);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+};
+
 
 
 module.exports={
@@ -828,5 +851,5 @@ module.exports={
     getAvailableCoupons,
     applyCoupon,
     deleteCoupon,
-
+    retryPayment,
 }

@@ -50,7 +50,7 @@ console.log(category)
       return res.json({ status: false, message: 'This product subcategory is currently unavailable.' });
     }
     
-    // Find variant matching size and color
+   
     const variant = product.variants.find(v => v.size === size && v.color === color);
     if (!variant) {
       return res.json({ status: false, message: 'Selected color and size are not available' });

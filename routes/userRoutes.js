@@ -94,6 +94,7 @@ router.get('/order-success/:orderId', userAuth, orderController.getOrderSuccessP
 router.get('/viewOrderDetails/:orderId', userAuth, orderController.viewOrderDetails)
  router.post("/verifyPayment", userAuth, orderController.verifyPayment);
 router.post('/paymentConfirm',userAuth, orderController.paymentConfirm);
+router.get("/retryPayment", userAuth, orderController.retryPayment);
 
 router.post("/cancelOrder",userAuth,orderController.cancelOrder);
 router.post('/orders/return-request', userAuth, orderController.returnRequest);

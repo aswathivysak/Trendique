@@ -1,379 +1,671 @@
-<%- include("../../views/partials/admin/header") %>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Order Details</title> 
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" /> 
 
 <style>
-  /* Same styles as add page */
-  .form-section {
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  body {
+    font-family: Arial, sans-serif;
+    background: #f1f4f8;
+    /*padding: 40px 15px;*/
+
   }
-  .preview-container {
-    margin-top: 10px;
+  /*------*/
+  .content-title {
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 12px;
   }
-  .image-preview {
-    width: 100%;
-    max-width: 150px;
-    height: auto;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    margin-top: 8px;
+  .order-info-wrap {
+    background-color: #e6f0ff;
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 3rem;
+    box-shadow: 0 2px 10px rgb(0 123 255 / 0.15);
   }
-  .image-upload-container {
+  .icontext {
     display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
   }
-  .image-upload-item {
-    flex: 1 1 calc(50% - 15px);
-    max-width: calc(50% - 15px);
-    box-sizing: border-box;
+  .icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background-color: #0d6efd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 3rem;
+    box-shadow: 0 4px 10px rgb(13 110 253 / 0.5);
   }
-  @media (max-width: 576px) {
-    .image-upload-item {
-      flex: 1 1 100%;
-      max-width: 100%;
+  .icontext h6 {
+    margin-bottom: 0;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .icontext p {
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #212529;
+    margin-bottom: 0;
+  }
+  /*------*/
+  .orders-card {
+    max-width: 980px;
+    margin: auto;
+    height: 1500px;
+    background: white;
+    border-radius: 15px;
+    padding: 30px 40px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+  }
+  .order-card {
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    padding: 15px 20px;
+    display: flex;
+   
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 20px;
+    font-size: 13px;
+  }
+  .order-img {
+    width: 75px;
+    height: 75px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  }
+  .details {
+    flex: 1.8;
+    color: #222;
+  }
+  .details strong {
+    display: block;
+    font-weight: 700;
+    color: #0d6efd;
+    margin-bottom: 3px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .details div {
+    margin: 2px 0;
+  }
+  .center-info {
+    flex: 1.4;
+    text-align: center;
+    color: #333;
+    user-select: none;
+  }
+  .center-info strong {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .center-info small {
+    color: #666;
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+  }
+  .timeline {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    gap: 30px;
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 9%;
+    right: 9%;
+    height: 2px;
+    background: #ddd;
+    transform: translateY(-50%);
+    border-radius: 2px;
+    z-index: 1;
+  }
+  .step {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #0d6efd;
+    box-shadow: 0 0 6px rgba(13, 110, 253, 0.6);
+    position: relative;
+    z-index: 2;
+  }
+  .step.inactive {
+    background: #cfd8dc;
+    box-shadow: none;
+  }
+  .step-label {
+    font-size: 9px;
+    color: #444;
+    margin-top: 4px;
+    text-align: center;
+    width: 65px;
+    user-select: none;
+  }
+  .step-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 65px;
+  }
+  .action-buttons {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+    align-items: flex-end;
+  }
+  .btn-cancel {
+    background-color: #dc3545;
+    color: white;
+    border: 2px solid #dc3545;
+    border-radius: 5px;
+    font-weight: 700;
+    min-width: 90px;
+    padding: 6px 14px;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+    cursor: pointer;
+  }
+  .btn-cancel:hover {
+    background-color: #b02a37;
+    border-color: #b02a37;
+  }
+  .btn-return {
+    background-color: #0d6efd;
+    color: white;
+    border: 2px solid #0d6efd;
+    border-radius: 5px;
+    font-weight: 700;
+    min-width: 90px;
+    padding: 6px 14px;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+    cursor: pointer;
+  }
+  .btn-return:hover {
+    background-color: #084298;
+    border-color: #084298;
+  }
+  .pagination {
+    text-align: center;
+    margin-top: 15px;
+  }
+  .pagination button {
+    border: 1px solid #ddd;
+    background: white;
+    padding: 5px 10px;
+    margin: 0 2px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #555;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+  }
+  .pagination button.active {
+    background-color: #0d6efd;
+    color: white;
+    pointer-events: none;
+  }
+  .pagination button:hover:not(.active) {
+    background-color: #ddd;
+  }
+  /* Responsive */
+  @media (max-width: 600px) {
+    .order-card {
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 12px;
+      position: relative;
+    }
+    .center-info {
+      text-align: left;
+      margin-top: 10px;
+      flex: 100%;
+    }
+    .action-buttons {
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 8px;
+      flex: 100%;
     }
   }
 </style>
+</head>
+<body>
+  <!-- Header -->
+<header class="d-flex justify-content-between align-items-center  px-5 py-3 border-bottom bg-white">
+  <div class="d-flex align-items-center gap-4">
+    <a href="/" class="navbar-brand">
+      <img src="/images/logo.png" alt="Trendique Logo" height="50" />
+    </a>
+    <nav class="nav">
+      <a class="nav-link text-primary" href="/">Home</a>
+      <a class="nav-link text-dark" href="/shop">Shop</a>
+      <a class="nav-link text-dark position-relative" href="/new-arrivals">
+        New arrivals
+        <span class="badge bg-danger position-absolute top-0 start-10 translate-middle rounded-pill" style="font-size: 10px;">HOT</span>
+      </a>
+      <a class="nav-link text-dark" href="/about">About</a>
+      <a class="nav-link text-primary" href="/contact">Contact</a>
+    </nav>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    <i class="fas fa-user"></i>
+    <span><%= user.name %></span> <!-- Or hardcode 'Aswathi Vysak' -->
+  </div>
+</header>
+<div><br><br></div>
 
-<div class="container mt-5">
-  <h3 class="mb-4">Edit Product</h3>
-  <form id="editProductForm"  data-product-id="<%= product._id %>"  class="row g-4 form-section" enctype="multipart/form-data" method="POST" action="">
-    <div class="col-md-6">
-      <label class="form-label">Product Name</label>
-      <input type="text" id="name" name="name" class="form-control" required value="<%= product.name %>">
-      <div id="name-error" class="text-danger"></div>
-
-      <label class="form-label mt-3">Description</label>
-      <textarea id="description" name="description" class="form-control" rows="4" required><%= product.description %></textarea>
-      <div id="description-error" class="text-danger"></div>
-
-      <div class="row mt-3">
-        <div class="col-md-6">
-          <label class="form-label">Category</label>
-          <select id="category" name="category" class="form-select" required>
-            <option value="" disabled>Select Category</option>
-            <% for (let i = 0; i < cat.length; i++) { %>
-              <option value="<%= cat[i]._id %>" <%= product.category && product.category._id.toString() === cat[i]._id.toString()?'selected' : '' %> ><%= cat[i].name %></option>
-            <% } %>
-          </select>
-          <div id="category-error" class="text-danger"></div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Subcategory</label>
-          <select id="subcategory" name="subcategory" class="form-select" required>
-            <option value="" disabled>Select Subcategory</option>
-            <!-- dynamically filled  -->
-          </select>
-          <div id="subcategory-error" class="text-danger"></div>
-        </div>
-      </div>
-
-      <label class="form-label mt-3">Brand</label>
-      <select id="brand" name="brand" class="form-select" required>
-        <option value="" disabled>Select Brand</option>
-        <% for (let i = 0; i < brands.length; i++) { %>
-          <option value="<%= brands[i]._id %>"<%= product.brand && product.brand._id.toString() === brands[i]._id.toString()?'selected' : '' %>><%= brands[i].brandName %></option>
-        <% } %>
-      </select>
-      <div id="brand-error" class="text-danger"></div>
-
-      <label class="form-label mt-3">Regular Price</label>
-      <input type="number" id="regularPrice" name="regularPrice" class="form-control" required value="<%= product.price %>">
-      <div id="regularPrice-error" class="text-danger"></div>
-
-      <label class="form-label mt-3">Final Price</label>
-      <input type="number" id="finalPrice" name="finalPrice" class="form-control" required value="<%= product.finalPrice %>">
-      <div id="finalPrice-error" class="text-danger"></div>
-
-      <label class="form-label mt-3">Material</label>
-      <input type="text" id="material" name="material" class="form-control" value="<%= product.material %>">
-      <div id="material-error" class="text-danger"></div>
-
-      <label class="form-label mt-3">Status</label>
-      <input type="text" id="status" name="status" class="form-control" value="<%= product.status %>">
-      <div id="status-error" class="text-danger"></div>
-    </div>
-
-    <div class="col-md-6">
-      <h4>Product Images</h4>
-      <div class="image-upload-container">
-        <% for (let i = 0; i < 4; i++) { %>
-          <div class="image-upload-item">
-            <label for="image<%= i+1 %>">Image <%= i+1 %></label>
-            <input
-              type="file"
-              id="image<%= i+1 %>"
-              name="image<%= i+1 %>"
-              class="form-control"
-              accept="image/*"
-              onchange="previewImage(event, <%= i+1 %>)"
-            >
-            <div class="preview-container" style="<%= product.images[i] ? 'display:block' : 'display:none' %>">
-              <img
-                id="preview<%= i+1 %>"
-                class="image-preview"
-                src="<%= product.images[i] ? '/' + product.images[i] : '#' %>"
-                alt="Preview"
-              >
-            </div>
-            <input
-              type="hidden"
-              id="croppedImage<%= i+1 %>"
-              name="croppedImage<%= i+1 %>"
-            >
-            <% if (product.images[i]) { %>
-              <input type="hidden" name="oldImage<%= i+1 %>" value="<%= product.images[i] %>">
-            <% } %>
-            <div id="image<%= i+1 %>-error" class="text-danger"></div>
+<div class="orders-card">
+  <div class="header-container">
+    <div class="row">
+      <div class="col">
+        
+        <!-- breadcrumb -->
+        <div class="container">
+          <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+            <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
+              Home
+              <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+            </a>
+            <!-- <span class="stext-109 cl4">Shopping Cart</span> -->
           </div>
+        </div>
+        <h2>Order Details</h2>
+      </div>
+      <div class="col ms-5 ">
+        <% if(orderObj.status === 'delivered') { %>
+          <!-- <a href="/orders/download-invoice/<%= orderObj.orderId %>" style="color: #333; background-color:#dbef8a ;text-decoration:none" class="btn-return">Download Invoice</a> -->
+          <button class="btn btn-primary" style="color: #333; background-color:#dbef8a ;text-decoration:none" onclick="openInvoiceModal('<%= orderObj.orderId %>')">Download Invoice</button>
+
         <% } %>
+      
+      </div>
+      <div><br><br><br></div>
+    </div>
+
+  <!-- user details -->
+  
+  <div class="card-body p-0">
+    <!-- Customer, Order & Delivery Info -->
+    <div class="row order-info-wrap text-dark g-5">
+      <div class="col-md-4">
+        
+        <article class="icontext">
+          <span class="icon rounded-circle">
+            <i class="fas fa-user"></i> <!-- Person icon -->
+          </span>
+          <h6>Customer</h6>
+          <p><%= orderObj.userId.name %><br /><%= orderObj.userId.phone %></p>
+        </article>
+      </div>
+      <div class="col-md-4">
+        <article class="icontext">
+          <span class="icon rounded-circle">
+            <i class="fas fa-receipt"></i> <!-- Receipt icon -->
+          </span>
+          <h6>Order Info</h6>
+          <p>
+            <strong>Payment:</strong> <%= orderObj.paymentMethod.toUpperCase() %> <br />
+            <strong>Status:</strong> <%= orderObj.status.charAt(0).toUpperCase() + orderObj.status.slice(1) %> <br />
+            <strong>Grand Total:</strong> ₹<%= orderObj.finalAmount.toFixed(2) %> <br />
+           
+            <strong>Delivery Charge:</strong> ₹<%= orderObj.deliveryCharge.toFixed(2) %>
+          </p>
+     
+        </article>
+      </div>
+      <div class="col-md-4">
+        <article class="icontext">
+          <span class="icon rounded-circle">
+            <i class="fas fa-map-marker-alt"></i> <!-- Map marker icon -->
+          </span>
+          <h6>Deliver To</h6>
+          <p>
+            <%= orderObj.address.houseNo %><br />
+            <%= orderObj.address.city %>, <%= orderObj.address.state %> <br />
+            <%= orderObj.address.landmark ? orderObj.address.landmark + ', ' : '' %> <br />
+            <%= orderObj.address.pincode %>
+          </p>
+          <!-- <a href="/orders/download-invoice/<%= orderObj.orderId %>" class="btn btn-sm btn-outline-primary mt-2">Download Invoice</a> -->
+        </article>
       </div>
     </div>
+<!-- end -->
+    
+<% if (orderObj.status === "failed") { %>
+  <button onclick="retryPayment('<%= orderObj._id %>')" class="btn btn-dark btn-sm mt-2">
+      Retry Payment
+  </button>
+<% } %>
    
+  </div>
 
-    <div class="col-12 d-flex justify-content-end">
-      <button type="reset" class="btn btn-outline-secondary me-2" id="resetBtn">Cancel</button>
-      <button type="submit" class="btn btn-dark">Update</button>
+  <% if (orderObj && orderObj.orderedItems && orderObj.orderedItems.length > 0) { %>
+    <% orderObj.orderedItems.forEach((item,index) => { %>
+      <div class="order-card">
+       
+      <img src="/<%= item.productImages[0] %>" 
+     alt="<%= item.productName || 'Product Image' %>" 
+     class="order-img" />
+
+
+        <div class="details">
+          <a href="/viewOrderDetails/<%= orderObj._id %>" class="product-name" title="View Order Details"><strong><%= item.productName || 'Product' %></strong></a>
+          <div>Size: <%= item.size || 'N/A' %></div>
+          <div>Color: <%= item.color || 'N/A' %></div>
+          <div>Quantity: <%= item.quantity %></div>
+        </div>
+
+        <div class="center-info">
+          <strong>₹$<%= item.finalPrice.toFixed(2) %></strong>
+          <strong style="color: #0baf5d;">Total :  $<%=(parseInt(item.finalPrice) * parseInt(item.quantity)).toLocaleString()%></strong>
+          <div>
+            <% if(item.status === 'delivered') { %>
+              Delivered On<br><%= new Date(item.deliveredOn || orderObj.deliveredOn).toLocaleDateString() %>
+          
+            <% } else if (
+              item.status === 'cancelled' ||
+              item.status === 'return_requested' ||
+              item.status === 'returning' ||
+              item.status === 'returned'
+            ) { %>
+              
+            
+            <% } else { %>
+              <% 
+                const createdDate = new Date(orderObj.createdOn);
+                const deliveryDays = 5; // or item-specific if available
+                const deliveryDate = new Date(createdDate);
+                deliveryDate.setDate(createdDate.getDate() + deliveryDays);
+              %>
+              Delivery Expected By<br><%= deliveryDate.toLocaleDateString() %>
+            <% } %>
+          </div>
+          <small style="color: #cc1b2d;font-size :larger;">
+           <% if(item.status === 'delivered') { %>
+          Your item has been delivered
+        <% } else if(item.status === 'cancelled') { %>
+          Your item has been cancelled
+        <% } else if(item.status === 'return_requested') { %>
+          Your return request is being processed
+        <% } else if(item.status === 'returning') { %>
+          Your item is being returned
+        <% } else if(item.status === 'returned') { %>
+          Your item has been successfully returned
+        <% } else { %>
+          Your item order has been placed
+        <% } %>
+          </small>
+
+          <div class="timeline" aria-label="Order status timeline">
+            <% 
+              const statuses = ['pending', 'confirmed', 'shipped', 'delivered']; 
+              const currentStatusIndex = statuses.indexOf(item.status);
+            %>
+            <% statuses.forEach((status, idx) => { %>
+              <div class="step-container">
+                <div class="step <%= idx <= currentStatusIndex ? '' : 'inactive' %>"></div>
+                <div class="step-label"><%= status.replace('_', ' ') %></div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+                        <% if(
+                          item.status !== 'cancelled' &&
+                          item.status !== 'delivered' &&
+                          item.status !== 'return_requested'&&
+                          item.status !== 'returned'&&
+                          orderObj.status !== 'cancelled'
+                        ) { %>
+                          
+                    <button onclick="confirmCancelOrder('<%= orderObj.orderId %>', <%= index %>)" class="btn-cancel">Cancel Item</button>
+
+                    <% } else if(item.status === 'cancelled') { %>
+                      <button disabled class="btn-cancel" style="opacity: 0.6; cursor: not-allowed;">Item Cancelled</button>
+                    <% } else if(item.status === 'delivered') { %>
+                      <button disabled class="btn-cancel" style="opacity: 0.6; cursor: not-allowed;">Item Delivered</button>
+                    <% } %>
+
+                      <!-- Return Request Button -->
+              <% if(item.status === 'delivered') { %>
+                <button class="btn-return" onclick="requestReturn('<%= orderObj.orderId %>', <%= index %>)">Request Return</button>
+              <% } else if(item.status === 'return_requested') { %>
+                <button disabled class="btn-return" style="opacity: 0.6; cursor: not-allowed;">Return Requested</button>
+              <% } else if(item.status === 'returning') { %>
+                <button disabled class="btn-return" style="opacity: 0.6; cursor: not-allowed;">Returning</button>
+              <% } else if(item.status === 'returned') { %>
+                <button disabled class="btn-return" style="opacity: 0.6; cursor: not-allowed;">Returned</button>
+              <% } %>
+                  
+
+         
+        </div>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p class="text-center">No ordered items found.</p>
+  <% } %>
+
+  <div class="pagination" role="navigation" aria-label="Pagination">
+    <% if(totalPages && totalPages > 1) { %>
+      <% if(currentPage > 1) { %>
+        <button onclick="location.href='?page=<%= currentPage - 1 %>'" aria-label="Previous page">&lt;</button>
+      <% } else { %>
+        <button disabled aria-label="Previous page">&lt;</button>
+      <% } %>
+
+      <% for(let i = 1; i <= totalPages; i++) { %>
+        <button
+          class="<%= currentPage === i ? 'active' : '' %>"
+          aria-current="<%= currentPage === i ? 'page' : false %>"
+          onclick="location.href='?page=<%= i %>'"
+        ><%= i %></button>
+      <% } %>
+
+      <% if(currentPage < totalPages) { %>
+        <button onclick="location.href='?page=<%= currentPage + 1 %>'" aria-label="Next page">&gt;</button>
+      <% } else { %>
+        <button disabled aria-label="Next page">&gt;</button>
+      <% } %>
+    <% } %>
+  </div>
+</div>
+<!-- Bootstrap 5 CSS & JS -->
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script> -->
+
+<!-- Invoice Download Confirmation Modal -->
+<div class="modal fade" id="invoiceDownloadModal" tabindex="-1" aria-labelledby="invoiceDownloadLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="invoiceDownloadLabel">Download Invoice</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Do you want to download the invoice for this order?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button id="confirmDownloadBtn" type="button" class="btn btn-primary">Download</button>
+      </div>
     </div>
-  </form>
+  </div>
+</div>
+</div>
 </div>
 
 <script>
-  // Categories data from server
-  const categories = <%- JSON.stringify(cat) %>;
-
-  const categorySelect = document.getElementById('category');
-  const subcategorySelect = document.getElementById('subcategory');
-
-  // Function to populate subcategory dropdown on page load and category change
-  function populateSubcategories(selectedCatId, selectedSubcatId) {
-    subcategorySelect.innerHTML = '<option value="" disabled>Select Subcategory</option>';
-    if (!selectedCatId) return;
-
-    const selectedCategory = categories.find(cat => cat._id === selectedCatId);
-    if (selectedCategory && selectedCategory.subcategories) {
-      selectedCategory.subcategories.forEach(subcat => {
-        const option = document.createElement('option');
-        option.value = subcat._id;
-        option.textContent = subcat.name;
-        if (selectedSubcatId && subcat._id === selectedSubcatId) {
-          option.selected = true;
-        }
-        subcategorySelect.appendChild(option);
-      });
-    }
-  }
-
-  // Initial populate on page load
-  window.onload = function() {
-   
-    populateSubcategories('<%= product.category._id.toString() %>', '<%= product.subcategory.toString() %>');
-  };
-
-  // Change subcategories when category changes
-  categorySelect.addEventListener('change', function() {
-    populateSubcategories(this.value);
-  });
-
-
+  let currentOrderId = null;
   
-  // Your existing previewImage and validation JS can be added here
-  const form = document.getElementById('editProductForm');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(form);
-    const productId = form.dataset.productId;
-
-    try {
-      const response = await fetch(`/admin/editProduct/${productId}/edit`, {
-        method: 'POST',  // or PUT if you prefer
-        body: formData
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: data.message || 'Product updated successfully',
-          confirmButtonText: 'OK'
-        }).then(() => {
-          window.location.href = '/admin/products';
-        });
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: data.message || 'Failed to update product',
-        });
-      }
-    } catch (error) {
-      console.error('Error updating product:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'An unexpected error occurred. Please try again later.'
-      });
-    }
-  });
-
-  let croppers = {};
-    let croppedImagesStatus = [false, false, false, false];
-
-    function previewImage(event, index) {
-        const input = event.target;
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const previewContainer = input.parentElement.querySelector('.preview-container');
-                previewContainer.style.display = 'block';
-                
-                const preview = document.getElementById(`preview${index}`);
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-
-                if (croppers[index]) {
-                    croppers[index].destroy();
-                }
-
-                croppers[index] = new Cropper(preview, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    ready: function() {
-                        this.cropper.crop();
-                        croppedImagesStatus[index] = true;
-                    }
-                });
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-
-<script>
-  // Add your previewImage and validation logic same as add page
-</script>
-
-<%- include("../../views/partials/admin/footer") %>
-
-
-
-
-
-
-
-
-
-const editProduct = async (req, res) => {
-  try{
-    const id = req.params.id
-    const {
-      name,
-      description,
-      brand,
-      category,
-      subcategory,
-      regularPrice,
-      finalPrice,
-      material,
-      status
-    } = req.body;
-    console.log({ category, subcategory });
-
-    if (!mongoose.Types.ObjectId.isValid(category)) {
-      return res.status(400).json({ success: false, message: "Invalid category id" });
-    }
-    if (!mongoose.Types.ObjectId.isValid(subcategory)) {
-      return res.status(400).json({ success: false, message: "Invalid subcategory id" });
-    }
-
-    const existingProduct = await Product.findOne({
-      name: name,
-      _id: { $ne: id },
-    })
-
-    if (existingProduct) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Product with this name already exists. Please try another name." })
-    }
-    const updateFields = {
-      name,
-      description,
-      brand,
-      category,
-      subcategory,
-      regularPrice,
-      finalPrice,
-      material,
-      status
-    }
-    const product = await Product.findById(id)
-    if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" })
-    }
-    for (let i = 1; i <= 4; i++) {
-      const croppedImageData = req.body[`croppedImage${i}`];
-      
-      if (croppedImageData && croppedImageData.startsWith('data:image')) {
-        const base64Data = croppedImageData.replace(/^data:image\/\w+;base64,/, '');
-        const imageBuffer = Buffer.from(base64Data, 'base64');
-        
-        const filename = Date.now() + "-" + `cropped-image-${i}` + ".webp";
-        const filepath = path.join(__dirname, "../../public/uploads/product-images", filename);
-    
-        await sharp(imageBuffer)
-          .webp({ quality: 80 })
-          .toFile(filepath);
-    
-        const imagePath = `uploads/product-images/${filename}`;
-    
-        if (product.productImage[i - 1]) {
-          product.productImage[i - 1] = imagePath;
-        } else {
-          product.productImage.push(imagePath);
-        }
-      } else if (req.files && req.files[`image${i}`] && req.files[`image${i}`].length > 0) {
-        const file = req.files[`image${i}`][0];
-        const filename = Date.now() + "-" + file.originalname.replace(/\s/g, "") + ".webp";
-        const filepath = path.join(__dirname, "../../public/uploads/product-images", filename);
-    
-        await sharp(file.buffer)
-          .resize(800, 800, { fit: "inside", withoutEnlargement: true })
-          .webp({ quality: 80 })
-          .toFile(filepath);
-    
-        const imagePath = `uploads/product-images/${filename}`;
-    
-        if (product.productImage[i - 1]) {
-          product.productImage[i - 1] = imagePath;
-        } else {
-          product.productImage.push(imagePath);
-        }
-      }
-    }
-    
-
-    Object.assign(product, updateFields);
-    await product.save();
-
-    res.json({ success: true, message: "Product updated successfully" });
-
-  }catch (err){
-    console.error("Error in editProduct:", err);
-    res.status(500).json({ success: false, message: "An error occurred while updating the product" });
+  function openInvoiceModal(orderId) {
+    currentOrderId = orderId;
+    const modal = new bootstrap.Modal(document.getElementById('invoiceDownloadModal'));
+    modal.show();
   }
-}
 
+  document.getElementById('confirmDownloadBtn').addEventListener('click', () => {
+    if (!currentOrderId) return;
+    const url = `/orders/download-invoice?orderId=${currentOrderId}`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = ''; // server provides filename
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    const modalEl = document.getElementById('invoiceDownloadModal');
+    bootstrap.Modal.getInstance(modalEl).hide();
+  });
+</script>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include SweetAlert2 from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function confirmCancelOrder(orderId, itemIndex) {
+    Swal.fire({
+      title: 'Cancel Order Item',
+      input: 'textarea',
+      inputLabel: 'Reason for cancellation (optional):',
+      inputPlaceholder: 'Write your reason here...',
+      showCancelButton: true,
+      confirmButtonText: 'Cancel Item',
+      cancelButtonText: 'Keep Item',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        cancelOrderItem(orderId, itemIndex, result.value);
+      }
+    });
+  }
+  
+  function cancelOrderItem(orderId, itemIndex, reason) {
+    $.ajax({
+      url: '/cancelOrder',
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ orderId, itemIndex, reason }),
+      success: (response) => {
+        Swal.fire('Cancelled!', 'The order item has been cancelled.', 'success').then(() => {
+          window.location.reload();
+        });
+      },
+      error: (error) => {
+        Swal.fire('Error!', 'There was an error cancelling the order item.', 'error');
+        console.error(error);
+      }
+    });
+  }
+  
+</script>
+
+  <script>
+    function requestReturn(orderId, itemIndex) {
+      Swal.fire({
+        title: 'Request Return',
+        input: 'textarea',
+        inputLabel: 'Reason for return (required):',
+        inputPlaceholder: 'Please provide the reason for return',
+        showCancelButton: true,
+        confirmButtonText: 'Submit Return Request',
+        cancelButtonText: 'Cancel',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'You must provide a return reason!'
+          }
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: '/orders/return-request',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ orderId, itemIndex, reason: result.value }),
+            success: () => {
+              Swal.fire('Requested!', 'Your return request has been submitted.', 'success').then(() => {
+                location.reload();
+              });
+            },
+            error: (xhr) => {
+              Swal.fire('Error!', xhr.responseText || 'Failed to submit return request.', 'error');
+            }
+          });
+        }
+      });
+    }
+</script>
+
+
+<!-- Footer -->
+<footer class="bg-dark text-light pt-5 pb-3 mt-5">
+  <div class="container">
+    <div class="row">
+
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold">TRENDIQUE</h5>
+        <p>We Give You Style. Shop the latest trends with confidence.</p>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold">Info</h5>
+        <ul class="list-unstyled">
+          <li><a href="/contact" class="text-light text-decoration-none">Contact Us</a></li>
+          <li><a href="/about" class="text-light text-decoration-none">About Us</a></li>
+          <li><a href="/privacy" class="text-light text-decoration-none">Privacy Policy</a></li>
+          <li><a href="/terms" class="text-light text-decoration-none">Terms & Conditions</a></li>
+          <li><a href="/returns" class="text-light text-decoration-none">Return Policy</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <h5 class="fw-bold">Subscribe to Our Newsletter</h5>
+        <form class="d-flex">
+          <input type="email" class="form-control me-2" placeholder="Email address" />
+          <button class="btn btn-outline-light" type="submit">Subscribe</button>
+        </form>
+        <div class="mt-3">
+          <i class="fas fa-heart me-2"></i>
+          <i class="fab fa-facebook-f me-2"></i>
+          <i class="fab fa-instagram me-2"></i>
+          <i class="fab fa-twitter"></i>
+        </div>
+      </div>
+
+    </div>
+    <hr class="bg-light" />
+    <div class="text-center small">&copy; 2025 | <strong>TRENDIQUE</strong> | All Rights Reserved.</div>
+  </div>
+</footer>
+
+
+ </body>
+</html>

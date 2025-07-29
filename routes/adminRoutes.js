@@ -72,6 +72,7 @@ router.post("/editProduct/:id/edit", adminAuth, upload.fields([
     { name: 'image3', maxCount: 1 },
     { name: 'image4', maxCount: 1 }
 ]), productController.editProduct);
+router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 router.post('/addProductOffer', adminAuth,productController.addProductOffer);
 router.post('/removeProductOffer', adminAuth, productController.removeProductOffer);
 //product varient
