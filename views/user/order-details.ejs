@@ -301,6 +301,7 @@
           <button class="btn btn-primary" style="color: #333; background-color:#dbef8a ;text-decoration:none" onclick="openInvoiceModal('<%= orderObj.orderId %>')">Download Invoice</button>
 
         <% } %>
+      
       </div>
       <div><br><br><br></div>
     </div>
@@ -311,6 +312,7 @@
     <!-- Customer, Order & Delivery Info -->
     <div class="row order-info-wrap text-dark g-5">
       <div class="col-md-4">
+        
         <article class="icontext">
           <span class="icon rounded-circle">
             <i class="fas fa-user"></i> <!-- Person icon -->
@@ -353,7 +355,11 @@
     </div>
 <!-- end -->
     
-    
+<% if (orderObj.status === "failed") { %>
+  <button onclick="retryPayment('<%= orderObj._id %>')" class="btn btn-dark btn-sm mt-2">
+      Retry Payment
+  </button>
+<% } %>
    
   </div>
 
@@ -617,6 +623,72 @@
       });
     }
 </script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  function retryPayment(orderId) {
+    fetch(`/retryPayment?id=${orderId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.razorPayOrder && data.key_id) {
+          const options = {
+            key: data.key_id,
+            amount: data.razorPayOrder.amount,
+            currency: "INR",
+            name: "Trend Setter",
+            description: "Retry Payment",
+            image: "https://firebasestorage.googleapis.com/v0/b/ecommerce-397a7.appspot.com/o/logo.jpg?alt=media&token=07b6be19-1ce8-4797-a3a0-f0eaeaafedad",
+            order_id: data.razorPayOrder.id,
+            handler: function (response) {
+              fetch('/verifyPayment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  order: data.razorPayOrder,
+                  payment: response
+                })
+              }).then(res => res.json())
+                .then(result => {
+                  /*window.location.href = `/viewOrderDetails?id=${orderId}`;*/
+                  window.location.href = `/viewOrderDetails/${orderId}`;
+                });
+            },
+            prefill: {
+              name: "Customer Name",
+              email: "customer@example.com",
+              contact: "9961618585"
+            },
+            theme: {
+              color: "#3399cc"
+            }
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.on('payment.failed', function (response) {
+            fetch('/verifyPayment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                order: data.razorPayOrder,
+                payment: { error: response.error }
+              })
+            }).then(() => {
+              window.location.href = `/viewOrderDetails/${orderId}`;
+            });
+          });
+
+          rzp.open();
+        } else {
+          alert("Something went wrong while retrying payment.");
+        }
+      })
+      .catch(err => {
+        console.error("Retry error:", err);
+        alert("Failed to retry payment. Please try again later.");
+      });
+  }
+</script>
+
 
 
 <!-- Footer -->

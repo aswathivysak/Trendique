@@ -274,7 +274,7 @@ const login = async (req, res) => {
         const findUser = await User.findOne({isAdmin:0,email:email});
 
         if(!findUser){
-            return res.render('login',{message:'User not found'})
+            return res.render('login',{message:'User not found', user: req.session.user || null })
         }
         // if(findUser.isBlocked){
         //     return res.render('login',{message:'You are Blocked by Admin'})
