@@ -48,9 +48,9 @@
     display: inline; /* empty heart visible for not wishlisted */
   }
   
-  .btn-addwish-b2:not(.wishlisted) .icon-heart2 { 
-    display: none; /* no filled heart for not wishlisted */
-  }
+  /*.btn-addwish-b2:not(.wishlisted) .icon-heart2 { 
+    display: none; 
+  }*/
   
   
 </style>
@@ -331,7 +331,7 @@
                             <%= product.effectiveOffer %>% OFF
                           </div>
                         <% } %>
-                        <a href="#" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">Quick View</a>
+                        <a href="/productDetails?id=<%=product._id%>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">Quick View</a>
                     </div>
                     <div class="block2-txt flex-w flex-t p-t-14">
                         <div class="block2-txt-child1 flex-col-l">

@@ -2,6 +2,7 @@ const User = require('../../models/userSchema')
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema")
 const Brand = require("../../models/brandSchema")
+const Order = require("../../models/orderSchema")
 const env = require('dotenv').config();
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
@@ -54,9 +55,10 @@ const pageNotFound = async (req, res) => {
               { if(err){
                 console.error("Session destruction error:", err);
               }
-              return req.redirect('/login');
+              return res.redirect('/login');
               })
-              return
+              //
+            return
             }
         }
         const categories=await Category.find({isListed:true})
@@ -64,7 +66,7 @@ const pageNotFound = async (req, res) => {
         let products = await Product.find({
             isBlocked:false,
             category:{$in:categoryIds}
-        }).lean()
+        }).populate('brand').lean()
         products=products.filter(product=>{
             const totalQuantity=product.variants?product.variants.reduce((sum,v)=>sum+(v.quantity || 0),0) : 0
             return totalQuantity>0;
@@ -73,17 +75,57 @@ const pageNotFound = async (req, res) => {
         products = products.slice(0, 12);
         console.log(userData,products)
          // New Arrivals - latest products
-            const newArrivals = await Product.find({ isBlocked: false })
-            .sort({ createdAt: -1 })
-            .limit(12)
-            .lean();
+            // const newArrivals = await Product.find({ isBlocked: false })
+            // .sort({ createdAt: -1 })
+            // .limit(12)
+            // .lean();
+            const newArrivals=products;
 
-        res.render('home', { user: userData, products ,newArrivals });
+            const orders = await Order.find({ status: 'delivered' }).lean();
+            //  Best Sellers
+            const productSalesMap = new Map();
+            orders.forEach(order => {
+              order.orderedItems.forEach(item => {
+                const productId = item.product?.toString();
+                if (!productId) return;
+                productSalesMap.set(productId, (productSalesMap.get(productId) || 0) + item.quantity);
+              });
+            });
+
+            const bestSellerIds = [...productSalesMap.entries()]
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 12)
+            .map(([productId]) => productId);
+            const bestSellers = products.filter(p =>
+                bestSellerIds.includes(p._id.toString())
+              );
+
+             // Top Brand Products
+             const brandSalesMap = new Map();  
+             orders.forEach(order => {
+                order.orderedItems.forEach(item => {
+                  const product = products.find(p => p._id.toString() === item.product.toString());
+                  if (!product || !product.brand) return;
+                  const brandId = product.brand.toString();
+                  brandSalesMap.set(brandId, (brandSalesMap.get(brandId) || 0) + item.quantity);
+                });
+              });
+
+              const topBrandIds = [...brandSalesMap.entries()]
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 3)
+              .map(([brandId]) => brandId);
+              
+                const topBrandProducts = products.filter(p =>
+                    topBrandIds.includes(p.brand?.toString())
+                ).slice(0, 12);
+
+        res.render('home', { user: userData, products ,newArrivals,bestSellers,topBrandProducts });
       
 
     }catch (err){
-        console.error('Home Page Not Found', err);
-        res.status(500).send('Server Error');
+        console.error('Error while loading home page', err)
+        res.redirect('/pagenotfound');
     }
   }
 
@@ -92,8 +134,9 @@ const loadSignUpPage = async (req, res) => {
         res.render('signup',{ user: null })
     } catch (error) {
         console.log('Sign Up Page Not Found')
-        res.status(500).send('Server Error')
+        res.redirect('/pagenotfound')
     }
+    
 }
 
 function generateOTP() {
@@ -134,7 +177,7 @@ async function sendVerificationEmail(email,otp){
 const signup = async (req, res) => {
    
     try {
-        const { name, email, phone, password, cpassword } = req.body
+        let { name, email, phone, password, cpassword } = req.body
         email = email.trim().toLowerCase();
         
         if(password !== cpassword){
@@ -158,7 +201,7 @@ const signup = async (req, res) => {
         req.session.userOtp = otp;
         req.session.userData = {name,phone,email,password};
 
-        res.render('verify-otp',{ user: null });
+        res.render('verify-otp');
         console.log("OTP Send",otp);
         
 
@@ -227,10 +270,10 @@ const resendOtp = async (req, res) => {
 
         const emailSent = await sendVerificationEmail(email,otp);
 
-        // console.log("Resended OTP:",otp)
+        
 
         if(emailSent){
-            // console.log("Resend OTP",otp);
+            
             res.status(200).json({success:true,message:'OTP Resend Successfully'})
             
         } else{
