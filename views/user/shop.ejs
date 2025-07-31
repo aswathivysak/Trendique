@@ -336,8 +336,26 @@
                     <div class="block2-txt flex-w flex-t p-t-14">
                         <div class="block2-txt-child1 flex-col-l">
                             <a href="/productDetails?id=<%=product._id%>" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6"><%= product.name %></a>
-                            <span class="stext-105 cl3">₹ <%= product.finalPrice %></span> <strike>₹ <%= product.price %></strike>
+                            
+                            <!-- <span class="stext-105 cl3">₹ <%= product.finalPrice %></span> <strike>₹ <%= product.price %></strike> -->
+                            <!-- <% if (product.effectiveOffer > 0) { 
+                              const beforeOfferPrice = Math.round(product.finalPrice / (1 - product.effectiveOffer / 100));
+                         %>
+                           <span class="stext-105 cl3">₹ <%= product.finalPrice %></span>
+                           <strike>₹ <%= beforeOfferPrice %></strike>
+                         <% } else { %>
+                           <span class="stext-105 cl3">₹ <%= product.finalPrice %></span>
+                         <% } %> -->
+                        
 
+                         <% if (product.baseFinalPrice){ %>
+                          <span class="stext-105 cl3">₹ <%= product.finalPrice %></span>
+                          <strike>₹ <%= product.baseFinalPrice %></strike>
+                        <% } else { %>
+                          <span class="stext-105 cl3">₹ <%= product.finalPrice %></span>
+                        <% } %>
+                        
+                         
                         </div>
                         <div class="block2-txt-child2 flex-r p-t-3">
                           <% const safeWishlistIds = typeof wishlistIds !== 'undefined' ? wishlistIds : []; %>

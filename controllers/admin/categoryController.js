@@ -60,6 +60,7 @@ const addCategory = async (req, res) => {
   
       const products = await Product.find({ category: categoryId });
       for (const product of products) {
+        product.baseFinalPrice = product.finalPrice;
         product.finalPrice = await calculateEffectivePrice(product);
         await product.save();
       }
@@ -107,36 +108,87 @@ const addCategory = async (req, res) => {
     }
   };
 
+  // const removeCategoryOffer = async (req, res) => {
+  //   try {
+  //     const categoryId = req.body.categoryId;
+  //     const category =  await Category.findById(categoryId);
+  //     if (!category) {
+  //       return res.status(404).json({ status: false, message: "Category not found" });
+  //     }
+   
+  //     await Category.updateOne(
+  //       { _id: categoryId },
+  //       {
+  //         $set: {
+  //           categoryOffer: null,
+  //           offerValidUntil: null // Reset the offer end date
+  //         }
+  //       }
+  //     );
+    
+  //     const products = await Product.find({ category: categoryId });
+  //     for (const product of products) {
+  //       product.finalPrice = await calculateEffectivePrice(product);
+  //       await product.save();
+  //     }
+  
+  //     res.json({ status: true, message: "Offer removed successfully" });
+  //   } catch (error) {
+  //     console.error("Error in removeCategoryOffer:", error);
+  //     return res.status(500).json({ status: false, message: "Internal Server Error" });
+  //   }
+  // };
   const removeCategoryOffer = async (req, res) => {
     try {
       const categoryId = req.body.categoryId;
-      const category =  await Category.findById(categoryId);
+  
+      const category = await Category.findById(categoryId);
       if (!category) {
         return res.status(404).json({ status: false, message: "Category not found" });
       }
-   
+  
+      
       await Category.updateOne(
         { _id: categoryId },
         {
           $set: {
-            categoryOffer: null,
-            offerValidUntil: null // Reset the offer end date
+            categoryOffer: 0,
+            offerValidUntil: null
           }
         }
       );
-    // Update all products in this category
+  
+      
       const products = await Product.find({ category: categoryId });
+  
       for (const product of products) {
-        product.finalPrice = await calculateEffectivePrice(product);
+       
+        const updatedCategory = await Category.findById(product.category).lean();
+        const categoryOffer = updatedCategory?.categoryOffer || 0;
+  
+        const subcategory = updatedCategory?.subcategories?.find(
+          sc => sc._id.toString() === product.subcategory.toString()
+        );
+        const subcategoryOffer = subcategory?.offer || 0;
+        const productOffer = product.offer || 0;
+  
+        
+        if (productOffer === 0 && subcategoryOffer === 0 && categoryOffer === 0) {
+          product.finalPrice = product.baseFinalPrice || product.price;
+        } else {
+          product.finalPrice = await calculateEffectivePrice(product);
+        }
+  
         await product.save();
       }
   
-      res.json({ status: true, message: "Offer removed successfully" });
+      res.json({ status: true, message: "Category offer removed and products updated." });
     } catch (error) {
       console.error("Error in removeCategoryOffer:", error);
       return res.status(500).json({ status: false, message: "Internal Server Error" });
     }
   };
+  
   const getListCategory = async (req, res) => {
     try {
       const id = req.query.id

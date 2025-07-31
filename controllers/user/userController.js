@@ -405,13 +405,16 @@ const loadShoppingPage = async (req, res) => {
             ];
           }
         const products = await Product.find(query).sort(sortCriteria).skip(skip).limit(limit);
+        
         products.forEach(product => {
 
             const category = categories.find(cat => cat._id.toString() === product.category.toString());
 
           
-            const subcategory = category?.subcategories?.find(sc => sc._id.toString() === product.subcategory.toString());
-      
+            const subcategory = category?.subcategories?.find(sc => sc._id.toString() === product.subcategory);
+            console.log("Product:", product.name);
+            console.log("Subcategory match:", subcategory?.name);
+
            
             const productOffer = product.offer || 0;
             const categoryOffer = category?.categoryOffer || 0;
@@ -419,12 +422,13 @@ const loadShoppingPage = async (req, res) => {
       
             const effectiveOffer = Math.max(productOffer, categoryOffer, subcategoryOffer);
       
-          
-            product.effectiveOffer = effectiveOffer;
+            console.log("effective offer offer:",effectiveOffer)
+             product.effectiveOffer = effectiveOffer;
       
-          
+            // console.log("ist final price",product.finalPrice);
             product.finalPrice = Math.round(product.price * (1 - effectiveOffer / 100) * 100) / 100;
 
+            // console.log("offerfinal price",product.finalPrice)
             product.totalQuantity = product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0);
           });
 

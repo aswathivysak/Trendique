@@ -28,6 +28,7 @@ const productSchema = new Schema({
     type: Number,
     required: true,
   },
+  baseFinalPrice: {type: Number},
   discount: {
     type: Number, 
     default: 0
@@ -80,7 +81,7 @@ const productSchema = new Schema({
   }],
 
   offer: {
-    type: String,
+    type: Number,
     default : '' // Optional: '20% Off', 'BOGO', 'Flat ₹200 Off'
   },
 

@@ -102,6 +102,7 @@ const addProducts = async (req, res) => {
       subcategory,
       regularPrice,
       finalPrice,
+      
       material,
       status
     } = req.body;
@@ -145,11 +146,12 @@ const addProducts = async (req, res) => {
       subcategory:subcategory,
       price,
       finalPrice: finalPriceParsed,
+      baseFinalPrice:finalPriceParsed,
       material: material || "Cotton", 
       images: imageFilenames,
       status: status || "available"
     });
-    console.log({ name, description, brand, category, subcategory, price, finalPriceParsed, material, status, imageFilenames });
+    console.log({ name, description, brand, category, subcategory, price, finalPriceParsed,baseFinalPrice, material, status, imageFilenames });
 
     await newProduct.save();
 
@@ -402,6 +404,7 @@ const editProduct = async (req, res) => {
     product.subcategory = subcategory;
     product.price = regularPrice;
     product.finalPrice = finalPrice;
+    product.baseFinalPrice =finalPrice;
     product.material = material;
     product.status = status;
     
@@ -590,7 +593,7 @@ const addProductOffer = async (req, res) => {
     //     }
     //   }
     // );
-
+      product.baseFinalPrice = product.finalPrice; 
       product.offer = parseInt(percentage);
       product.offerValidUntil = new Date(validUntil)
       product.finalPrice = await calculateEffectivePrice(product);
@@ -604,6 +607,7 @@ const addProductOffer = async (req, res) => {
   }
 };
 
+
 const removeProductOffer = async (req, res) => {
   try {
     const { productId } = req.body;
@@ -611,7 +615,8 @@ const removeProductOffer = async (req, res) => {
     if (!product) {
       return res.status(404).json({ status: false, message: "Product not found" });
     }
- 
+
+    // Unset the offer fields
     await Product.updateOne(
       { _id: productId },
       {
@@ -621,14 +626,28 @@ const removeProductOffer = async (req, res) => {
         }
       }
     );
-    
-      product.finalPrice = await calculateEffectivePrice(product);
-      await product.save();
-    
+
+    const updatedProduct = await Product.findById(productId);
+
+    // Detect if category or subcategory offer exists
+    const category = await Category.findById(updatedProduct.category).lean();
+    const categoryOffer = category?.categoryOffer || 0;
+    const subcat = category?.subcategories?.find(sc => sc._id.toString() === updatedProduct.subcategory.toString());
+    const subcategoryOffer = subcat?.offer || 0;
+
+    // If no other offer is present, restore baseFinalPrice
+    if (categoryOffer === 0 && subcategoryOffer === 0) {
+      updatedProduct.finalPrice = updatedProduct.baseFinalPrice;
+    } else {
+      // Else recalculate with the remaining offers
+      updatedProduct.finalPrice = await calculateEffectivePrice(updatedProduct);
+    }
+
+    await updatedProduct.save();
 
     res.json({ status: true, message: "Offer removed successfully" });
   } catch (error) {
-    console.error("Error in removeCategoryOffer:", error);
+    console.error("Error in removeProductOffer:", error);
     return res.status(500).json({ status: false, message: "Internal Server Error" });
   }
 };
