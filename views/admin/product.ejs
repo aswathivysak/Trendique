@@ -110,8 +110,8 @@
               <td><%= product.category?.name || 'N/A' %></td>
               <td><%= product.subCategoryDetails && product.subCategoryDetails.name ? product.subCategoryDetails.name : 'N/A' %></td>
 
-              <td>$<%= product.price.toFixed(2) %></td>
-              <td>$<%= product.finalPrice.toFixed(2) %></td>
+              <td>₹<%= product.price.toFixed(2) %></td>
+              <td>₹<%= product.finalPrice.toFixed(2) %></td>
               <td><%= product.material %></td>
               <td>
                 <% if (product.isBlocked) { %>

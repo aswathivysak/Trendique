@@ -351,33 +351,33 @@ const login = async (req, res) => {
 
 const loadShoppingPage = async (req, res) => {
     try {
-        const sort = req.query.sort || 'default';
-        let sortCriteria = {};
-        switch (sort) {
-            case 'popularity':
-              sortCriteria = { popularity: -1 }; // Adjust field accordingly
-              break;
-            case 'rating':
-              sortCriteria = { averageRating: -1 }; // Adjust field accordingly
-              break;
-            case 'newest':
-              sortCriteria = { createdAt: -1 };
-              break;
-            case 'price_asc':
-              sortCriteria = { finalPrice: 1 };
-              break;
-            case 'price_desc':
-              sortCriteria = { finalPrice: -1 };
-              break;
-            case 'name_asc':
-              sortCriteria = { name: 1 };
-              break;
-            case 'name_desc':
-              sortCriteria = { name: -1 };
-              break;
-            default:
-              sortCriteria = { createdAt: -1 };
-          }
+        // const sort = req.query.sort || 'default';
+        // let sortCriteria = {};
+        // switch (sort) {
+        //     case 'popularity':
+        //       sortCriteria = { popularity: -1 }; // Adjust field accordingly
+        //       break;
+        //     case 'rating':
+        //       sortCriteria = { averageRating: -1 }; // Adjust field accordingly
+        //       break;
+        //     case 'newest':
+        //       sortCriteria = { createdAt: -1 };
+        //       break;
+        //     case 'price_asc':
+        //       sortCriteria = { finalPrice: 1 };
+        //       break;
+        //     case 'price_desc':
+        //       sortCriteria = { finalPrice: -1 };
+        //       break;
+        //     case 'name_asc':
+        //       sortCriteria = { name: 1 };
+        //       break;
+        //     case 'name_desc':
+        //       sortCriteria = { name: -1 };
+        //       break;
+        //     default:
+        //       sortCriteria = { createdAt: -1 };
+        //   }
 
         const user = req.session.user;
         let wishlistIds = [];
@@ -404,7 +404,7 @@ const loadShoppingPage = async (req, res) => {
               { description: { $regex: search, $options: 'i' } }
             ];
           }
-        const products = await Product.find(query).sort(sortCriteria).skip(skip).limit(limit);
+        const products = await Product.find(query).sort({createdAt: -1}).skip(skip).limit(limit);
         
         products.forEach(product => {
 
@@ -414,7 +414,7 @@ const loadShoppingPage = async (req, res) => {
             const subcategory = category?.subcategories?.find(sc => sc._id.toString() === product.subcategory);
             console.log("Product:", product.name);
             console.log("Subcategory match:", subcategory?.name);
-
+          
            
             const productOffer = product.offer || 0;
             const categoryOffer = category?.categoryOffer || 0;
@@ -425,10 +425,10 @@ const loadShoppingPage = async (req, res) => {
             console.log("effective offer offer:",effectiveOffer)
              product.effectiveOffer = effectiveOffer;
       
-            // console.log("ist final price",product.finalPrice);
+        
             product.finalPrice = Math.round(product.price * (1 - effectiveOffer / 100) * 100) / 100;
 
-            // console.log("offerfinal price",product.finalPrice)
+        
             product.totalQuantity = product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0);
           });
 
@@ -452,9 +452,18 @@ const loadShoppingPage = async (req, res) => {
           search,
           wishlistIds,
 
-          selectedCategory: req.query.category || '',
-          selectedSubcategory: req.query.subcategory || '',
-          selectedBrand: req.query.brand || '',
+
+          selectedCategory: req.query.category || null,
+            selectedBrand: req.query.brand || null,
+            selectedSubcategory: req.query.subcategory || null,
+            selectedColor: req.query.color || null,
+            selectedSize: req.query.size || null,
+            selectedPrice: req.query.price || null,
+            selectedSort: req.query.sort || null,
+            
+            query: req.query,
+
+         
         });
       } catch (error) {
         console.error('Error loading shop page:', error);
@@ -491,7 +500,7 @@ const loadShoppingPage = async (req, res) => {
             if (size) variantQuery.size = size;
 
             if (Object.keys(variantQuery).length > 0) {
-            query.variants = { $elemMatch: variantQuery };
+                query.variants = { $elemMatch: { ...variantQuery, quantity: { $gt: 0 } } };
             }
          if (findCategory) {
             query.category = findCategory._id;
@@ -515,10 +524,54 @@ const loadShoppingPage = async (req, res) => {
             }
           }
 
-        let findProducts = await Product.find(query).lean();
+          const sort = req.query.sort || 'default';
+        let sortCriteria = {};
+        switch (sort) {
+            case 'popularity':
+              sortCriteria = { popularity: -1 }; // Adjust field accordingly
+              break;
+            case 'rating':
+              sortCriteria = { averageRating: -1 }; // Adjust field accordingly
+              break;
+            case 'newest':
+              sortCriteria = { createdAt: -1 };
+              break;
+            case 'price_asc':
+              sortCriteria = { finalPrice: 1 };
+              break;
+            case 'price_desc':
+              sortCriteria = { finalPrice: -1 };
+              break;
+            case 'name_asc':
+              sortCriteria = { name: 1 };
+              break;
+            case 'name_desc':
+              sortCriteria = { name: -1 };
+              break;
+            default:
+              sortCriteria = { createdAt: -1 };
+          }
+          
+          // Pagination setup (MOVE THIS BEFORE PRODUCT QUERY)
+
+          let selectedSubcategoryName = null;
+          if (subcategoryId && findCategory) {
+            const subcategory = findCategory.subcategories.find(sc => sc._id.toString() === subcategoryId);
+            selectedSubcategoryName = subcategory ? subcategory.name : null;
+          }
+          console.log('Selected Subcategory Name:', selectedSubcategoryName);
+
+          
+ 
+          const [products, totalCount] = await Promise.all([
+            Product.find(query).sort(sortCriteria).lean(),
+            Product.countDocuments(query)
+          ]);
+        // let findProducts = await Product.find(query).lean();
+        let findProducts = products;
 
        
-        findProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // findProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         const categories = await Category.find({ isListed: true });
         // Pagination setup
@@ -554,7 +607,13 @@ const loadShoppingPage = async (req, res) => {
         selectedCategory: category || null,
         selectedBrand: brand || null,
         selectedSubcategory: subcategoryId,
+        selectedColor: color || null,
+        selectedSize: size || null,
+        selectedPrice: req.query.price || null,
+        selectedSort: sort || null,
+        selectedSubcategoryName,
         wishlistIds,
+        query: req.query,
 
 
     });
@@ -562,6 +621,7 @@ const loadShoppingPage = async (req, res) => {
 
     }catch (error)
     {
+        console.error('Error in filterProduct:', error);
         res.redirect('/pagenotfound');
     }
   }

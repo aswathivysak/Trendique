@@ -132,7 +132,67 @@
             <!-- <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".women">Women</button> -->
             <!-- <button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".men">Category</button> -->
         </div>
+     
 
+        <!-- Search or Filter bar (optional) -->
+        <!-- Filter tags -->
+
+        <% 
+  function updateQuery(query, key, value) {
+    const params = new URLSearchParams(query);
+    if (value === null || value === '') {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
+    return `/filter?${params.toString()}`;
+  }
+%>
+
+<div class="d-flex flex-wrap gap-2 mb-4">
+  <% if (selectedBrand) { %>
+    <a href="<%= updateQuery(query, 'brand', null) %>" class="badge rounded-pill bg-secondary text-white">
+      <%= brands.find(b => b._id.toString() === selectedBrand)?.brandName %> ×
+    </a>
+  <% } %>
+  <% if (selectedCategory) { %>
+    <a href="<%= updateQuery(query, 'category', null) %>" class="badge rounded-pill bg-secondary text-white">
+      <%= category.find(c => c._id.toString() === selectedCategory)?.name %> ×
+    </a>
+  <% } %>
+  
+    <% if (selectedSubcategory) { %>
+      <a href="<%= updateQuery(query, 'subcategory', null) %>" class="badge rounded-pill bg-secondary text-white">
+        <%= selectedSubcategoryName || 'Subcategory' %> ×
+      </a>
+    
+  <% } %>
+  <% if (selectedColor) { %>
+    <a href="<%= updateQuery(query, 'color', null) %>" class="badge rounded-pill bg-secondary text-white">
+      <%= selectedColor %> ×
+    </a>
+  <% } %>
+  <% if (selectedSize) { %>
+    <a href="<%= updateQuery(query, 'size', null) %>" class="badge rounded-pill bg-secondary text-white">
+      <%= selectedSize %> ×
+    </a>
+  <% } %>
+  <% if (selectedPrice) { %>
+    <a href="<%= updateQuery(query, 'price', null) %>" class="badge rounded-pill bg-secondary text-white">
+      <%= selectedPrice === '4000+' ? '4000+ ₹' : selectedPrice + ' ₹' %> ×
+    </a>
+  <% } %>
+  <% if (selectedSort && selectedSort !== 'default') { %>
+    <a href="<%= updateQuery(query, 'sort', null) %>" class="badge rounded-pill bg-secondary text-white">
+      Sort: <%= selectedSort %> ×
+    </a>
+  <% } %>
+</div>
+
+        
+        <!-- Filter tags -->
+
+        
         <!-- Filter and Search toggles -->
         <div class="flex-w flex-c-m m-tb-10">
             <div class="flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4 js-show-filter">
@@ -176,19 +236,29 @@
                 <div class="filter-col1 p-r-15 p-b-27">
                     <div class="mtext-102 cl2 p-b-15">Sort By</div>
                    
-                    <ul>
+                    <!-- <ul>
                         <li><a href="/shop?sort=default" class="filter-link stext-106 trans-04">Default</a></li>
-                        <li><a href="/shop?sort=popularity" class="filter-link stext-106 trans-04">Popularity</a></li>
+                        <li><a href="/shop?sort=popularity" class="filter-link stext-106 trans-04">Popularity</a></li>  -->
                         <!-- <li><a href="/shop?sort=rating" class="filter-link stext-106 trans-04">Average rating</a></li> -->
-                        <li><a href="/shop?sort=newest" class="filter-link stext-106 trans-04 filter-link-active">Newness</a></li>
+                         <!-- <li><a href="/shop?sort=newest" class="filter-link stext-106 trans-04 filter-link-active">Newness</a></li>
                         <li><a href="/shop?sort=price_asc" class="filter-link stext-106 trans-04">Price: Low to High</a></li>
                         <li><a href="/shop?sort=price_desc" class="filter-link stext-106 trans-04">Price: High to Low</a></li>
                         <li><a href="/shop?sort=name_asc" class="filter-link stext-106 trans-04">Name: A to Z</a></li>
                         <li><a href="/shop?sort=name_desc" class="filter-link stext-106 trans-04">Name: Z to A</a></li>
-                      </ul>
+                      </ul> -->
+                      <ul id="sortList">
+                  <li><a href="#" class="filter-link stext-106 trans-04" data-sort="default">Default</a></li>
+                  <li><a href="#" class="filter-link stext-106 trans-04" data-sort="popularity">Popularity</a></li>
+                  <li><a href="#" class="filter-link stext-106 trans-04" data-sort="newest">Newness</a></li>
+                  <li><a href="#" class="filter-link stext-106 trans-04" data-sort="price_asc">Price: Low to High</a></li>
+                  <li><a href="#" class="filter-link stext-106 trans-04" data-sort="price_desc">Price: High to Low</a></li>
+                  <li><a href="#" class="filter-link stext-106 trans-04" data-sort="name_asc">Name: A to Z</a></li>
+                  <li><a href="#" class="filter-link stext-106 trans-04" data-sort="name_desc">Name: Z to A</a></li>
+                </ul>
+                  
                       
-                </div>
-
+                </div> 
+                
                
                 <div class="filter-col2 p-r-15 p-b-27">
                     <div class="mtext-102 cl2 p-b-15">Price</div>
@@ -409,7 +479,8 @@
             <% } %>
         </div>
         
-
+        
+        
         <!-- Load More Button -->
         <div class="flex-c-m flex-w w-full p-t-45">
             <a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">Load More</a>
@@ -667,8 +738,43 @@
     
   </script>
 
-
+ <script>
+  document.querySelectorAll('#sortList a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const sort = this.dataset.sort;
+      const params = new URLSearchParams(window.location.search);
   
+      if (sort && sort !== 'default') {
+        params.set('sort', sort);
+      } else {
+        params.delete('sort');
+      }
+  
+      params.set('page', '1'); // reset pagination
+      window.location.href = '/filter?' + params.toString();
+    });
+  });
+  
+  </script> 
+  
+ <script>
+  
+  function updateQuery(query, keyToRemove, valueToSet = null) {
+    const newQuery = { ...query };
+    if (valueToSet === null) {
+      delete newQuery[keyToRemove];
+    } else {
+      newQuery[keyToRemove] = valueToSet;
+    }
+    const queryString = Object.entries(newQuery)
+      .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
+      .join('&');
+    return `/filter?${queryString}`;
+  }
+
+
+ </script>
   
   
 
