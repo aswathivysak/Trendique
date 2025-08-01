@@ -48,7 +48,7 @@
               <td><%= user.email %></td>
               <td><%= user._id.toString().slice(-6).toUpperCase() %></td>
               <td><%= user.orderHistory.length %></td>
-              <td>$<%= user.wallet.toFixed(2) %></td>
+              <td>₹<%= user.wallet.toFixed(2) %></td>
               <td>
                 <% if (user.isBlocked) { %>
                   <span class="status-blocked">Blocked</span>

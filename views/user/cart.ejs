@@ -52,7 +52,7 @@
                       <small>Size: <b><%= item.size %></b> | Color: <b><%= item.color %></b></small><br>
                       <small>Brand: <b><%= item.brandName %></b></small>
                     </td>
-                    <td class="column-3">$ <%= item.productPrice.toFixed(2) %></td>
+                    <td class="column-3">₹ <%= item.productPrice.toFixed(2) %></td>
 
                     <!-- Quantity controls -->
                     <td class="column-4">
@@ -94,7 +94,7 @@
                     </td>
 
                     <!-- Subtotal with id for JS update -->
-                    <td class="column-5" id="subTotal<%= index %>">$ <%= (item.productPrice * item.quantity).toFixed(2) %></td>
+                    <td class="column-5" id="subTotal<%= index %>">₹ <%= (item.productPrice * item.quantity).toFixed(2) %></td>
 
                     <!-- Remove item -->
                  
@@ -135,7 +135,7 @@
               <span class="stext-110 cl2">Subtotal:</span>
             </div>
             <div class="size-209">
-              <span class="mtext-110 cl2" id="total">$ <%= grandTotal.toFixed(2) %></span>
+              <span class="mtext-110 cl2" id="total">₹ <%= grandTotal.toFixed(2) %></span>
             </div>
           </div>
 
@@ -144,7 +144,7 @@
               <span class="stext-110 cl2">Shipping:</span>
             </div>
             <div class="size-209">
-              <span class="mtext-110 cl2" id="shippingCharge">$ <%= shippingCharge.toFixed(2) %></span>
+              <span class="mtext-110 cl2" id="shippingCharge">₹ <%= shippingCharge.toFixed(2) %></span>
               <a href="#" onclick="viewShippingCharge()" class="text-blue text-sm">View shipping charge</a>
             </div>
           </div>
@@ -154,7 +154,7 @@
               <span class="mtext-101 cl2">Total:</span>
             </div>
             <div class="size-209 p-t-1">
-              <span class="mtext-110 cl2" id="totalPayable">$ <%= totalPayable.toFixed(2) %></span>
+              <span class="mtext-110 cl2" id="totalPayable">₹ <%= totalPayable.toFixed(2) %></span>
             </div>
           </div>
          
