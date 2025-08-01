@@ -70,12 +70,15 @@
   margin-top: 10px;
   display: none; /* show when image is selected */
 }
+input.is-invalid, select.is-invalid, textarea.is-invalid {
+  border-color: red !important;
+}
 
 </style>
 
 <div class="container mt-5">
   <h3 class="mb-4">Add New Product</h3>
-  <form id="productForm" class="row g-4 form-section" enctype="multipart/form-data">
+  <form id="productForm" class="row g-4 form-section" enctype="multipart/form-data" novalidate>
 
     <div class="col-md-6">
       <label class="form-label">Product Name</label>
@@ -292,23 +295,39 @@
     e.preventDefault();
 
     let isValid = true;
-    const requiredFields = ['name', 'description', 'brand', 'regularPrice', 'finalPrice', 'status', 'category', 'subcategory'];
+    const requiredFields = ['name', 'description', 'brand', 'regularPrice', 'finalPrice','material', 'status', 'category', 'subcategory'];
+
+    requiredFields.forEach(field => {
+      const input = document.getElementById(field);
+      const errorElem = document.getElementById(`${field}-error`);
+      
+      // Reset styles
+      if (input) input.classList.remove('is-invalid');
+      if (errorElem) errorElem.textContent = '';
+    
+      if (!input || !input.value.trim()) {
+        isValid = false;
+        if (errorElem) errorElem.textContent = 'This field is required.';
+        if (input) input.classList.add('is-invalid');
+      }
+    });
+    
 
     // Clear previous error messages
-    requiredFields.forEach(field => {
+    /*requiredFields.forEach(field => {
       const errorElem = document.getElementById(`${field}-error`);
       if (errorElem) errorElem.textContent = '';
-    });
+    });*/
 
     // Validate required fields
-    requiredFields.forEach(field => {
+    /*requiredFields.forEach(field => {
       const input = document.getElementById(field);
       if (!input || !input.value.trim()) {
         isValid = false;
         const errorElem = document.getElementById(`${field}-error`);
         if (errorElem) errorElem.textContent = 'This field is required.';
       }
-    });
+    });*/
 
     // Get numeric values
     /*const quantity = parseInt(document.getElementById('quantity').value);*/
