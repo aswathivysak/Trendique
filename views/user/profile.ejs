@@ -292,7 +292,7 @@ tbody tr:hover {
     <a href="#orders" class="nav-link" data-target="orders">My Orders</a>
     <a href="#Wallet" class="nav-link" data-target="wallet">Wallet</a>
     <a href="#wallet-history" class="nav-link" data-target="Wallet-History">Wallet History</a>
-    <!-- <a href="#" class="nav-link" data-target="Referral">Referral</a> -->
+    <a href="#" class="nav-link" data-target="Referral">Referral</a>
     <a href="#" class="nav-link" data-target="address">Address</a>
     <a href="/logout" class="nav-link">Logout</a>
   </nav>
@@ -302,7 +302,7 @@ tbody tr:hover {
     <!-- Profile Section -->
     <div id="profile" class="section-content active">
       <div class="profile-header">
-        <h2>PROFILE</h2>
+        <h2>PROFILE PAGE</h2>
 
         <div class="profile-image-wrapper" title="Change profile picture">
           <img id="profileImagePreview"
@@ -552,12 +552,27 @@ tbody tr:hover {
       
     </div>
     <!-- Referral section -->
-    <!-- <div id="Referral" class="section-content">
+    <div id="Referral" class="section-content">
       <h2>Referral</h2>
       <div class="underline"></div>
-      <p>Your wallet details will appear here.</p>
-     
-    </div> -->
+
+      <div class="col-md-9">
+        <div class="card shadow p-4 text-center align-items-center">
+          <h3 class="mb-3 text-success">🎁 Refer & Earn</h3>
+          <p class="mb-4">Share your referral code with friends and earn rewards when they sign up and place their first order!</p>
+      
+          <!-- Referral Code Display -->
+          <div class="mb-3">
+            <h5>Your Referral Code:</h5>
+            <div class="d-inline-flex align-items-center border rounded px-3 py-2 bg-light">
+              <strong id="referralCode"><%= user.referalCode %></strong>
+              <button class="btn btn-sm btn-outline-primary ms-3" onclick="copyReferralCode()">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+         
+    </div> 
 
 
     <!-- Address Section -->
@@ -845,6 +860,18 @@ tbody tr:hover {
   function cancelOrder(orderId) {
     alert(`Cancel order: ${orderId} (replace this alert with your real logic)`);
   }
-</script></p>
+</script>
+
+<script>
+  function copyReferralCode() {
+    const code = document.getElementById("referralCode").textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      Swal.fire("Referral code copied to clipboard!");
+    }).catch(err => {
+      Swal.fire("Failed to copy code.");
+    });
+  }
+</script>
+
 
 <%- include('../partials/user/footer') %>
