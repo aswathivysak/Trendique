@@ -415,7 +415,7 @@ const loadShoppingPage = async (req, res) => {
             console.log("Product:", product.name);
             console.log("Subcategory match:", subcategory?.name);
           
-           
+           const subcategoryName= subcategory?.name || null;
             const productOffer = product.offer || 0;
             const categoryOffer = category?.categoryOffer || 0;
             const subcategoryOffer = subcategory?.offer || 0;
@@ -460,7 +460,7 @@ const loadShoppingPage = async (req, res) => {
             selectedSize: req.query.size || null,
             selectedPrice: req.query.price || null,
             selectedSort: req.query.sort || null,
-            
+           
             query: req.query,
 
          
@@ -482,13 +482,17 @@ const loadShoppingPage = async (req, res) => {
         let variantQuery = {};
         // const subcategoryId = req.query.subcategory || null;
         // console.log(subcategoryId)
-        const findCategory=category? await Category.findOne({_id:category}):null;
+        console.log(" object:", category);
+        console.log("  Sub categoryobject:", subcategoryId );
+        const findCategory=category? await Category.findOne({_id:category},{ name: 1, subcategories: 1 }):null;
+        console.log("findCategory object:", findCategory);
+
         const findBrand = brand ? await Brand.findOne({_id:brand}):null;
         let wishlistIds = [];
-     if (req.session.user) {
-    const userDoc = await User.findById(req.session.user).select('wishlist').lean();
-    wishlistIds = userDoc?.wishlist?.map(id => id.toString()) || [];
-    }
+        if (req.session.user) {
+        const userDoc = await User.findById(req.session.user).select('wishlist').lean();
+        wishlistIds = userDoc?.wishlist?.map(id => id.toString()) || [];
+        }
  
         const brands= await Brand.find({}).lean();
          const query={
@@ -554,12 +558,18 @@ const loadShoppingPage = async (req, res) => {
           
           // Pagination setup (MOVE THIS BEFORE PRODUCT QUERY)
 
-          let selectedSubcategoryName = null;
-          if (subcategoryId && findCategory) {
-            const subcategory = findCategory.subcategories.find(sc => sc._id.toString() === subcategoryId);
-            selectedSubcategoryName = subcategory ? subcategory.name : null;
-          }
-          console.log('Selected Subcategory Name:', selectedSubcategoryName);
+       
+       const allCategories = await Category.find({}, { name: 1, subcategories: 1 }).lean();
+
+       let selectedSubcategoryName = null;
+       
+       for (const cat of allCategories) {
+         const match = cat.subcategories?.find(sc => sc._id.toString() === subcategoryId);
+         if (match) {
+           selectedSubcategoryName = match.name;
+           break;
+         }
+       }
 
           
  
