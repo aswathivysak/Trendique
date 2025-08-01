@@ -191,7 +191,7 @@ const userProfile = async (req,res)=>{
         const userData = await User.findById(userId)
         const userAddress = await Address.findOne({ userId: userId });
         const addresses = userAddress ? userAddress.address : [];
-
+        console.log("View Loaded")
         //for order
         const page = parseInt(req.query.page) || 1;
         const limit = 5;
