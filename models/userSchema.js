@@ -56,6 +56,8 @@ const userSchema = new Schema({
             date: Date,
             status: String, // e.g., "Added", "Refund", "Used for Order"
             amount: Number,
+            method: {type: String, enum: ['razorpay', 'order', 'refund', 'admin', 'reward'], default: 'order'},
+            description: {type: String}
         }
         ],
     history: [
@@ -65,6 +67,24 @@ const userSchema = new Schema({
             date: Date
         }
         ],
+        referalCode: {
+            type: String,
+            unique: true,
+            sparse: true
+          },
+          redeemed: {
+            type: Boolean,
+            default: false
+          },
+          redeemedUsers: [{
+            type: Schema.Types.ObjectId,
+            ref: "User"
+          }],
+          referredBy: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            default: null
+          },    
     // wishlist:[{
     //     type: Schema.Types.ObjectId,
     //     ref: 'Product'
