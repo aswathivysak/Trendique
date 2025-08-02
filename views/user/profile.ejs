@@ -292,7 +292,7 @@ tbody tr:hover {
     <a href="#orders" class="nav-link" data-target="orders">My Orders</a>
     <a href="#Wallet" class="nav-link" data-target="wallet">Wallet</a>
     <a href="#wallet-history" class="nav-link" data-target="Wallet-History">Wallet History</a>
-    <!-- <a href="#" class="nav-link" data-target="Referral">Referral</a> -->
+    <a href="#" class="nav-link" data-target="Referral">Referral</a>
     <a href="#" class="nav-link" data-target="address">Address</a>
     <a href="/logout" class="nav-link">Logout</a>
   </nav>
@@ -486,8 +486,54 @@ tbody tr:hover {
                 <% walletTransactions.forEach(txn => { %>
                   <tr>
                     <td><%= new Date(txn.date).toLocaleString() %></td>
-                    <td><%= txn.status === 'credit' ? 'Credited to Wallet' : 'Debited for Order' %></td>
-                    <td class="<%= txn.status === 'credit' ? 'text-success' : 'text-danger' %>">
+                    <td>
+                      <% if (txn.status === 'credited') { %>
+                        <% if (txn.method === 'reward') { %>
+                          Reward Credited
+                        <% } else if (txn.method === 'razorpay') { %>
+                          Wallet Top-Up
+                        <% } else { %>
+                          Credited to Wallet
+                        <% } %>
+                      <% } else { %>
+                        Debited for Order
+                      <% } %>
+                    </td>
+                    <td class="<%= txn.status === 'credited' ? 'text-success' : 'text-danger' %>">
+                      ₹ <%= txn.amount.toFixed(2) %>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr><td colspan="3">No wallet transactions found.</td></tr>
+              <% } %>
+              
+              <!-- <% if (walletTransactions.length > 0) { %>
+                <% walletTransactions.forEach(txn => { %>
+                  <tr>
+                    <td><%= new Date(txn.date).toLocaleString() %></td>
+                    <td>
+                      <% if (txn.status === 'credited') { %>
+                        <%= txn.method === 'reward' ? 'Reward Credited' : 'Credited to Wallet' %>
+                      <% } else { %>
+                        Debited for Order
+                      <% } %>
+                    </td> -->
+                    
+                    <!-- <td><%= txn.status === 'credited' ? 'Credited to Wallet' : 'Debited for Order' %></td> -->
+                    <!-- <td>
+                      <% if(txn.status === 'used for order') { %>
+                        <span class="badge bg-danger"><%= txn.status %></span>
+                      <% } else if(txn.status === 'refund') { %>
+                        <span class="badge bg-success"><%= txn.status %></span>
+                      <% } else if(txn.status === 'reward') { %>
+                        <span class="badge bg-warning text-dark"><%= txn.status %></span>
+                      <% } else { %>
+                        <span class="badge bg-primary"><%= txn.status %></span>
+                      <% } %>
+                    </td> -->
+
+                    <!-- <td class="<%= txn.status === 'credited' ? 'text-success' : 'text-danger' %>">
                       ₹ <%= txn.amount.toFixed(2) %>
                     </td>
                   </tr>
@@ -496,7 +542,9 @@ tbody tr:hover {
                 <tr>
                   <td colspan="3" class="text-center">No wallet transactions yet.</td>
                 </tr>
-              <% } %>
+              <% } %> -->
+
+
             </tbody>          
           </table>
         </div>
@@ -552,12 +600,27 @@ tbody tr:hover {
       
     </div>
     <!-- Referral section -->
-    <!-- <div id="Referral" class="section-content">
+    <div id="Referral" class="section-content">
       <h2>Referral</h2>
       <div class="underline"></div>
-      <p>Your wallet details will appear here.</p>
-     
-    </div> -->
+
+      <div class="col-md-9">
+        <div class="card shadow p-4 text-center align-items-center">
+          <h3 class="mb-3 text-success">🎁 Refer & Earn</h3>
+          <p class="mb-4">Share your referral code with friends and earn rewards when they sign up and place their first order!</p>
+      
+          <!-- Referral Code Display -->
+          <div class="mb-3">
+            <h5>Your Referral Code:</h5>
+            <div class="d-inline-flex align-items-center border rounded px-3 py-2 bg-light">
+              <strong id="referralCode"><%= user.referalCode %></strong>
+              <button class="btn btn-sm btn-outline-primary ms-3" onclick="copyReferralCode()">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+         
+    </div> 
 
 
     <!-- Address Section -->
@@ -845,6 +908,18 @@ tbody tr:hover {
   function cancelOrder(orderId) {
     alert(`Cancel order: ${orderId} (replace this alert with your real logic)`);
   }
-</script></p>
+</script>
+
+<script>
+  function copyReferralCode() {
+    const code = document.getElementById("referralCode").textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      Swal.fire("Referral code copied to clipboard!");
+    }).catch(err => {
+      Swal.fire("Failed to copy code.");
+    });
+  }
+</script>
+
 
 <%- include('../partials/user/footer') %>

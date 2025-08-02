@@ -208,7 +208,7 @@ const userProfile = async (req,res)=>{
         const walletPage = parseInt(req.query.walletPage) || 1;
         const walletLimit = 5;
         const walletSkip = (walletPage - 1) * walletLimit;
-        const walletHistory = userData.history || [];
+        const walletHistory = userData.walletTransactions || [];
 
         const paginatedHistory = walletHistory
         .sort((a, b) => new Date(b.date) - new Date(a.date)) // newest first

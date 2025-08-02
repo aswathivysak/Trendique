@@ -35,22 +35,47 @@ const verify_payment = async (req, res) => {
   try {
     const { payment, orderId, amount } = req.body;
     const userId = req.session.user;
+    const user = await User.findById(req.session.user)
 
     
+
+    // await User.updateOne(
+    //   { _id: userId },
+    //   {
+    //     $inc: { wallet: amount },
+    //     $push: {
+    //       history: {
+    //         amount: amount,
+    //         status: "credit",
+    //         date: new Date(),
+    //       },
+    //     },
+    //   }
+    // );
 
     await User.updateOne(
       { _id: userId },
       {
         $inc: { wallet: amount },
         $push: {
+          walletTransactions: {
+            date: new Date(),
+            status: "credited",
+            amount: amount,
+            method: "razorpay"
+          },
           history: {
             amount: amount,
             status: "credit",
-            date: new Date(),
-          },
-        },
+            date: new Date()
+          }
+        }
       }
     );
+    
+   
+
+  await user.save()
 
     res.json({ status: true });
   } catch (error) {
