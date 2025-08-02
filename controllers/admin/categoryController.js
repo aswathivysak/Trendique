@@ -60,7 +60,7 @@ const addCategory = async (req, res) => {
   
       const products = await Product.find({ category: categoryId });
       for (const product of products) {
-        product.baseFinalPrice = product.finalPrice;
+        // product.baseFinalPrice = product.finalPrice;
         product.finalPrice = await calculateEffectivePrice(product);
         await product.save();
       }

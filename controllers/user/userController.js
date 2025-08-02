@@ -442,7 +442,7 @@ const loadShoppingPage = async (req, res) => {
         const categories = await Category.find({ isListed: true });
         const categoryIds = categories.map(category => category._id.toString());
         const page = parseInt(req.query.page) || 1;
-        const limit = 9;
+        const limit = 12;
         const skip = (page - 1) * limit;
         const search = req.query.search || null;
         let query = {
@@ -480,6 +480,7 @@ const loadShoppingPage = async (req, res) => {
       
         
             product.finalPrice = Math.round(product.price * (1 - effectiveOffer / 100) * 100) / 100;
+            // product.finalPrice = Math.round(product.finalPrice * (1 - effectiveOffer / 100) * 100) / 100;
 
         
             product.totalQuantity = product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0);
@@ -492,6 +493,9 @@ const loadShoppingPage = async (req, res) => {
           // Get total number of products for pagination
         const totalProducts = await Product.countDocuments({isBlocked:false,category:{$in:categoryIds} ,variants:{ $elemMatch: { quantity: { $gt: 0 } } } });
         const totalPages = Math.ceil(totalProducts / limit);
+        
+          
+           
         const brands= await Brand.find({isBlocked:false})
         const catgoriesWithIds = categories.map(category=>({_id:category._id,name:category.name,subcategories: category.subcategories || []}))
         res.render('shop', {
@@ -638,7 +642,7 @@ const loadShoppingPage = async (req, res) => {
 
         const categories = await Category.find({ isListed: true });
         // Pagination setup
-        let itemsPerPage = 6;
+        let itemsPerPage = 12;
         let currentPage = parseInt(req.query.page) || 1;
         let startIndex = (currentPage - 1) * itemsPerPage;
         let endIndex = startIndex + itemsPerPage;

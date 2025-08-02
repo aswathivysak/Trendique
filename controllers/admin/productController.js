@@ -25,6 +25,7 @@ const calculateEffectivePrice = async (product) => {
 
 
   const effectivePrice = product.price * (1 - effectiveOffer / 100);
+  // const effectivePrice = product.finalPrice * (1 - effectiveOffer / 100);
 
  
   return Math.round(effectivePrice * 100) / 100;
@@ -151,7 +152,7 @@ const addProducts = async (req, res) => {
       images: imageFilenames,
       status: status || "available"
     });
-    console.log({ name, description, brand, category, subcategory, price, finalPriceParsed,baseFinalPrice, material, status, imageFilenames });
+    // console.log({ name, description, brand, category, subcategory, price, finalPriceParsed,baseFinalPrice, material, status, imageFilenames });
 
     await newProduct.save();
 
@@ -593,7 +594,7 @@ const addProductOffer = async (req, res) => {
     //     }
     //   }
     // );
-      product.baseFinalPrice = product.finalPrice; 
+      // product.baseFinalPrice = product.finalPrice; 
       product.offer = parseInt(percentage);
       product.offerValidUntil = new Date(validUntil)
       product.finalPrice = await calculateEffectivePrice(product);
@@ -670,5 +671,6 @@ module.exports={
      deleteVariant,
      updateVariant,
      addProductOffer,
-     removeProductOffer
+     removeProductOffer,
+     calculateEffectivePrice 
    }

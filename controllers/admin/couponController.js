@@ -1,13 +1,31 @@
 
 const User = require("../../models/userSchema");
 const Coupon = require("../../models/couponSchema");
+const cron = require('node-cron');
+
+
+cron.schedule('0 0 * * *', async () => {
+  try {
+    const now = new Date();
+    await Coupon.updateMany(
+      { expiryDate: { $lt: now }, status: 'active' },
+      { $set: { status: 'inactive' } }
+    );
+    console.log("Expired coupons marked as inactive");
+  } catch (err) {
+    console.error('Error updating expired coupons:', err);
+  }
+});
+
 
 
 const loadCouponPage = async (req, res) => {
     try {
         const coupons = await Coupon.find({}).sort({ startingDate : -1 }).lean()
+        const now = new Date();
         res.render('coupon', {
-            coupons
+            coupons,
+            now
         })
     } catch (error) {
         console.error('Error while loading coupon page', error)
