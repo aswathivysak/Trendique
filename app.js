@@ -9,6 +9,8 @@ const userRouter = require('./routes/userRoutes');
 const adminRouter = require('./routes/adminRoutes');
 const wishlistCountMiddleware = require('./middlewares/wishlistCount');
 const cartItem = require('./middlewares/cartitems');
+require('./utils/offerCron');
+
 
 connectDB()
 

@@ -420,12 +420,19 @@
                          <% } %> -->
                         
 
-                         <% if (product.baseFinalPrice){ %>
+                         <!-- <% if (product.baseFinalPrice){ %>
                           <span class="stext-105 cl3">₹ <%= product.finalPrice %></span>
                           <strike>₹ <%= product.baseFinalPrice %></strike>
                         <% } else { %>
                           <span class="stext-105 cl3">₹ <%= product.finalPrice %></span>
+                        <% } %> -->
+                        <% if (product.baseFinalPrice && product.finalPrice < product.baseFinalPrice) { %>
+                          <span class="stext-105 cl3">₹ <%= product.finalPrice %></span>
+                          <strike class="text-muted">₹ <%= product.baseFinalPrice %></strike>
+                        <% } else { %>
+                          <span class="stext-105 cl3">₹ <%= product.baseFinalPrice %></span>
                         <% } %>
+                        
                         
                          
                         </div>
