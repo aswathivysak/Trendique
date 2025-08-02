@@ -53,7 +53,7 @@ const userSchema = new Schema({
     },
     walletTransactions: [
         {
-            date: Date,
+            date: {type: Date, default: Date.now},
             status: String, // e.g., "Added", "Refund", "Used for Order"
             amount: Number,
             method: {type: String, enum: ['razorpay', 'order', 'refund', 'admin', 'reward'], default: 'order'},

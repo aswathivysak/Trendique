@@ -302,7 +302,7 @@ tbody tr:hover {
     <!-- Profile Section -->
     <div id="profile" class="section-content active">
       <div class="profile-header">
-        <h2>PROFILE PAGE</h2>
+        <h2>PROFILE</h2>
 
         <div class="profile-image-wrapper" title="Change profile picture">
           <img id="profileImagePreview"
@@ -486,8 +486,54 @@ tbody tr:hover {
                 <% walletTransactions.forEach(txn => { %>
                   <tr>
                     <td><%= new Date(txn.date).toLocaleString() %></td>
-                    <td><%= txn.status === 'credit' ? 'Credited to Wallet' : 'Debited for Order' %></td>
-                    <td class="<%= txn.status === 'credit' ? 'text-success' : 'text-danger' %>">
+                    <td>
+                      <% if (txn.status === 'credited') { %>
+                        <% if (txn.method === 'reward') { %>
+                          Reward Credited
+                        <% } else if (txn.method === 'razorpay') { %>
+                          Wallet Top-Up
+                        <% } else { %>
+                          Credited to Wallet
+                        <% } %>
+                      <% } else { %>
+                        Debited for Order
+                      <% } %>
+                    </td>
+                    <td class="<%= txn.status === 'credited' ? 'text-success' : 'text-danger' %>">
+                      ₹ <%= txn.amount.toFixed(2) %>
+                    </td>
+                  </tr>
+                <% }) %>
+              <% } else { %>
+                <tr><td colspan="3">No wallet transactions found.</td></tr>
+              <% } %>
+              
+              <!-- <% if (walletTransactions.length > 0) { %>
+                <% walletTransactions.forEach(txn => { %>
+                  <tr>
+                    <td><%= new Date(txn.date).toLocaleString() %></td>
+                    <td>
+                      <% if (txn.status === 'credited') { %>
+                        <%= txn.method === 'reward' ? 'Reward Credited' : 'Credited to Wallet' %>
+                      <% } else { %>
+                        Debited for Order
+                      <% } %>
+                    </td> -->
+                    
+                    <!-- <td><%= txn.status === 'credited' ? 'Credited to Wallet' : 'Debited for Order' %></td> -->
+                    <!-- <td>
+                      <% if(txn.status === 'used for order') { %>
+                        <span class="badge bg-danger"><%= txn.status %></span>
+                      <% } else if(txn.status === 'refund') { %>
+                        <span class="badge bg-success"><%= txn.status %></span>
+                      <% } else if(txn.status === 'reward') { %>
+                        <span class="badge bg-warning text-dark"><%= txn.status %></span>
+                      <% } else { %>
+                        <span class="badge bg-primary"><%= txn.status %></span>
+                      <% } %>
+                    </td> -->
+
+                    <!-- <td class="<%= txn.status === 'credited' ? 'text-success' : 'text-danger' %>">
                       ₹ <%= txn.amount.toFixed(2) %>
                     </td>
                   </tr>
@@ -496,7 +542,9 @@ tbody tr:hover {
                 <tr>
                   <td colspan="3" class="text-center">No wallet transactions yet.</td>
                 </tr>
-              <% } %>
+              <% } %> -->
+
+
             </tbody>          
           </table>
         </div>

@@ -237,7 +237,9 @@ const verifyOtp = async (req, res) => {
         // console.log('OTP',otp)
         const otpAge = Date.now () - req.session.otpCreatedAt 
         if(otpAge > 1 * 60 * 1000){
-            return res.status(STATUS.BAD_REQUEST).json({success: false, message: "OTP Expired, please request new one"})
+            return res.status(400).json({ success: false, message: "OTP Expired, please request new one" });
+
+
         }
 
         if(otp===req.session.userOtp){
@@ -273,17 +275,19 @@ const verifyOtp = async (req, res) => {
                 referrer.wallet += 100
                
                 referrer.walletTransactions.push({
+                
                     amount: 100,
                     status: 'credited',
                     method: 'reward',
                     description: `Referral reward for inviting ${user.name}`
                 })
-                referrer.redeemedUsers.push(newUser?._id)
+                referrer.redeemedUsers.push(saveUserData?._id)
     
                 await referrer.save()
     
-                newUser.wallet += 50
-                newUser.walletTransactions.push({
+                saveUserData.wallet += 50
+                saveUserData.walletTransactions.push({
+                    
                     amount: 50,
                     status: 'credited',
                     method: 'reward',
