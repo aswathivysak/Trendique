@@ -192,15 +192,25 @@ const getCartPage = async (req, res) => {
       },
 
       // Filter out blocked products, unlisted categories, and out-of-stock variants
-      {
-        $match: {
-          "productDetails.isBlocked": false,
-          "categoryDetails.isListed": true,
-          // "productDetails.variants.quantity": { $gt: 0 }
-        }
-      },
+      // {
+      //   $match: {
+      //     "productDetails.isBlocked": false,
+      //     "categoryDetails.isListed": true,
+      //     // "productDetails.variants.quantity": { $gt: 0 }
+      //   }
+      // },
 
       // Project the fields needed for the cart page
+      {
+        $addFields: {
+          isBlocked: "$productDetails.isBlocked",
+          isCategoryListed: "$categoryDetails.isListed",
+          isOutOfStock: { $lte: ["$productDetails.variants.quantity", 0] },
+          exceedsStock: { $gt: ["$items.quantity", "$productDetails.variants.quantity"] },
+          exceedsLimit: { $gt: ["$items.quantity", 3] }
+        }
+      },
+      
       {
         $project: {
           _id: 0,
@@ -215,7 +225,12 @@ const getCartPage = async (req, res) => {
           productImage: { $arrayElemAt: ["$productDetails.images", 0] },
           categoryName: "$categoryDetails.name",
           productStock: "$productDetails.variants.quantity",
-          brandName: "$brandDetails.brandName"  
+          brandName: "$brandDetails.brandName",
+          isBlocked: 1,
+          isCategoryListed: 1,
+          isOutOfStock: 1,
+          exceedsStock: 1,
+          exceedsLimit: 1  
         }
       }
     ]);
@@ -251,6 +266,50 @@ const getCartPage = async (req, res) => {
   }
 };
  
+
+
+const validateCartBeforeCheckout = async (req, res) => {
+  try {
+    const userId = req.session.user;
+
+    const cart = await Cart.findOne({ userId }).populate({
+      path: 'items.productId',
+      populate: ['category']
+    });
+
+    if (!cart || cart.items.length === 0) {
+      return res.json({ valid: false, message: 'Your cart is empty.' });
+    }
+
+    for (const item of cart.items) {
+      const product = item.productId;
+      const variant = product.variants.find(
+        v => v.size === item.size && v.color === item.color
+      );
+
+      if (
+        !product ||
+        product.isBlocked ||
+        !product.category?.isListed ||
+        !variant ||
+        variant.quantity <= 0 ||
+        item.quantity > variant.quantity ||
+        item.quantity > 3
+      ) {
+        return res.json({
+          valid: false,
+          message: `"${product?.name || 'One of the items'}" is unavailable or exceeds limit.`
+        });
+      }
+    }
+
+    return res.json({ valid: true });
+
+  } catch (error) {
+    console.error('Cart validation error:', error);
+    return res.json({ valid: false, message: 'Server error during cart validation.' });
+  }
+};
 
 
 const changeQuantity = async (req, res) => {
@@ -381,4 +440,5 @@ module.exports = {
   getCartPage,
   changeQuantity,
   deleteProduct,
+  validateCartBeforeCheckout,
 };

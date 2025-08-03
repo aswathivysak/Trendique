@@ -88,9 +88,21 @@
                             </button>
 
                       </div>
-                      <% if (item.productStock <= 0) { %>
+                      <!-- <% if (item.productStock <= 0) { %>
                         <small class="text-danger">Out of Stock</small>
+                      <% } %> -->
+                      <% if (item.isBlocked) { %>
+                        <small class="text-danger">Blocked by Admin</small>
+                      <% } else if (!item.isCategoryListed) { %>
+                        <small class="text-danger">Category Unlisted</small>
+                      <% } else if (item.isOutOfStock) { %>
+                        <small class="text-danger">Out of Stock</small>
+                      <% } else if (item.exceedsStock) { %>
+                        <small class="text-warning">Only <%= item.productStock %> left in stock</small>
+                      <% } else if (item.exceedsLimit) { %>
+                        <small class="text-warning">Limit is 3 units per item</small>
                       <% } %>
+                      
                     </td>
 
                     <!-- Subtotal with id for JS update -->
@@ -158,19 +170,32 @@
             </div>
           </div>
          
+          
           <!-- <a href="/checkout" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"> 
             Proceed to Checkout
           </a> -->
-          <% const hasOutOfStock = cartItems.some(item => item.productStock <= 0); %>
+          <!-- <% const hasInvalidItem = cartItems.some(item =>
+           item.isBlocked || !item.isCategoryListed || item.isOutOfStock || item.exceedsStock || item.exceedsLimit); %>
 
-          <a 
-            href="<%= hasOutOfStock ? 'javascript:void(0)' : '/checkout' %>" 
+
+           <a 
+           href="<%= hasInvalidItem ? 'javascript:void(0)' : '/checkout' %>" 
+           id="proceedCheckout"
+           class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
+           data-disabled="<%= hasInvalidItem %>"
+         >
+           Proceed to Checkout
+         </a> -->
+
+         <a 
+            href="javascript:void(0)" 
             id="proceedCheckout"
             class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
-            data-disabled="<%= hasOutOfStock %>"
           >
             Proceed to Checkout
           </a>
+
+         
           
         </div>
       </div>
@@ -185,17 +210,32 @@
 
 <script>
   document.getElementById('proceedCheckout').addEventListener('click', function(event) {
-    const isDisabled = this.getAttribute('data-disabled') === 'true';
-    if (isDisabled) {
-      event.preventDefault(); // prevent navigation
-      Swal.fire({
-        icon: 'warning',
-        title: 'Out of Stock',
-        text: 'Some products are out of stock. Please update your cart before proceeding to checkout.',
-        confirmButtonText: 'OK'
+    event.preventDefault();
+  
+    fetch('/validate-cart')
+      .then(response => response.json())
+      .then(data => {
+        if (data.valid) {
+          window.location.href = '/checkout';
+        } else {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Cart Validation Failed',
+            text: data.message || 'One or more items are invalid or unavailable.',
+            confirmButtonText: 'OK'
+          });
+        }
+      })
+      .catch(err => {
+        console.error('Validation error:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Server Error',
+          text: 'Could not validate cart. Please try again later.',
+        });
       });
-    }
   });
+  
 </script>
 <script>
   function viewShippingCharge() {

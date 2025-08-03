@@ -51,7 +51,31 @@ const getCheckoutPage = async (req, res) => {
       if (!cartData || !cartData.items || cartData.items.length === 0) {
         return res.redirect('/shop');
       }
-  
+      
+       // ✅ Validate each cart item
+    const invalidItem = cartData.items.find(item => {
+      const product = item.productId;
+      const variant = product.variants.find(v => v.size === item.size && v.color === item.color);
+
+      return (
+        !product ||
+        product.isBlocked ||
+        !product.category?.isListed ||
+        !variant ||
+        variant.quantity <= 0 ||
+        item.quantity > variant.quantity ||
+        item.quantity > 3
+      );
+    });
+
+    if (invalidItem) {
+      req.flash('error', 'Your cart contains invalid or unavailable items. Please update your cart.');
+      return res.redirect('/cart');
+    }
+
+
+
+      //Calculate total
       let totalPrice = 0;
      
       cartData.items.forEach(item => {
