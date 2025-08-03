@@ -104,6 +104,9 @@ router.get('/orders/download-invoice', userAuth,orderController.generateInvoice)
 router.get('/available-coupons', userAuth, orderController.getAvailableCoupons)
 router.post('/apply-coupon', userAuth, orderController.applyCoupon)
 router.get('/cancel-coupon', userAuth, orderController.deleteCoupon)
+//remove item from checkout
+// router.delete('/removeItem/:id', userAuth, orderController.removeItem)
+router.get('/check-stock',userAuth, orderController.checkStock);
 
 //Wishlist management
 router.get("/wishlist", userAuth,wishlistController.loadWishlist);

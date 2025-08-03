@@ -860,6 +860,109 @@ const retryPayment = async (req, res) => {
 };
 
 
+//remove item
+// const removeItem = async (req, res) => {
+//   try {
+//       const productId = req.params.id 
+//       const userId = req.session.user
+//       const user = await User.findById(userId).populate({
+//           path: 'cart',
+//           populate: {
+//               path: 'items.productId items.variantId'
+//           }
+//       })
+
+//       if(!user || !user.cart.length){
+//           return res.status(STATUS.NOT_FOUND).json({success: false, message: 'Cart not found!'})
+//       }
+
+//       let cartDoc = user.cart[0]
+//       const itemIndex = cartDoc.items.findIndex(item => item._id.toString() === productId)
+
+//       if(itemIndex === -1){
+//           return res.status(STATUS.NOT_FOUND).json({success: false, message: 'Item not found in the cart'})
+//       }
+
+//       cartDoc.items.splice(itemIndex, 1)
+//       await cartDoc.save()
+
+//       return res.status(STATUS.OK).json({success: true, message : 'Item removed from the cart'})
+//   } catch (error) {
+//       console.error('Error while removing item from cart', error)
+//       return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success: false, message: 'Internal server error'})
+//   }
+// }
+const checkStock = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'User not logged in' });
+    }
+
+    const cart = await Cart.findOne({ userId }).populate({
+      path: 'items.productId',
+      model: 'Product'
+    });
+
+    const stockChanges = [];
+    let hasBlocked = false;
+
+    if (!cart || cart.items.length === 0) {
+      return res.json({
+        success: true,
+        items: [],
+        hasBlocked: false
+      });
+    }
+
+    for (let item of cart.items) {
+      const product = item.productId;
+      const requestedQty = item.quantity;
+
+      if (!product || product.isBlocked) {
+        hasBlocked = true;
+        stockChanges.push({
+          productId: product?._id,
+          name: product?.name || 'Unknown Product',
+          isBlocked: true,
+          stockChanged: true,
+          availableQty: 0,
+          requestedQty
+        });
+        continue;
+      }
+
+      const variant = product.variants.find(v => v.size === item.size && v.color === item.color);
+      const availableQty = variant ? variant.quantity : 0;
+
+      if (requestedQty > availableQty) {
+        stockChanges.push({
+          productId: product._id,
+          name: product.name,
+          size: item.size,
+          color: item.color,
+          isBlocked: false,
+          stockChanged: true,
+          availableQty,
+          requestedQty
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      items: stockChanges,
+      hasBlocked
+    });
+
+  } catch (error) {
+    console.error("Error checking stock:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error checking stock availability"
+    });
+  }
+};
 
 module.exports={
     getCheckoutPage,
@@ -876,4 +979,5 @@ module.exports={
     applyCoupon,
     deleteCoupon,
     retryPayment,
+    checkStock,
 }
