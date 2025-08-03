@@ -86,6 +86,7 @@ router.get("/cart", userAuth, cartController.getCartPage);
 router.post("/addToCart",userAuth, cartController.addToCart)
 router.post("/changeQuantity", userAuth, cartController.changeQuantity);
 router.post("/removeCartItem", userAuth, cartController.deleteProduct);
+router.get('/validate-cart', userAuth, cartController.validateCartBeforeCheckout);
 
 //Order management
 router.get("/checkout", userAuth, orderController.getCheckoutPage)
@@ -113,6 +114,7 @@ router.post("/wishlist/addToCart", userAuth, wishlistController.addToCartWish);
 //Wallet management
 router.post("/createWalletOrder", userAuth, walletController.addMoneyToWallet);
 router.post("/verifyWalletPayment", userAuth, walletController.verify_payment)
+
 
 
 module.exports=router
