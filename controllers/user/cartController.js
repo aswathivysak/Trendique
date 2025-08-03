@@ -44,7 +44,7 @@ console.log(category)
       sc.isListed === true &&
       !sc.isDeleted
     );
-    console.log(subcategory)
+    console.log("subcategory:",subcategory)
     
     if (!subcategory) {
       return res.json({ status: false, message: 'This product subcategory is currently unavailable.' });

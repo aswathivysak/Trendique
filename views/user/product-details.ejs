@@ -1,4 +1,37 @@
 <%- include('../partials/user/header') %>
+<style>
+  .custom-qty-wrap {
+    display: inline-flex;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    width: fit-content;
+    align-items: center;
+  }
+  
+  .btn-qty {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background-color: #f2f2f2;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .btn-qty:hover {
+    background-color: #ddd;
+  }
+  
+  .num-product-input {
+    width: 60px;
+    text-align: center;
+    border: none;
+    font-size: 16px;
+    outline: none;
+  }
+  
+</style>
 
 <!-- Product Detail -->
 <section class="sec-product-detail bg0 p-t-65 p-b-60 mt-5">
@@ -112,7 +145,7 @@
 
             <!-- Quantity selector and Add to cart -->
             <div class="flex-w flex-r-m p-b-10">
-              <div class="wrap-num-product flex-w m-r-20 m-tb-10">
+              <!-- <div class="wrap-num-product flex-w m-r-20 m-tb-10">
                 <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
                   <i class="fs-16 zmdi zmdi-minus"></i>
                 </div>
@@ -122,13 +155,25 @@
                 <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
                   <i class="fs-16 zmdi zmdi-plus"></i>
                 </div>
+              </div> -->
+
+              <div class="custom-qty-wrap d-flex align-items-center mt-3">
+                <button type="button" class="btn btn-outline-secondary px-3 py-1 fw-bold btn-decrease">−</button>
+                <input type="number" name="quantity" class="form-control text-center mx-2 quantity-input" value="1" min="1" max="10" style="width: 60px;">
+                <button type="button" class="btn btn-outline-secondary px-3 py-1 fw-bold btn-increase">+</button>
               </div>
+              
+              
+              
+              
+              
+              
               <!-- <button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" onclick="addToCart('<%= product._id %>')">
                 Add to cart
               </button> -->
               <button 
                 type="button" 
-                class="btn btn-primary btn-lg px-4 py-2" 
+                class="btn btn-primary btn-lg px-4 py-2 ms-3" 
                  onclick="addToCart('<%= product._id %>')"
                 style="border-radius: 30px; font-weight: 600; transition: background-color 0.3s ease;"
                  >
@@ -448,6 +493,8 @@
 <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 <script src="vendor/select2/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 <script>
   async function addToCart(productId) {
     const sizeSelect = document.querySelector('select[name="size"]');
@@ -515,7 +562,7 @@
           cartIcon.setAttribute('data-notify', data.cartLength);
         }
       } else {
-        Swal.fire('Oops!', data.message || 'Failed to add to cart', 'error');
+        Swal.fire('Oops!', data.message || 'Failed to add to cart', 'info');
       }
     } catch (error) {
       console.error('Add to cart error:', error);
@@ -523,7 +570,7 @@
     }
   }
 
-  //Add to cart from wishlist
+  //Add to  wishlist
   function addToWishlist(productId, event) {
     event.preventDefault();
 
@@ -552,6 +599,11 @@
 
   
 </script>
+<!-- Quantity increment -->
+
+
+
+
 <script>
   $(".js-select2").each(function(){
     $(this).select2({
@@ -562,8 +614,8 @@
 </script>
 <script src="vendor/daterangepicker/moment.min.js"></script>
 <script src="vendor/daterangepicker/daterangepicker.js"></script>
-<script src="vendor/slick/slick.min.js"></script>
-<script src="js/slick-custom.js"></script>
+<!-- <script src="vendor/slick/slick.min.js"></script> -->
+<!-- <script src="js/slick-custom.js"></script> -->
 <script src="vendor/parallax100/parallax100.js"></script>
 <script>
   /*$('.parallax100').parallax100(); */
@@ -578,10 +630,36 @@
       mainClass: 'mfp-fade'
     });
   }); */
+ 
+  
 </script>
 <script src="vendor/isotope/isotope.pkgd.min.js"></script>
 <script src="vendor/sweetalert/sweetalert.min.js"></script>
 
-<script src="js/main.js"></script> 
+<!-- <script src="js/main.js"></script>  -->
 
 <%- include('../partials/user/footer') %>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const incBtn = document.querySelector('.btn-increase');
+    const decBtn = document.querySelector('.btn-decrease');
+    const input = document.querySelector('.quantity-input');
+
+    if (!incBtn || !decBtn || !input) {
+      console.warn("Quantity buttons not found");
+      return;
+    }
+
+    incBtn.addEventListener('click', () => {
+      let value = parseInt(input.value) || 1;
+      const max = parseInt(input.max) || 10;
+      if (value < max) input.value = value + 1;
+    });
+
+    decBtn.addEventListener('click', () => {
+      let value = parseInt(input.value) || 1;
+      const min = parseInt(input.min) || 1;
+      if (value > min) input.value = value - 1;
+    });
+  });
+</script>
