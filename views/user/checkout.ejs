@@ -201,7 +201,9 @@
       cursor: pointer;
       transition: background-color 0.3s;
   }
-
+   .couponModal{
+    z-index: 4000;
+   }
   .use-button:hover {
       background-color: #45a049;
   }
@@ -304,6 +306,7 @@
               <div class="order-item-qty">x <%= item.quantity %></div>
               <div class="order-item-size-color small text-muted">Size: <%= item.size %>, Color: <%= item.color %></div>
             </div>
+            <div><button type="button" onclick="removeItem('<%= item._id %>')" class="btn btn-sm btn-outline-danger">Delete</button></div>
             <div class="order-item-price">₹ <%= (item.productId.finalPrice * item.quantity).toFixed(2) %></div>
           </div>
         <% }); %>
@@ -419,7 +422,7 @@
   
     </div>
      <!-- Coupons Modal -->
-<div class="modal fade" id="couponsModal" tabindex="-1" aria-labelledby="couponsModalLabel" aria-hidden="true">
+<div class="modal couponModal fade" id="couponsModal" tabindex="-1" aria-labelledby="couponsModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
@@ -982,7 +985,7 @@
           button.addEventListener('click', () => {
             const code = button.getAttribute('data-code');
             navigator.clipboard.writeText(code).then(() => {
-              alert(`Copied coupon code: ${code}`);
+              //alert(`Copied coupon code: ${code}`);
             });
           });
         });

@@ -159,7 +159,7 @@
 
               <div class="custom-qty-wrap d-flex align-items-center mt-3">
                 <button type="button" class="btn btn-outline-secondary px-3 py-1 fw-bold btn-decrease">−</button>
-                <input type="number" name="quantity" class="form-control text-center mx-2 quantity-input" value="1" min="1" max="10" style="width: 60px;">
+                <input type="number" name="quantity" class="form-control text-center mx-2 quantity-input" value="1" min="1" max="3" style="width: 60px;" readonly>
                 <button type="button" class="btn btn-outline-secondary px-3 py-1 fw-bold btn-increase">+</button>
               </div>
               
@@ -639,7 +639,7 @@
 <!-- <script src="js/main.js"></script>  -->
 
 <%- include('../partials/user/footer') %>
-<script>
+<!-- <script>
   document.addEventListener('DOMContentLoaded', function () {
     const incBtn = document.querySelector('.btn-increase');
     const decBtn = document.querySelector('.btn-decrease');
@@ -662,4 +662,47 @@
       if (value > min) input.value = value - 1;
     });
   });
+</script> -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const incBtn = document.querySelector('.btn-increase');
+    const decBtn = document.querySelector('.btn-decrease');
+    const input = document.querySelector('.quantity-input');
+  
+    if (!incBtn || !decBtn || !input) {
+      console.warn("Quantity input or buttons not found.");
+      return;
+    }
+  
+    incBtn.addEventListener('click', () => {
+      let value = parseInt(input.value) || 1;
+  
+      if (value < 3) {
+        input.value = value + 1;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Limit Reached',
+          text: 'You can only buy up to 3 units of this product.'
+        });
+        input.value = 3; // Force restore if exceeded
+      }
+    });
+  
+    decBtn.addEventListener('click', () => {
+      let value = parseInt(input.value) || 1;
+  
+      if (value > 1) {
+        input.value = value - 1;
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'Minimum Limit',
+          text: 'You must order at least 1 unit.'
+        });
+        input.value = 1;
+      }
+    });
+  });
+  
 </script>
