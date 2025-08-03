@@ -361,7 +361,11 @@ const changeQuantity = async (req, res) => {
       return res.json({ status: false, error: "Product variant not found." });
     }
 
-    if (count > 0 && newQuantity > variant.quantity) {
+    // if (count > 0 && newQuantity > variant.quantity) {
+    //   return res.json({ status: false, error: "Product stock limit exceeded for selected variant." });
+    // }
+
+    if (newQuantity > variant.quantity) {
       return res.json({ status: false, error: "Product stock limit exceeded for selected variant." });
     }
 
@@ -391,7 +395,8 @@ const changeQuantity = async (req, res) => {
       totalAmount: cart.items[itemIndex].totalPrice,
       grandTotal,
       shippingCharge,
-      totalPayable
+      totalPayable,
+      updatedStock: variant.quantity
     });
 
   } catch (error) {

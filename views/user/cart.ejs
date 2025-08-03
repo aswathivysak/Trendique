@@ -259,34 +259,44 @@
     const currentQuantity = parseInt(quantityInput.value);
     const attemptedQuantity = currentQuantity + count;
   
-    if (attemptedQuantity < 1) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Oops!',
-        text: 'You could not decrease quantity below 1.'
-      });
-      return;
-    }
+
+    //Block decreasing below 1
+  if (currentQuantity === 1 && count === -1) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Oops!',
+      text: 'You could not decrease quantity below 1.'
+    }).then(() => {
+      quantityInput.value = currentQuantity; // restore visual
+    });
+    return;
+  }
+
+  // Block increasing above 3
+  if (currentQuantity === 3 && count === 1) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Oops!',
+      text: 'You could not increase quantity. Maximum 3 units allowed.'
+    }).then(() => {
+      quantityInput.value = currentQuantity; // restore visual
+    });
+    return;
+  }
+
+  // Block if exceeding stock
+  if (attemptedQuantity > maxStock) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Oops!',
+      text: 'Not enough stock available.'
+    }).then(() => {
+      quantityInput.value = currentQuantity; // restore visual
+    });
+    return;
+  }
   
-    if (attemptedQuantity > 3) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Oops!',
-        text: 'You could not increase quantity. Maximum 3 units allowed.'
-      });
-      return;
-    }
-  
-    if (attemptedQuantity > maxStock) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Oops!',
-        text: 'Not enough stock available.'
-      });
-      return;
-    }
-  
-    // ✅ Send to backend
+    //  Send to backend
     $.ajax({
       url: '/changeQuantity',
       method: 'POST',
@@ -308,16 +318,22 @@
           if (totalPayableElement) {
             totalPayableElement.innerText = response.totalPayable.toFixed(2);
           }
-  
+           // Update max stock in case it changed
+        quantityInput.setAttribute('max', response.updatedStock);
           // Disable buttons if needed
-          const btnMinus = quantityInput.previousElementSibling;
+         /* const btnMinus = quantityInput.previousElementSibling;
           const btnPlus = quantityInput.nextElementSibling;
           btnMinus.disabled = newQuantity <= 1;
-          btnPlus.disabled = newQuantity >= Math.min(3, maxStock);
+          btnPlus.disabled = newQuantity >= Math.min(3, maxStock);*/
+
+          btnMinus.disabled = newQuantity <= 1;
+          btnPlus.disabled = newQuantity >= Math.min(3, response.updatedStock);
         } else {
           Swal.fire('Error', response.error || 'Could not update quantity', 'error');
+          btnMinus.disabled = false;
+          btnPlus.disabled = false;
         }
-      },
+      },  
       error: (err) => {
         console.error(err);
         Swal.fire('Error', 'Server error while updating quantity', 'error');
