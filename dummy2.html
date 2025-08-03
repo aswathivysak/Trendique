@@ -1,622 +1,1068 @@
-const Product = require("../../models/productSchema")
-const Category = require("../../models/categorySchema")
-const multer = require('multer');
-const mongoose = require('mongoose');
-const Brand = require('../../models/brandSchema');
-const User = require('../../models/userSchema');
-const path = require("path")
-const fs = require("fs")
-const sharp = require("sharp")
-
-const calculateEffectivePrice = async (product) => {
- 
-  const category = await Category.findById(product.category).lean();
-
-  const categoryOffer = category?.categoryOffer || 0;
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout with Bootstrap</title> -->
+     <!-- Bootstrap CSS CDN -->
 
 
-  const subcat = category?.subcategories?.find(sc => sc._id.toString() === product.subcategory.toString());
-  const subcategoryOffer = subcat?.offer || 0;
-
-  const productOffer = product.offer || 0; 
-
-  
-  const effectiveOffer = Math.max(categoryOffer, subcategoryOffer, productOffer);
+     <%- include('../partials/user/header') %>
+     <div class="pt-5 mt-4">
 
 
-  const effectivePrice = product.price * (1 - effectiveOffer / 100);
+   <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" /> -->
+  <style>
+    .address-card {
+      cursor: pointer;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s ease, background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+    }
+    .address-card:hover {
+      border-color: #0d6efd;
+      background-color: #e7f1ff;
+    }
+    .address-data{
+      margin-left: 40px;
+    }
+    .address-card.selected {
+      border-color: #0d6efd;
+      background-color: #d0e2ff;
+    }
+    .address-type {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: white;
+      background-color: #0d6efd;
+      margin-right: 15px;
+      white-space: nowrap;
+    }
+    .address-type.office {
+      background-color: #fd7e14;
+    }
+    .address-name {
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+    .address-text {
+      margin-top: 6px;
+      font-size: 1rem;
+      color: #444;
+      line-height: 1.5;
+    }
+    .address-actions {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    .address-actions button {
+      border: none;
+      background: transparent;
+      color: #0d6efd;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+    .address-actions button:hover {
+      text-decoration: underline;
+    }
+    /* For the radio */
+    .form-check-input {
+      cursor: pointer;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      margin: 0;
+    }
+    /* Order summary styling */
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+    .order-item-icon {
+      background: #e0e7ff;
+      color: #4338ca;
+      border-radius: 10px;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+    }
+    .order-item-name {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .order-item-qty {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .order-item-price {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-left: auto;
+    }
+    .order-summary-line {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      margin: 8px 0;
+      font-size: 1rem;
+    }
+    .order-summary-line.total {
+      font-size: 1.25rem;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+      margin-top: 16px;
+    }
+    .coupon-section input {
+      flex-grow: 1;
+      border-radius: 0.375rem;
+      border: 1.5px solid #ced4da;
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+    }
+    .coupon{
+      max-width: 100%;
+    }
+    .coupon-section button {
+      border-radius: 0.375rem;
+      background: #0d6efd;
+      border: none;
+      color: white;
+      font-weight: 700;
+      padding: 0.5rem 1.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .coupon-section button:hover {
+      background: #0b5ed7;
+    }
+    .payment-method label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+    .btn-place-order {
+      background: #0d6efd;
+      color: white;
+      border: none;
+      padding: 15px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 25px;
+      transition: background-color 0.3s ease;
+    }
+    .btn-place-order:hover {
+      background: #0b5ed7;
+    }
 
- 
-  return Math.round(effectivePrice * 100) / 100;
-};
+    /* Coupon */
+    .coupon-card {
+      border: 2px solid #eaeaea;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+  }
+
+  .coupon-name {
+      font-size: 12px;
+      font-weight: bold;
+  }
+
+  .use-button {
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+  }
+   .couponModal{
+    z-index: 4000;
+   }
+  .use-button:hover {
+      background-color: #45a049;
+  }
+  </style>
+<!-- </head>
+<body> -->
+
+<div class="container my-5">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/cart">Cart</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+    </ol>
+  </nav>
+
+  <div class="row g-4">
+    <!-- Left: Shipping Addresses -->
+    <div class="col-lg-7">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Shipping Address</h2>
+        <a href="/addAddress" class="text-primary fw-semibold text-decoration-none">Add New Address</a>
+      </div>
+
+      <!-- <form id="checkoutForm"> -->
+        <div role="list" aria-label="Shipping addresses">
+          <% if(userAddress && userAddress.address && userAddress.address.length > 0) { %>
+            <% userAddress.address.forEach((addr, idx) => { %>
+              <div
+                class="address-card <%= idx === 0 ? 'selected' : '' %>"
+                role="listitem"
+                aria-checked="<%= idx === 0 ? 'true' : 'false' %>"
+                tabindex="0"
+                onclick="selectAddress(this)"
+              >
+                <input 
+                  class="form-check-input" 
+                  type="radio" 
+                  id="addr<%= idx %>" 
+                  name="shippingAddress" 
+                  value="<%= addr._id %>" 
+                  <%= idx === 0 ? 'checked' : '' %>
+                />
+                <div class="address-data">
+                  <span class="address-type <%= addr.addressType.toLowerCase() === 'office' ? 'office' : '' %>"><%= addr.addressType %></span>
+                  <span class="address-name"><%= addr.name %></span>
+                  <p class="address-text mb-0">
+                    <%= addr.houseNo %><br />
+                    <%= addr.city %>, <%= addr.state %><br />
+                    Pincode: <%= addr.pincode %><br />
+                    Phone: <%= addr.phone %><br />
+                    <% if(addr.altPhone) { %>Alternate Phone: <%= addr.altPhone %><br /><% } %>
+                  </p>
+                </div>
+                <div class="address-actions">
+                  <a href="/editAddress?id=<%= addr._id %>" class="btn btn-sm btn-link p-0 me-2" aria-label="Edit address">Edit</a>
+                  <a href="/deleteAddress?id=<%= addr._id %>" class="btn btn-sm btn-link p-0 text-danger" aria-label="Delete address" onclick="return confirm('Are you sure you want to delete this address?')">Delete</a>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <p>No addresses found. <a href="/addAddress">Add one now.</a></p>
+          <% } %>
+        </div>
+
+        <!-- Payment method -->
+        <!-- <div class="payment-method mt-4">
+          <h3 class="fw-semibold mb-3">Payment Method</h3>
+          <label class="d-flex align-items-center gap-2 mb-3" for="online">
+            <input type="radio" id="online" name="paymentMethod" value="wallet" />
+            <span>Wallet </span>
+          </label>
+          <label class="d-flex align-items-center gap-2 mb-3" for="razorpay">
+            <input type="radio" id="razorpay" name="paymentMethod" value="razorpay" />
+            <span> Razorpay</span>
+          </label>
+          <label class="d-flex align-items-center gap-2" for="cod">
+            <input type="radio" id="cod" name="paymentMethod" value="cod" checked />
+            <span>Cash on Delivery</span>
+          </label>
+        </div>
+
+        <button type="button" id="placeOrderBtn" class="btn-place-order">Place Order</button> -->
+      <!-- </form> -->
+    </div>
+
+    <!-- Right: Order Summary -->
+    <div class="col-lg-5 bg-white p-4 rounded shadow-sm">
+      <h2>Your Order</h2>
+
+      <% if(cartItems && cartItems.length > 0) { %>
+        <% cartItems.forEach(item => { %>
+          <div class="order-item" role="listitem">
+            <div class="order-item-icon" aria-hidden="true">
+              <img src="/<%= item.productId.images[0] %>" alt="<%= item.productId.name%>" style="width:32px; height:32px; border-radius:4px;">
+            </div>
+            <div>
+              <div class="order-item-name"><%= item.productId.name.split('|')[0].trim() %></div>
+              <div class="order-item-qty">x <%= item.quantity %></div>
+              <div class="order-item-size-color small text-muted">Size: <%= item.size %>, Color: <%= item.color %></div>
+            </div>
+            <!-- <div><button type="button" onclick="removeItem('<%= item._id %>')" class="btn btn-sm btn-outline-danger">Delete</button></div> -->
+            <div class="order-item-price">₹ <%= (item.productId.finalPrice * item.quantity).toFixed(2) %></div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p>Your cart is empty.</p>
+      <% } %>
+
+      <div class="order-summary-line d-flex justify-content-between fw-semibold mt-3">
+        <span>Subtotal</span>
+        <span>₹ <%= grandTotal %></span>
+      </div>
+      <!-- You can add discount or coupon here if needed -->
+      <div class="order-summary-line d-flex justify-content-between mt-2">
+        <span>Shipping</span>
+        <span id="shippingCharge"><%= shippingCharge %></span>
+      </div>
+            <!-- Discount line placeholder (hidden initially) -->
+      <div class="order-summary-line d-flex justify-content-between mt-2 text-success" id="discountLine" style="display:none;">
+        <span >Discount</span>
+        <span id="discountAmount">- ₹<%= appliedCoupon ? appliedCoupon.discount : 0 %></span>
+      </div>
+      <div class="order-summary-line total d-flex justify-content-between fw-bold mt-2 border-top pt-2">
+        <span>Total</span>
+        <span id="totalAmount">₹ <%= parseFloat(totalPayable).toFixed(2) %></span>
+      </div>
+      <input type="hidden" name="finalAmount" id="totalPayable" value="<%= totalPayable %>">
+      
+      
+      <!-- Coupon -->
+      
+      <div class="col-md-5 mt-5 coupon" >
+        <div class="card shadow-sm p-4 mb-4">
+          <h5 class="mb-3">Apply Coupon</h5>
+          <div class="input-group">
+            <input 
+              type="text" 
+              id="couponCode" 
+              class="form-control" 
+              placeholder="Enter coupon code"
+              <%= appliedCoupon ? 'value="'+ appliedCoupon.code +'" disabled' : '' %>
+            >
+            <button 
+              type="button" 
+              class="btn btn-success" 
+              id="applyBtn" 
+              onclick="toggleCoupon()"
+            >
+              <%= appliedCoupon ? 'Remove Coupon' : 'Apply' %>
+            </button>
+          </div>
+          <small id="couponMessage" class="mt-2 d-block">
+            <% if(appliedCoupon){ %> Coupon "<%= appliedCoupon.code %>" applied! <% } %>
+          </small>
+          <button type="button" class="btn  btn-info mb-3 mt-3" id="showCouponsBtn">
+            Available Coupons
+          </button>
+        </div>
+      
+       
+      </div>
+      
+      
+      
+      <!-- <div class="available-coupons mt-4">
+        <h5 class="mb-3">Available Coupons</h5>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="card shadow-sm border-0 h-100">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="card-title mb-1">
+                    <span class="badge bg-success me-2">COUPON_NAME</span>
+                    <span class="badge bg-warning text-dark">Gifted</span>
+                  </h6>
+                  <p class="card-text mb-0 small text-muted">
+                    Save ₹OFFER_PRICE on min order of ₹MINIMUM_PRICE
+                  </p>
+                  <p class="card-text mb-0 small text-muted">
+                    Valid till: EXPIRY_DATE
+                  </p>
+                </div>
+                <button class="btn btn-outline-primary btn-sm copy-btn" data-coupon="COUPON_NAME">
+                  Copy
+                </button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div> -->
+      
 
 
-
-
-
-const getProductAddPage = async (req, res) => {
-  try {
-  
-    const categories = await Category.find({ isListed: true, isDeleted: false })
-      .select('name subcategories')
-      .sort({ createdAt: -1 })
-      .lean();
-
+    <!-- place order -->
+    <div><br></div>
+    <div class="payment-method mt-4">
+      <h3 class="fw-semibold mb-3">Payment Method</h3>
+      <label class="d-flex align-items-center gap-2 mb-3" for="online">
+        <input type="radio" id="online" name="paymentMethod" value="wallet" />
+        <span>Wallet </span>
+      </label>
+      <label class="d-flex align-items-center gap-2 mb-3" for="razorpay">
+        <input type="radio" id="razorpay" name="paymentMethod" value="razorpay" />
+        <span> Razorpay</span>
+      </label>
+      <label class="d-flex align-items-center gap-2" for="cod">
+        <input type="radio" id="cod" name="paymentMethod" value="cod" checked />
+        <span>Cash on Delivery</span>
+      </label>
+    </div>
     
-    // let subcategories = [];
-    // categories.forEach(cat => {
-    //   if (cat.subcategories && cat.subcategories.length > 0) {
-    //     subcategories = subcategories.concat(cat.subcategories);
-    //   }
-    // });
+    <button type="button" id="placeOrderBtn" class="btn-place-order">Place Order</button>
+  
+    </div>
+     <!-- Coupons Modal -->
+<div class="modal couponModal fade" id="couponsModal" tabindex="-1" aria-labelledby="couponsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="couponsModalLabel">Available Coupons</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="couponsModalBody">
+        <!-- Coupons will be loaded here dynamically -->
+        <p>Loading coupons...</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-    
-    const brands = await Brand.find({ isBlocked: false }).sort({ createdAt: -1 });
 
+  </div>
+</div>
 
-    res.render('product-add', {
-      cat: categories,
-      // subcat: subcategories,
-      brands: brands
+<script>
+  function selectAddress(card) {
+    document.querySelectorAll('.address-card').forEach(c => {
+      c.classList.remove('selected');
+      c.setAttribute('aria-checked', 'false');
+      c.querySelector('input[type="radio"]').checked = false;
     });
-  } catch (error) {
-    console.error("Error loading product add page:", error);
-    res.status(500).json({ success: false, message: "Error loading product add page" });
+    card.classList.add('selected');
+    card.setAttribute('aria-checked', 'true');
+    card.querySelector('input[type="radio"]').checked = true;
   }
-};
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-  const saveImage = async (req, res) => {
-  try {
-    const file = req.file;
-    if (!file) {
-      return res.status(400).json({ success: false, message: "No image file provided" });
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  async function removeItem(itemId){
+   const confirmuser = confirm('Are you sure want to remove this item from the cart?')
+   if(!confirmuser){
+       return
+   }
+
+   try {
+       const response = await fetch(`/removeItem/${itemId}`, {
+           method: 'DELETE',
+       })
+
+       const result = await response.json()
+       if(response.ok && result.success){
+           Swal.fire({
+               icon: 'success',
+               title: 'Item removed',
+               text:'Item is removed from the cart',
+               timer: 1200,
+               showConfirmButton: false
+           })
+           .then(()=>{
+               location.reload()
+           })
+       }else{
+           Swal.fire({
+               icon: 'warning',
+               title: 'Oops!',
+               text: result.message || 'Something went wrong',
+               timer: 1200,
+               showConfirmButton: false
+           })
+       }
+   } catch (error) {
+       console.error('Error while removing item ', error)
+       Swal.fire({
+           icon: 'error',
+           title: 'Error',
+           text: error.message || 'Internal server error'
+       })
+   }
+ }
+</script>
+<script>
+  
+ /* document.getElementById('placeOrderBtn').addEventListener('click', async () => {
+    // Get selected address ID
+    const selectedAddress = document.querySelector('input[name="shippingAddress"]:checked');
+    if (!selectedAddress) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Oops!',
+        text: 'Please select a shipping address.'
+      });
+      return;
     }
 
-    const uploadDir = path.join(__dirname, "../../public/uploads/categories");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    // Get selected payment method
+    const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+    if (!selectedPayment) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'Oops!',
+        text: 'Please select a payment method.'
+      });
+      return;
     }
 
-    const filename = Date.now() + '-' + file.originalname.replace(/\s/g, "");
-    const filepath = path.join(uploadDir, filename);
+    const data = {
+      shippingAddress: selectedAddress.value,
+      paymentMethod: selectedPayment.value
+    };
 
-    await sharp(file.buffer)
-      .resize(800, 800, { fit: "inside", withoutEnlargement: true })
-      .webp({ quality: 80 })
-      .toFile(filepath);
+    try {
+      const response = await fetch('/placeOrder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
 
-    return res.status(200).json({ success: true, message: "Image saved successfully", filename });
-  } catch (error) {
-    console.error("Error saving image:", error);
-    return res.status(500).json({ success: false, message: "Error saving image" });
+      const result = await response.json();
+
+      if (response.ok && result.status) {
+        // Redirect to order success page with orderId
+        window.location.href = `/order-success/${result.orderId}`;
+      } else {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Order Failed',
+          text: result.message || 'Failed to place order.'
+        });
+      }
+    } catch (error) {
+      console.error('Error placing order:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Server Error',
+        text: 'Server error while placing order.'
+      });
+    }
+  });*/
+
+
+  /*document.getElementById('placeOrderBtn').addEventListener('click', function (e) {
+    e.preventDefault();
+  
+    // Get selected address from your inputs named "shippingAddress"
+    let address = document.querySelector('input[name="shippingAddress"]:checked')?.value;
+  
+    // Get selected payment method from inputs named "paymentMethod"
+    let payment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+    const discountText = document.getElementById('discountAmount').textContent;  // "₹ 0.00"
+     const discount = parseFloat(discountText.replace(/[^\d.]/g, '')) || 0;
+
+  
+    // Get total payable amount from your EJS variable or element
+    // Assuming you have <span id="totalAmount">₹1234.56</span> or you can set a hidden input with total value
+    const totalText = document.querySelector('#totalAmount')?.textContent || '<%= parseFloat(totalPayable).toFixed(2) %>';
+    const numericValue = parseFloat(totalText.replace(/[^\d.]/g, ''));
+  
+    if (!payment) {
+      Swal.fire({
+        title: 'NO PAYMENT FOUND!',
+        text: 'Please select your payment method.',
+        icon: 'error',
+        timer: 3000,
+      });
+      return;
+    }
+  
+    if (!address) {
+      Swal.fire({
+        title: 'NO ADDRESS FOUND!',
+        text: 'Please select a shipping address.',
+        icon: 'error',
+        timer: 3000,
+      });
+      return;
+    }
+  
+    if (payment === "cod" && numericValue > 10000) {
+      Swal.fire({
+        title: 'COD Not Allowed!',
+        text: 'Orders above ₹10000 are not allowed for Cash on Delivery (COD).',
+        icon: 'error',
+        timer: 3000,
+      });
+      return;
+    }
+  
+    // Assuming you have a discount variable in scope, otherwise set discount = 0
+  
+  
+    $.ajax({
+      url: '/placeOrder',
+      method: 'POST',
+      data: {
+        totalPrice: numericValue,
+        createdOn: new Date().getTime(),
+        date: new Date(),
+        addressId: address,
+        payment: payment,
+        discount: discount
+      },
+      success: function (response) {
+        let orderId = response.order?._id;
+  
+        if (response.method === "cod") {
+          Swal.fire({
+            title: "Order success",
+            text: "Order placed successfully",
+            icon: "success",
+            showCancelButton: true,
+            confirmButtonText: "View orders",
+            cancelButtonText: "Continue shopping",
+            reverseButtons: true
+          }).then(function (result) {
+            if (result.value) {
+             
+              location.href = `/order-success/${result.orderId}`
+            } else if (result.dismiss === "cancel") {
+              location.href = '/';
+            }
+          });
+  
+        } else if (response.method === "wallet") {
+          if (response.payment === true) {
+            Swal.fire({
+              title: "Order success",
+              text: "Order placed successfully",
+              icon: "success",
+              showCancelButton: true,
+              confirmButtonText: "View orders",
+              cancelButtonText: "Continue shopping",
+              reverseButtons: true
+            }).then(function (result) {
+              if (result.value) {
+                location.href = `/order-success/${result.orderId}`
+              } else if (result.dismiss === "cancel") {
+                location.href = '/';
+              }
+            });
+          } else {
+            Swal.fire({
+              title: "Order failed",
+              text: "Wallet amount is not enough",
+              icon: "error",
+              showConfirmButton: true,
+            }).then(function (result) {
+              if (result.value) {
+                location.href = '/checkout';
+              }
+            });
+          }
+  
+        } else if (response.method === "razorpay") {
+          let orderAmount = Math.round(numericValue * 100);
+          var options = {
+            "key": "rzp_test_ClMWweWS70Dbkd",  // Replace with your key
+            "amount": orderAmount,
+            "currency": "INR",
+            "name": "TrendiQue",
+            "description": "Test Transaction",
+            /*"image": "https://firebasestorage.googleapis.com/v0/b/ecommerce-397a7.appspot.com/o/logo.jpg?alt=media&token=07b6be19-1ce8-4797-a3a0-f0eaeaafedad",*/
+           /* "order_id": response.razorPayOrder.id,
+            "handler": function (status) {
+              verifyPayment(response.razorPayOrder, status,orderId);
+            },
+            "prefill": {
+              "name": "Customer Name",
+              "email": "customer@example.com",
+              "contact": "9961618585"
+            },
+            "theme": {
+              "color": "#3399cc"
+            }
+          };
+          var rzp1 = new Razorpay(options);
+          rzp1.on('payment.failed', function (response) {
+            verifyPayment({
+              id: response.error.metadata.order_id,
+              receipt: `order_receipt_${orderId}`
+            }, response.error, orderId);
+          });
+          rzp1.open();
+  
+        } else {
+          Swal.fire({
+            title: 'Error Occurred',
+            text: "Can't process order, error occurred",
+            icon: 'error',
+            timer: 5000
+          });
+        }
+      }
+    });
+  });
+  
+  
+  function verifyPayment(order, payment, orderId) {
+    $.ajax({
+      url: '/verifyPayment',
+      method: 'post',
+      data: {
+        order,
+        payment
+      },
+      success: (response) => {
+        if (response.status) {
+          $.ajax({
+            url: '/paymentConfirm',
+            method: 'post',
+            data: {
+              status: "Pending",
+              orderId
+            },
+          });
+  
+          Swal.fire({
+            title: "Order success",
+            text: "Order placed successfully",
+            icon: "success",
+            showCancelButton: true,
+            confirmButtonText: "View orders",
+            cancelButtonText: "Continue shopping",
+            reverseButtons: true
+          }).then(function (result) {
+            if (result.value) {
+              location.href = `/order-success/${result.orderId}`
+            } else {
+              location.href = '/';
+            }
+          });
+  
+        } else {
+          Swal.fire({
+            title: "Payment Failed",
+            text: "Transaction failed. Please try again.",
+            icon: "error",
+            confirmButtonText: "Retry"
+          }).then(() => {
+            location.href = `/order-success/${result.orderId}`
+          });
+        }
+      }
+    });
+  } */
+  function checkStockAvailability() {
+    return fetch('/check-stock')
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.message);
+            }
+            return data.items;
+        });
+}
+
+  document.getElementById('placeOrderBtn').addEventListener('click', function (e) {
+    e.preventDefault();
+  
+    let address = document.querySelector('input[name="shippingAddress"]:checked')?.value;
+    let payment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+    const discountText = document.getElementById('discountAmount').textContent;
+    let discount = parseFloat(discountText.replace(/[^\d.]/g, '')) || 0;
+  
+    const totalText = document.querySelector('#totalAmount')?.textContent || '<%= parseFloat(totalPayable).toFixed(2) %>';
+    const numericValue = parseFloat(totalText.replace(/[^\d.]/g, ''));
+  
+    if (!payment) {
+      Swal.fire({ title: 'NO PAYMENT FOUND!', text: 'Please select your payment method.', icon: 'error', timer: 3000 });
+      return;
+    }
+  
+    if (!address) {
+      Swal.fire({ title: 'NO ADDRESS FOUND!', text: 'Please select a shipping address.', icon: 'error', timer: 3000 });
+      return;
+    }
+  
+    if (payment === "cod" && numericValue > 10000) {
+      Swal.fire({ title: 'COD Not Allowed!', text: 'Orders above ₹10000 are not allowed for COD.', icon: 'error', timer: 3000 });
+      return;
+    }
+  
+    $.ajax({
+      url: '/placeOrder',
+      method: 'POST',
+      contentType: "application/json",
+      data: JSON.stringify({
+        totalPrice: numericValue,
+        addressId: address,
+        payment: payment,
+        discount:discount
+      }),
+      success: function (response) {
+        let orderId = response.order?._id;
+  
+        if (response.method === "cod") {
+          Swal.fire({
+            title: "Order success",
+            text: "Order placed successfully",
+            icon: "success",
+            showCancelButton: true,
+            confirmButtonText: "View orders",
+            cancelButtonText: "Continue shopping",
+            reverseButtons: true
+          }).then(function (result) {
+            if (result.value) {
+              window.location.href = `/viewOrderDetails/${orderId}`
+             /* location.href = `/order-success/${orderId}`;*/
+            } else if (result.dismiss === "cancel") {
+              location.href = '/';
+            }
+          });
+  
+        } else if (response.method === "wallet") {
+          if (response.payment === true) {
+            Swal.fire({
+              title: "Order success",
+              text: "Order placed successfully",
+              icon: "success",
+              showCancelButton: true,
+              confirmButtonText: "View orders",
+              cancelButtonText: "Continue shopping",
+              reverseButtons: true
+            }).then(function (result) {
+              if (result.value) {
+                window.location.href = `/viewOrderDetails/${orderId}`
+              } else if (result.dismiss === "cancel") {
+                location.href = '/';
+              }
+            });
+          } else {
+            Swal.fire({
+              title: "Order failed",
+              text: "Wallet amount is not enough",
+              icon: "error",
+              showConfirmButton: true,
+            }).then(function (result) {
+              if (result.value) {
+                location.href = '/checkout';
+              }
+            });
+          }
+  
+        } else if (response.method === "razorpay") {
+          let orderAmount = Math.round(numericValue * 100);
+          var options = {
+            "key": "rzp_test_ClMWweWS70Dbkd",
+            "amount": orderAmount,
+            "currency": "INR",
+            "name": "TrendiQue",
+            "description": "Test Transaction",
+            "order_id": response.razorPayOrder.id,
+            "handler": function (status) {
+              verifyPayment(response.razorPayOrder, status, orderId);
+            },
+            "prefill": {
+              "name": "Customer Name",
+              "email": "customer@example.com",
+              "contact": "9961618585"
+            },
+            "theme": {
+              "color": "#3399cc"
+            }
+          };
+          var rzp1 = new Razorpay(options);
+          rzp1.on('payment.failed', function (response) {
+            verifyPayment({
+              id: response.error.metadata.order_id,
+              receipt: `order_receipt_${orderId}`
+            }, response.error, orderId);
+          });
+          rzp1.open();
+  
+        } else {
+          Swal.fire({
+            title: 'Error Occurred',
+            text: "Can't process order, error occurred",
+            icon: 'error',
+            timer: 5000
+          });
+        }
+      }
+    });
+  });
+  function verifyPayment(order, payment, orderId) {
+    $.ajax({
+      url: '/verifyPayment',
+      method: 'POST',
+      data: {
+        order,
+        payment
+      },
+      success: function(response) {
+        if (response.status) {
+          Swal.fire({
+            title: "Order success",
+            text: "Order placed successfully",
+            icon: "success",
+            showCancelButton: true,
+            confirmButtonText: "View orders",
+            cancelButtonText: "Continue shopping",
+            reverseButtons: true
+          }).then(function(result) {
+            if (result.isConfirmed) {
+              window.location.href = `/viewOrderDetails/${orderId}`
+            } else {
+              location.href = '/';
+            }
+          });
+        } else {
+          Swal.fire({
+            title: "Payment Failed",
+            text: "Transaction failed. Please try again.Go to order detail page",
+            icon: "error",
+            confirmButtonText: "Retry"
+          });
+        }
+      }
+    });
   }
-};
+  
+  
+</script>
 
-const addProducts = async (req, res) => {
-  try {
-    const {
-      name,
-      description,
-      brand,
-      category,
-      subcategory,
-      regularPrice,
-      finalPrice,
-      material,
-      status
-    } = req.body;
-    console.log(subcategory)
+<script>
 
-    const price = parseFloat(regularPrice);
-    const finalPriceParsed = parseFloat(finalPrice);
+  async function toggleCoupon(){
+    const codeInput = document.getElementById('couponCode')
+    const message = document.getElementById('couponMessage')
+    const applyBtn = document.getElementById('applyBtn')
+
+    if(applyBtn.innerText === 'Apply'){
+      const code = codeInput.value.trim()
+      if(!code) return message.innerText = 'Enter a coupon code'
+ 
+      console.log("Coupon code entered:", code)
+
+    
+      const response = await fetch('/apply-coupon', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({code})
+      })
+
+      const result = await response.json()
+
+      if(response.ok){
+        applyBtn.innerText = 'Remove Coupon'
+        codeInput.disabled = true
+        document.getElementById('discountAmount').innerText = `-₹${result.discount}`
+       /* document.getElementById('grandTotal').innerText = `₹${result.newTotal}`*/
+       const shippingCharge = parseFloat(document.getElementById('shippingCharge').textContent) || 0;
+       const grandTotal = parseFloat(result.newTotal) + shippingCharge;
+        document.getElementById('totalAmount').innerText= `₹${result.newTotal}`
+        
+        document.getElementById('totalPayable').value= `₹${result.newTotal}`
+        message.innerText = `Coupon ${code.toUpperCase()} Applied`
+      }else{
+        message.innerText = result.message
+        message.classList.add('text-dange')
+      }
+      
+    }else{
+      await fetch('/cancel-coupon')
+      applyBtn.innerText = 'Apply'
+      codeInput.disabled = false
+      codeInput.value = ''
+      message.innerText = ''
+      document.getElementById('discountAmount').innerText = '-₹0'
+      const base = <%= grandTotal %> + <%= shippingCharge %> ;
+    
+      document.getElementById('totalAmount').value = base;
+
+    }
+  }
    
 
-    if (!name || !description || !brand || !category || !subcategory ||
-        isNaN(price) || isNaN(finalPriceParsed)) {
-      return res.status(400).json({ success: false, message: "Missing or invalid required fields" });
-    }
 
-    const uploadDir = path.join(__dirname, "../../public/uploads/product-images");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    const imageFilenames = [];
-    for (let i = 1; i <= 4; i++) {
-      const croppedImageData = req.body[`croppedImage${i}`];
-      if (croppedImageData && croppedImageData.startsWith("data:image")) {
-        const base64Data = croppedImageData.replace(/^data:image\/\w+;base64,/, "");
-        const imageBuffer = Buffer.from(base64Data, "base64");
-        const filename = `${Date.now()}-image${i}.webp`;
-        const filepath = path.join(uploadDir, filename);
-        await sharp(imageBuffer)
-          .resize(800, 800, { fit: "inside", withoutEnlargement: true })
-          .webp({ quality: 80 })
-          .toFile(filepath);
-        imageFilenames.push(`uploads/product-images/${filename}`);
-      }
-    }
-
-    const newProduct = new Product({
-      name,
-      description,
-      brand,
-      category,
-      subcategory:subcategory,
-      price,
-      finalPrice: finalPriceParsed,
-      material: material || "Cotton", 
-      images: imageFilenames,
-      status: status || "available"
-    });
-    console.log({ name, description, brand, category, subcategory, price, finalPriceParsed, material, status, imageFilenames });
-
-    await newProduct.save();
-
-    return res.status(200).json({ success: true, message: "Product added successfully" });
-  } catch (error) {
-    console.error("Error adding product:", error);
-    return res.status(500).json({ success: false, message: "Server error while adding product" });
-  }
-};
-
-
-
-const getProductList = async (req, res) => {
-  try {
-    const search = req.query.search || '';
-    const page = parseInt(req.query.page) || 1;
-    const limit = 9;
-
-    const query = { name: { $regex: search, $options: 'i' } };
-
-    const productData = await Product.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .populate('brand')
-      .populate('category')
-      .lean();
-      
-     for(const product of productData)
-     {
-      if(product.subcategory && product.category &&   Array.isArray(product.category.subcategories)){
-        let subcategoryobj=null;
-        if(mongoose.Types.ObjectId.isValid(product.subcategory))
-        {
-          const subcategoryId= new mongoose.Types.ObjectId(product.subcategory)
-          subcategoryobj=product.category.subcategories.find(sub=>sub._id.equals(subcategoryId))
-          console.log(product)
-          console.log('subcategoryObject :', JSON.stringify(subcategoryobj, null, 2));
-
-        }
-        product.subCategoryDetails=subcategoryobj || null
-
-      }else{
-        product.subCategoryDetails=null
-      }
-     }
-      
-      //     // If not found by _id or subcategory is not ObjectId, fallback to search by name
-      //     if (!subcategoryObj) {
-      //       subcategoryObj = product.category.subcategories.find(sub => 
-      //         sub.name === product.subcategory
-      //       );
-      //     }
-      
-      //
-      
-    const count = await Product.countDocuments(query);
-    const totalPages = Math.ceil(count / limit);
-    const categories = await Category.find({ isListed: true }).lean();
-    const brand=await Brand.find({isBlocked:false}).lean();
-    res.render('product', {
-      products: productData,
-      currentPage: page,
-      totalPages,
-      cat: categories,
-      brand:brand,
-      searchQuery: search,
-      pageSize: limit
-    });
-  } catch (error) {
-    console.error('Error fetching products:', error.stack || error);
-    res.status(500).send('Server Error');
-  }
-};
-
-const blockProduct = async (req,res) => {
-  try {
-
-    let id = req.query.id;
-    let currentPage = req.query.page || 1;
-    await Product.updateOne({_id:id},{$set:{isBlocked:true}});
-    res.redirect(`/admin/products?page=${currentPage}`)
-    
-  } catch (error) {
-    res.redirect("/pageerror")
-    
-  }
-}
-
-const unblockProduct = async (req,res) => {
-  try {
-
-    let id = req.query.id;
-    await Product.updateOne({_id:id},{$set:{isBlocked:false}});
-    res.redirect("/admin/products")
-    
-  } catch (error) {
-    res.redirect("/pageerror")
-    
-  }
-}
-
-const deleteProduct = async (req, res) => {
-  const productId = req.query.id;
+  <!-- Available Coupon -->
+  document.getElementById('showCouponsBtn').addEventListener('click', async () => {
+    const modalBody = document.getElementById('couponsModalBody');
+    modalBody.innerHTML = '<p>Loading coupons...</p>';
   
-  if (!productId) {
-      return res.status(400).json({ status: false, message: 'Product ID is required' });
-  }
+    try {
+      const res = await fetch('/available-coupons');
+      const data = await res.json();
   
-  try {
-      
-      const product = await Product.findByIdAndDelete(productId);
-
-      if (!product) {
-          return res.status(404).json({ status: false, message: 'Product not found' });
-      }
-
-      res.redirect('/admin/products'); 
-  } catch (err) {
-      console.error(err);
-      res.status(500).json({ status: false, message: 'Server Error' });
-  }
-}
+      if (data.success && data.coupons.length) {
+        modalBody.innerHTML = ''; // clear loading text
   
-const getEditProduct=async (req,res)=>{
-  try {
-    const id = req.query.id
-    const product = await Product.findById(id)
-    .populate({
-      path: 'category',
-     })
-    .populate('brand')
-    .lean()
-   if (!product) {
-      return res.status(404).send("Product not found")
-    }
-    const categories = await Category.find({isListed: true, isDeleted: false})
-    .select('name subcategories')
-    .lean();
-    const brand = await Brand.find({isBlocked:false}).lean();
-    res.render("product-edit", {
-      product: product,
-      brands:brand,
-      cat: categories,
-    })
-  } catch (error) {
-    console.error("Error in getEditProduct:", error)
-    res.redirect("/pageerror")
-  }
-
-}
-
-const editProduct = async (req, res) => {
-  try{
-    const id = req.params.id
-    const {
-      name,
-      description,
-      brand,
-      category,
-      subcategory,
-      regularPrice,
-      finalPrice,
-      material,
-      status
-    } = req.body;
-    console.log({ category, subcategory });
-
-    if (!mongoose.Types.ObjectId.isValid(category)) {
-      return res.status(400).json({ success: false, message: "Invalid category id" });
-    }
-    if (!mongoose.Types.ObjectId.isValid(subcategory)) {
-      return res.status(400).json({ success: false, message: "Invalid subcategory id" });
-    }
-
-    const existingProduct = await Product.findOne({
-      name: name,
-      _id: { $ne: id },
-    })
-
-    if (existingProduct) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Product with this name already exists. Please try another name." })
-    }
-    const updateFields = {
-      name,
-      description,
-      brand,
-      category,
-      subcategory,
-      regularPrice,
-      finalPrice,
-      material,
-      status
-    }
-    const product = await Product.findById(id)
-    if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" })
-    }
-
-    if (!product.productImage) {
-      product.productImage = [];
-    }
-    
-    for (let i = 1; i <= 4; i++) {
-      const croppedImageData = req.body[`croppedImage${i}`];
-      const fileField = req.files ? req.files[`image${i}`] : null;
-    
-      if (croppedImageData && croppedImageData.startsWith('data:image')) {
-        const base64Data = croppedImageData.replace(/^data:image\/\w+;base64,/, '');
-        const imageBuffer = Buffer.from(base64Data, 'base64');
-        const filename = `${Date.now()}-cropped-image-${i}.webp`;
-        const filepath = path.join(__dirname, '../../public/uploads/product-images', filename);
-    
-        await sharp(imageBuffer)
-          .webp({ quality: 80 })
-          .toFile(filepath);
-    
-        const imagePath = `uploads/product-images/${filename}`;
-        product.productImage[i - 1] = imagePath;
-    
-      } else if (fileField && fileField.length > 0) {
-        const file = fileField[0];
-        const filename = `${Date.now()}-${file.originalname.replace(/\s/g, '')}.webp`;
-        const filepath = path.join(__dirname, '../../public/uploads/product-images', filename);
-    
-        await sharp(file.buffer)
-          .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
-          .webp({ quality: 80 })
-          .toFile(filepath);
-    
-        const imagePath = `uploads/product-images/${filename}`;
-        product.productImage[i - 1] = imagePath;
-    
+        data.coupons.forEach(coupon => {
+          const expiry = new Date(coupon.expiryDate).toLocaleDateString();
+          const offer = coupon.type === 'percentage' ? `${coupon.offerPrice}% OFF` : `₹${coupon.offerPrice} OFF`;
+  
+          const couponCard = document.createElement('div');
+          couponCard.classList.add('coupon-card', 'mb-3');
+          couponCard.innerHTML = `
+            <div>
+              <strong>${coupon.code}</strong> — ${offer} <br />
+              Min order: ₹${coupon.minimumPrice} <br />
+              Valid till: ${expiry}
+            </div>
+            <button class="btn btn-sm btn-primary copy-btn" data-code="${coupon.code}">Copy</button>
+          `;
+          modalBody.appendChild(couponCard);
+        });
+  
+        // Add copy functionality
+        modalBody.querySelectorAll('.copy-btn').forEach(button => {
+          button.addEventListener('click', () => {
+            const code = button.getAttribute('data-code');
+            navigator.clipboard.writeText(code).then(() => {
+              //alert(`Copied coupon code: ${code}`);
+            });
+          });
+        });
       } else {
-        if (!product.productImage[i - 1]) {
-          product.productImage[i - 1] = '';
-        }
+        modalBody.innerHTML = '<p>No coupons available.</p>';
       }
+    } catch (error) {
+      console.error('Error loading coupons:', error);
+      modalBody.innerHTML = '<p>Failed to load coupons. Try again later.</p>';
     }
-    
-    // Now update all other fields manually:
-    product.name = name;
-    product.description = description;
-    product.brand = brand;
-    product.category = category;
-    product.subcategory = subcategory;
-    product.regularPrice = regularPrice;
-    product.finalPrice = finalPrice;
-    product.material = material;
-    product.status = status;
-    
-    await product.save();
-    
-    res.json({ success: true, message: "Product updated successfully" });
-
-  }catch (err){
-    console.error("Error in editProduct:", err);
-    res.status(500).json({ success: false, message: "An error occurred while updating the product" });
-  }
-}
-
-
-//Product varient section
-const showProductVariants=async (req,res)=>{
-  const productId=req.params.id;
-  try{
-    const product=await Product.findById(productId).lean();
-    console.log(product._id)
-    if(!product)
-    {
-      return res.status(404).send('product not found')
-    }
-  res.render('product-varient',{product})
-  }catch(err){
-    console.error(err);
-      res.status(500).json({ status: false, message: 'Server Error' });
-  }
-
-}
-const addProductVariants=async(req,res)=>{
-  try{
-    const { color, size,quantity } = req.body;
-    const productId = req.params.productId;
-    if (!color || !size || quantity == null) {
-      return res.status(400).json({ success: false, message: 'All fields are required' });
-    }
-    if (quantity < 0) {
-      return res.status(400).json({ success: false, message: 'Quantity cannot be negative' });
-    }
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
-      return res.status(400).json({ success: false, message: 'Invalid product ID' });
-    }
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ success: false, message: 'product not found' });
-    }
-    const existingVariant = product.variants.find(v =>
-      v.color.toLowerCase() === color.toLowerCase() && v.size.toLowerCase() === size.toLowerCase()
-    );
-    if (existingVariant) {
-      return res.status(400).json({ success: false, message: 'Variant with same color and size already exists' });
-    }
-    product.variants.push({
-      color,
-      size,
-      quantity: parseInt(quantity)
-    });
-
-    await product.save();
-    return res.redirect(`/admin/product/${productId}/variants`);
-  } catch (err) {
-    console.error('Add Subcategory Error:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-}
-
-
-const deleteVariant = async (req, res) => {
-  try {
-    const { productId, variantId } = req.params;
-    const updatedProduct = await Product.findByIdAndUpdate(
-      productId,
-      { $pull: { variants: { _id: variantId } } },
-      { new: true }
-    );
-
-    if (!updatedProduct) {
-      return res.status(404).send('Product not found');
-    }
-
-    // Redirect back to the variants management page (adjust the URL as needed)
-    res.redirect(`/admin/product/${productId}/variants`);
-  } catch (error) {
-    console.error('Error deleting variant:', error);
-    res.status(500).send('Server error');
-  }
-};
-
-const updateVariant = async (req, res) => {
-  try {
-    const { productId, variantId } = req.params;
-    const { color, size, quantity } = req.body;
-
-    if (!color || typeof color !== 'string' || color.trim().length === 0) {
-      return res.status(400).send('Invalid color');
-    }
-
-    if (!size || typeof size !== 'string' || size.trim().length === 0) {
-      return res.status(400).send('Invalid size (max 4 chars)');
-    }
-
-    const qtyNum = Number(quantity);
-    if (!Number.isInteger(qtyNum) || qtyNum < 0) {
-      return res.status(400).send('Quantity must be a non-negative integer');
-    }
-
   
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).send('Product not found');
-    }
+    // Show the modal (Bootstrap 5)
+    const couponsModal = new bootstrap.Modal(document.getElementById('couponsModal'));
+    couponsModal.show();
+  });
+  
 
-    // Find variant index
-    const variantIndex = product.variants.findIndex(v => v._id.toString() === variantId);
-    if (variantIndex === -1) {
-      return res.status(404).send('Variant not found');
-    }
-    product.variants[variantIndex].color = color;
-    product.variants[variantIndex].size = size;
-    product.variants[variantIndex].quantity = parseInt(quantity);
+</script>
 
-    
-    await product.save();
-    res.redirect(`/admin/product/${productId}/variants`);
-  } catch (error) {
-    console.error('Error updating variant:', error);
-    res.status(500).send('Internal server error');
-  }
-};
+<!-- Bootstrap JS Bundle CDN -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+<%- include('../partials/user/footer') %>
+<!-- </body>
+</html> -->
 
-const addProductOffer = async (req, res) => {
-  try {
-    const { productId, percentage, validUntil } = req.body;
-
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ status: false, message: "Product not found" });
-    }
-
-    if (isNaN(percentage) || percentage < 1 || percentage > 99) {
-      return res.json({ status: false, message: "Invalid percentage value" });
-    }
-
-    if (!validUntil) {
-      return res.json({ status: false, message: "Offer valid date required" });
-    }
-
-    // await Product.updateOne(
-    //   { _id: productId },
-    //   {
-    //     $set: {
-    //       Offer: percentage,
-    //       offerValidUntil: new Date(validUntil)
-    //     }
-    //   }
-    // );
-
-      product.offer = parseInt(percentage);
-      product.offerValidUntil = new Date(validUntil)
-      product.finalPrice = await calculateEffectivePrice(product);
-      await product.save();
-    
-
-    res.json({ status: true, message: "Offer added successfully" });
-  } catch (error) {
-    console.error("Error in addCategoryOffer:", error);
-    res.status(500).json({ status: false, message: "Internal Server Error" });
-  }
-};
-
-const removeProductOffer = async (req, res) => {
-  try {
-    const { productId } = req.body;
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ status: false, message: "Product not found" });
-    }
- 
-    await Product.updateOne(
-      { _id: productId },
-      {
-        $unset: {
-          offer: "",
-          offerValidUntil: ""
-        }
-      }
-    );
-    
-      product.finalPrice = await calculateEffectivePrice(product);
-      await product.save();
-    
-
-    res.json({ status: true, message: "Offer removed successfully" });
-  } catch (error) {
-    console.error("Error in removeCategoryOffer:", error);
-    return res.status(500).json({ status: false, message: "Internal Server Error" });
-  }
-};
-
-
-
-module.exports={
-     getProductAddPage,
-     saveImage,
-     addProducts,
-     getProductList,
-     blockProduct,
-     unblockProduct,
-     deleteProduct,
-     getEditProduct,
-     editProduct,
-     showProductVariants,
-     addProductVariants,
-     deleteVariant,
-     updateVariant,
-     addProductOffer,
-     removeProductOffer
-   }
