@@ -631,10 +631,11 @@ const getOrderSuccessPage = async (req, res) => {
       user.wallet += refundAmount; 
 
        // Wallet history update
-       user.history.push({
+       user.walletTransactions.push({
         amount: refundAmount,
-        status: "credit",
-        date: Date.now(),
+        status: "credited",
+        method: 'refund',
+        
         description: `Refund for cancelled product (${item.name}) in order ${order._id}`,
       });
 
@@ -667,7 +668,7 @@ const getOrderSuccessPage = async (req, res) => {
    }
 
    order.discount = newDiscount;
-   const deliveryCharge = newTotal < 500 ? 50 : 0;
+   const deliveryCharge = newTotal > 0 && newTotal < 500 ? 50 : 0;
 
    // Update final amount
    order.finalAmount = newTotal - newDiscount + deliveryCharge;

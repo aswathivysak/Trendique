@@ -196,7 +196,7 @@ const listOrders = async (req, res) => {
       });
       order.subTotal = newSubTotal;
   
-      const shippingCharge = order.subTotal < 500 ? 50 : 0;
+      const shippingCharge =order.subTotal > 0 && order.subTotal < 500 ? 50 : 0;
       order.deliveryCharge = shippingCharge;
   
     
@@ -222,10 +222,10 @@ const listOrders = async (req, res) => {
       }
 
       user.wallet += refundAmount;
-      user.history.push({
+      user.walletTransactions.push({
         amount: refundAmount,
         status: "credit",
-        date: new Date(),
+        method: 'refund',
         description: `Refund for returned product (${productItem.productName}) in order ${order.orderId}`
       });
 
