@@ -898,6 +898,16 @@ tbody tr:hover {
         };
 
         const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (resp) {
+          console.log("Wallet top-up payment failed", resp);
+        
+          Swal.fire({
+            title: "Payment Failed",
+            text: resp.error.description || "Transaction was unsuccessful.",
+            icon: "error",
+            confirmButtonText: "Try Again"
+          });
+        });
         rzp.open();
       }
     });

@@ -99,6 +99,8 @@ router.get("/retryPayment", userAuth, orderController.retryPayment);
 
 router.post("/cancelOrder",userAuth,orderController.cancelOrder);
 router.post('/orders/return-request', userAuth, orderController.returnRequest);
+router.post('/confirmOrderAfterRazorpay', orderController.confirmOrderAfterRazorpay);
+
 // router.get('/orders/download-invoice/:orderId', userAuth, orderController.getInvoice)
 router.get('/orders/download-invoice', userAuth,orderController.generateInvoice);
 router.get('/available-coupons', userAuth, orderController.getAvailableCoupons)
