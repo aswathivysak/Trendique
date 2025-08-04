@@ -123,15 +123,16 @@ const addToCartWish =async (req,res)=>{
        // Remove product from user's wishlist
        await cart.save();
 
-    return res.status(200).json({
-      status: true,
-      message: "Added to cart ",
-      cartLength: cart.items.length,
-    });
+   
     await User.updateOne(
         { _id: userId },
         { $pull: { wishlist: productId } }
       );
+      return res.status(200).json({
+        status: true,
+        message: "Added to cart ",
+        cartLength: cart.items.length,
+      });
 
     }catch (error){
         console.error("Error in addToCartWish:", error);
