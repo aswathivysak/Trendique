@@ -333,7 +333,9 @@
         <span id="totalAmount">₹ <%= parseFloat(totalPayable).toFixed(2) %></span>
       </div>
       <input type="hidden" name="finalAmount" id="totalPayable" value="<%= totalPayable %>">
-      
+      <input type="hidden" id="originalGrandTotal" value="<%= grandTotal %>">
+      <input type="hidden" id="originalShippingCharge" value="<%= shippingCharge %>">
+
       
       <!-- Coupon -->
       
@@ -703,91 +705,39 @@
         if (!address) return Swal.fire('NO ADDRESS FOUND!', 'Please select a shipping address.', 'error');
         if (payment === "cod" && numericValue > 10000)
           return Swal.fire('COD Not Allowed!', 'Orders above ₹10000 are not allowed for COD.', 'error');
-    
-        // ✅ 1. Stock Check Before Order
-      /*  const stockResponse = await checkStockAvailability();
-        const stockStatus = stockResponse.items;
-        const hasBlocked = stockResponse.hasBlocked;
-    
-       /* if (hasBlocked && (!stockStatus || stockStatus.length === 0)) {
-          await Swal.fire('Cart Invalid', 'All items in your cart are blocked or unavailable.', 'warning');
-          return window.location.href = '/cart';
-        }*/
+              
+              const stockResponse = await checkStockAvailability();
+          const stockStatus = stockResponse.items || [];
+          const hasBlocked = stockResponse.hasBlocked;
 
-       /* const blockedItems = stockStatus.filter(item => item.isBlocked === true);
+          // If cart is empty (after filtering out blocked/out-of-stock)
+          if (stockStatus.length === 0 && hasBlocked) {
+            await Swal.fire('Cart Invalid', 'All items in your cart are blocked or unavailable.', 'warning');
+            return window.location.href = '/cart';
+          }
 
-if (blockedItems.length > 0) {
-  await Swal.fire({
-    title: 'Blocked Product Found',
-    text: 'Some products in your cart have been blocked by the admin. Please remove them before placing the order.',
-    icon: 'warning',
-    confirmButtonText: 'Go to Cart'
-  });
-  return window.location.href = '/cart';
-}
-        
-    
+          //  If any product is blocked (admin-blocked or deleted)
+          const blockedItem = stockStatus.find(i => i.isBlocked);
+          if (blockedItem) {
+            await Swal.fire({
+              title: 'Blocked Product Found',
+              text: `${blockedItem.name || 'A product'} has been blocked. Please remove it to continue.`,
+              icon: 'warning',
+              confirmButtonText: 'Go to Cart'
+            });
+            return window.location.href = '/cart';
+          }
 
-// 🟥 Some items blocked
-/*f (hasBlocked) {
-  await Swal.fire({
-    title: 'Blocked Products Detected',
-    text: 'Some items in your cart have been blocked by admin. Please remove them to proceed.',
-    icon: 'warning',
-    confirmButtonText: 'Go to Cart'
-  });
-  window.location.href = '/cart';
-  return; // stop further execution
-}*/
-
-    
-        /*const changedStock = stockStatus.some(i => i.stockChanged);
-        if (changedStock) {
-          return Swal.fire('Stock Changed', 'Some quantities were adjusted due to stock limits.', 'warning').then(() => {
-            window.location.reload();
-          });
-        }*/
-        // ✅ Stock changed due to quantity
-    
-    /*const changedStock = stockStatus.some(item => item.stockChanged && !item.isBlocked);
-
-    if (changedStock) {
-      return Swal.fire('Stock Changed', 'Some quantities were adjusted due to stock limits.', 'warning').then(() => {
-        location.reload();
-      });
-    }*/
-    const stockResponse = await checkStockAvailability();
-const stockStatus = stockResponse.items || [];
-const hasBlocked = stockResponse.hasBlocked;
-
-// 1️⃣ If cart is empty (after filtering out blocked/out-of-stock)
-if (stockStatus.length === 0 && hasBlocked) {
-  await Swal.fire('Cart Invalid', 'All items in your cart are blocked or unavailable.', 'warning');
-  return window.location.href = '/cart';
-}
-
-// 2️⃣ If any product is blocked (admin-blocked or deleted)
-const blockedItem = stockStatus.find(i => i.isBlocked);
-if (blockedItem) {
-  await Swal.fire({
-    title: 'Blocked Product Found',
-    text: `${blockedItem.name || 'A product'} has been blocked. Please remove it to continue.`,
-    icon: 'warning',
-    confirmButtonText: 'Go to Cart'
-  });
-  return window.location.href = '/cart';
-}
-
-// 3️⃣ If any quantity exceeds stock
-const changedStock = stockStatus.some(item => item.stockChanged && !item.isBlocked);
-if (changedStock) {
-  return Swal.fire('Stock Changed', 'Some quantities were adjusted due to stock limits.', 'warning')
-    .then(() => location.reload());
-}
+          // If any quantity exceeds stock
+          const changedStock = stockStatus.some(item => item.stockChanged && !item.isBlocked);
+          if (changedStock) {
+            return Swal.fire('Stock Changed', 'Some quantities were adjusted due to stock limits.', 'warning')
+              .then(() => location.reload());
+          }
 
 
     
-        // ✅ 2. All Good → Proceed
+        // All Good → Proceed
         placeOrder(address, payment, numericValue, discount);
     
       } catch (error) {
@@ -842,8 +792,11 @@ if (changedStock) {
               "name": "TrendiQue",
               "description": "Test Transaction",
               "order_id": response.razorPayOrder.id,
-              "handler": function (status) {
-                verifyPayment(response.razorPayOrder, status, orderId);
+              "handler": function (payment) {
+                //verifyPayment(response.razorPayOrder, status, orderId);
+                //verifyAndPlaceOrder(status, address, numericValue, discount);
+                //verifyAndPlaceOrder(response, address, totalPrice, discount);
+                verifyAndPlaceOrder(payment, address, numericValue, discount);
               },
               "prefill": {
                 "name": "Customer Name",
@@ -854,12 +807,25 @@ if (changedStock) {
             };
             const rzp = new Razorpay(options);
             rzp.on('payment.failed', function (resp) {
-              verifyPayment({
+              console.log("Payment failed", resp); 
+             /* verifyPayment({
                 id: resp.error.metadata.order_id,
                 receipt: `order_receipt_${orderId}`
-              }, resp.error, orderId);
+              }, resp.error, orderId);*/
+              Swal.fire({
+                title: "Payment Failed",
+                text: resp.error.description || 'Transaction was unsuccessful.',
+                icon: "error",
+                confirmButtonText: "Try Again"
+              }).then(() => {
+                window.location.href = '/checkout';
             });
+          });
+          try {
             rzp.open();
+          } catch (err) {
+            console.error("Razorpay open error:", err);
+          }
     
           } else {
             Swal.fire('Error Occurred', 'Cannot process order.', 'error');
@@ -892,6 +858,46 @@ if (changedStock) {
         }
       });
     }
+    function verifyAndPlaceOrder(payment, addressId, totalPrice, discount) {
+      $.ajax({
+        url: '/verifyPayment',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ payment }),
+       // data: JSON.stringify({ payment: response }),
+        success: function (response) {
+          if (response.status) {
+            // Now place order after payment success
+            $.ajax({
+              url: '/confirmOrderAfterRazorpay',
+              method: 'POST',
+              contentType: 'application/json',
+              data: JSON.stringify({ addressId, payment: 'razorpay', totalPrice, discount }),
+              success: function (res) {
+                if (res.success) {
+                  Swal.fire({
+                    title: "Order success",
+                    text: "Order placed successfully",
+                    icon: "success",
+                    showCancelButton: true,
+                    confirmButtonText: "View orders",
+                    cancelButtonText: "Continue shopping",
+                    reverseButtons: true
+                  }).then(result => {
+                    window.location.href = result.isConfirmed ? `/viewOrderDetails/${res.orderId}` : '/';
+                  });
+                } else {
+                  Swal.fire("Order Failed", "Order could not be created after payment.", "error");
+                }
+              }
+            });
+          } else {
+            Swal.fire("Payment Failed", "Verification failed", "error");
+          }
+        }
+      });
+    }
+    
     
     
   
@@ -944,9 +950,15 @@ if (changedStock) {
       codeInput.value = ''
       message.innerText = ''
       document.getElementById('discountAmount').innerText = '-₹0'
-      const base = <%= grandTotal %> + <%= shippingCharge %> ;
-    
-      document.getElementById('totalAmount').value = base;
+      //const base = <%= grandTotal %> + <%= shippingCharge %> ;
+      //document.getElementById('grandTotal').innerText = `₹${base}`
+      //document.getElementById('totalAmount').value = base;
+      const originalGrandTotal = parseFloat(document.getElementById('originalGrandTotal').value);
+  const originalShipping = parseFloat(document.getElementById('originalShippingCharge').value);
+  const total = (originalGrandTotal + originalShipping).toFixed(2);
+
+  document.getElementById('totalAmount').innerText = `₹${total}`;
+  document.getElementById('totalPayable').value = total;
 
     }
   }
