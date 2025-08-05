@@ -1,0 +1,148 @@
+<%- include("../../views/partials/admin/header") %>
+ <!-- Customer Table -->
+ 
+<div class="container mt-5">
+    <h2 class="mb-4">Returned Products</h2>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>User</th>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Status</th>
+          <th>Total</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (returnedItems.length === 0) { %>
+          <tr><td colspan="6" class="text-center">No returned products</td></tr>
+        <% } else { %>
+          <% returnedItems.forEach((item,index) => { %>
+            <tr>
+              <td><%= item.orderId %></td>
+              <td><%= item.user %></td>
+              <td><%= item.product %></td>
+              <td><%= item.quantity %></td>
+              <td>
+                
+                    <span class="badge 
+                      <%= item.status === 'returned' ? 'bg-success' : 
+                          item.status === 'return_requested' ? 'bg-warning text-dark' : 
+                          'bg-secondary' %>">
+                      <%= item.status.replace('_', ' ').toUpperCase() %>
+                    </span>
+                  
+              </td>
+              <td><%= item.total %></td>
+              <td><%= item.date %></td>
+              <td>
+                
+                    <% if (item.status === 'return_requested') { %>
+                      <button class="btn btn-success btn-sm approve-return"
+                              data-order="<%= item.orderId %>"
+                              data-index="<%= item.productIndex %>">
+                        Approve
+                      </button>
+                  
+                      <button class="btn btn-danger btn-sm reject-return"
+                              data-order="<%= item.orderId %>"
+                              data-index="<%= item.productIndex %>">
+                        Reject
+                      </button>
+                    <% } else { %>
+                      <span class="text-muted">-</span>
+                    <% } %>
+                  
+              </td>
+            </tr>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+    <nav aria-label="Returned Products Pagination">
+        <ul class="pagination justify-content-center">
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= currentPage == i ? 'active' : '' %>">
+              <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+            </li>
+          <% } %>
+        </ul>
+      </nav>
+      
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Approve
+        document.querySelectorAll(".approve-return").forEach(button => {
+          button.addEventListener("click", async () => {
+            const orderId = button.dataset.order;
+            const index = button.dataset.index;
+      
+            const confirm = await Swal.fire({
+              title: "Approve this return?",
+              icon: "question",
+              showCancelButton: true,
+              confirmButtonText: "Yes, Approve",
+              cancelButtonText: "Cancel",
+              confirmButtonColor: "#28a745"
+            });
+      
+            if (confirm.isConfirmed) {
+              const response = await fetch(`/admin/approveReturn/${orderId}/${index}`, {
+                method: "POST"
+              });
+      
+              if (response.ok) {
+                await Swal.fire("Approved!", "Return has been approved.", "success");
+                location.reload();
+              } else {
+                Swal.fire("Error", "Something went wrong while approving.", "error");
+              }
+            }
+          });
+        });
+      
+        // Reject
+        document.querySelectorAll(".reject-return").forEach(button => {
+          button.addEventListener("click", async () => {
+            const orderId = button.dataset.order;
+            const index = parseInt(button.dataset.index); 
+      
+            const confirm = await Swal.fire({
+              title: "Reject this return?",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonText: "Yes, Reject",
+              cancelButtonText: "Cancel",
+              confirmButtonColor: "#dc3545"
+            });
+      
+            if (confirm.isConfirmed) {
+              const response = await fetch(`/admin/rejectReturn/${orderId}/${index}`, {
+                method: "POST"
+              });
+      
+              if (response.ok) {
+                await Swal.fire("Rejected!", "Return has been rejected.", "success");
+                location.reload();
+              } else {
+                Swal.fire("Error", "Something went wrong while rejecting.", "error");
+              }
+            }
+          });
+        });
+      });
+      
+</script>
+
+  
+
+  <%- include("../../views/partials/admin/footer") %>
+  

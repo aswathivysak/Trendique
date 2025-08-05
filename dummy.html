@@ -1,326 +1,112 @@
-<%- include('../partials/user/header') %>
-<div><br><br><br><br></div>
 
-<style>
-  .disabled-link {
-    pointer-events: none;
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-</style>
+//sales report
+const loadSalesPage = async (req, res) => {
+  try {
 
-<!-- breadcrumb -->
-<div class="container">
-  <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-    <a href="/" class="stext-109 cl8 hov-cl1 trans-04">
-      Home
-      <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
-    </a>
-    <span class="stext-109 cl4">Shopping Cart</span>
-  </div>
-</div>
+      const page = req.query.page || 1
+      const search = req.query.search || ''
+      const limit = 10
+      const skip = ( page - 1 ) * limit
+      const {rangeType, startDate, endDate, format } = req.query 
+      const matchedQuery = {status: {$in: ['delivered']}}
 
-<!-- Shopping Cart -->
-<form class="bg0 p-t-75 p-b-85" id="cartForm">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-10 col-xl-7 m-lr-auto m-b-50">
-        <div class="m-l-25 m-r--38 m-lr-0-xl">
-          <div class="wrap-table-shopping-cart">
-            <table class="table-shopping-cart">
-              <tr class="table_head">
-                <th class="column-1">Product</th>
-                <th class="column-2"></th>
-                <th class="column-3">Price</th>
-                <th class="column-4">Quantity</th>
-                <th class="column-5">Total</th>
-                <th class="column-6">Remove</th>
-              </tr>
-
-              <% if(cartItems.length === 0) { %>
-                <tr><td colspan="6" class="text-center">Your cart is empty.</td></tr>
-              <% } else { %>
-                <% cartItems.forEach((item, index) => { %>
-                  <tr class="table_row">
-                    <td class="column-1">
-                      <div class="how-itemcart1">
-                        <img src="/<%= item.productImage %>" alt="<%= item.productName %>">
-                      </div>
-                    </td>
-                    <td class="column-2">
-                      <%= item.productName %> <br>
-                      <small>Size: <b><%= item.size %></b> | Color: <b><%= item.color %></b></small><br>
-                      <small>Brand: <b><%= item.brandName %></b></small>
-                    </td>
-                    <td class="column-3">₹ <%= item.productPrice.toFixed(2) %></td>
-
-                    <!-- Quantity controls -->
-                    <td class="column-4">
-                      <div class="wrap-num-product flex-w m-l-auto m-r-0" data-index="<%= index %>">
-                        <button 
-                            type="button" 
-                            class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m" 
-                            onclick="changeQuantity('<%= item.productId %>', -1, <%= item.productPrice %>, <%= index %>, <%= item.productStock %>,'<%= item.size %>', '<%= item.color %>')"
-                            
-                            >
-                            -
-                            </button>
-
-                            <input 
-                            class="mtext-104 cl3 txt-center num-product" 
-                            type="number" 
-                            name="quantity" 
-                            id="cartProductQuantity<%= index %>" 
-                            value="<%= item.quantity %>" 
-                            min="1" 
-                            max="<%= item.productStock %>" 
-                            readonly
-                            <%= item.productStock <= 0 ? 'disabled' : '' %>
-                            >
-
-                            <button 
-                            type="button" 
-                            class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m" 
-                            onclick="changeQuantity('<%= item.productId %>', 1, <%= item.productPrice %>, <%= index %>, <%= item.productStock %>,'<%= item.size %>', '<%= item.color %>')"
-                           
-                            >
-                            +
-                            </button>
-
-                      </div>
-                      <% if (item.productStock <= 0) { %>
-                        <small class="text-danger">Out of Stock</small>
-                      <% } %>
-                    </td>
-
-                    <!-- Subtotal with id for JS update -->
-                    <td class="column-5" id="subTotal<%= index %>">₹ <%= (item.productPrice * item.quantity).toFixed(2) %></td>
-
-                    <!-- Remove item -->
-                 
-                      <td class="column-6">
-                        <a class="btn btn-sm" href="#" onclick="confirmRemove('<%= item.productId %>', '<%= item.size %>','<%= item.color %>', <%= index %>)">
-                          <i class="fi-rs-trash"></i> Remove
-                        </a>
-                      </td>
-                    
-                      
-                      
-                  </tr>
-                <% }) %>
-              <% } %>
-            </table>
-          </div>
-
-          <!-- <div class="flex-w flex-sb-m bor15 p-t-18 p-b-15 p-lr-40 p-lr-15-sm"> -->
-            <!-- <div class="flex-w flex-m m-r-20 m-tb-5">
-              <input class="stext-104 cl2 plh4 size-117 bor13 p-lr-20 m-r-10 m-tb-5" type="text" name="coupon" placeholder="Coupon Code">
-              <div class="flex-c-m stext-101 cl2 size-118 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-5">
-                Apply coupon
-              </div>
-            </div> -->
-            <!-- <div class="flex-c-m stext-101 cl2 size-119 bg8 bor13 hov-btn3 p-lr-15 trans-04 pointer m-tb-10" id="updateCartBtn">
-              Update Cart
-            </div> -->
-          <!-- </div> -->
-        </div>
-      </div>
-
-      <div class="col-sm-10 col-lg-7 col-xl-5 m-lr-auto m-b-50">
-        <div class="bor10 p-lr-40 p-t-30 p-b-40 m-l-63 m-r-40 m-lr-0-xl p-lr-15-sm">
-          <h4 class="mtext-109 cl2 p-b-30">Cart Totals</h4>
-
-          <div class="flex-w flex-t bor12 p-b-13">
-            <div class="size-208">
-              <span class="stext-110 cl2">Subtotal:</span>
-            </div>
-            <div class="size-209">
-              <span class="mtext-110 cl2" id="total">₹ <%= grandTotal.toFixed(2) %></span>
-            </div>
-          </div>
-
-          <div class="flex-w flex-t bor12 p-t-15 p-b-30">
-            <div class="size-208 w-full-ssm">
-              <span class="stext-110 cl2">Shipping:</span>
-            </div>
-            <div class="size-209">
-              <span class="mtext-110 cl2" id="shippingCharge">₹ <%= shippingCharge.toFixed(2) %></span>
-              <a href="#" onclick="viewShippingCharge()" class="text-blue text-sm">View shipping charge</a>
-            </div>
-          </div>
-
-          <div class="flex-w flex-t p-t-27 p-b-33">
-            <div class="size-208">
-              <span class="mtext-101 cl2">Total:</span>
-            </div>
-            <div class="size-209 p-t-1">
-              <span class="mtext-110 cl2" id="totalPayable">₹ <%= totalPayable.toFixed(2) %></span>
-            </div>
-          </div>
-         
-          <!-- <a href="/checkout" class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"> 
-            Proceed to Checkout
-          </a> -->
-          <% const hasOutOfStock = cartItems.some(item => item.productStock <= 0); %>
-
-          <a 
-            href="<%= hasOutOfStock ? 'javascript:void(0)' : '/checkout' %>" 
-            id="proceedCheckout"
-            class="flex-c-m stext-101 cl0 size-116 bg3 bor14 hov-btn3 p-lr-15 trans-04 pointer"
-            data-disabled="<%= hasOutOfStock %>"
-          >
-            Proceed to Checkout
-          </a>
-          
-        </div>
-      </div>
-    </div>
-  </div>
-</form>
-<%- include('../partials/user/footer') %>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- Script to show alert if out-of-stock -->
-
-<script>
-  document.getElementById('proceedCheckout').addEventListener('click', function(event) {
-    const isDisabled = this.getAttribute('data-disabled') === 'true';
-    if (isDisabled) {
-      event.preventDefault(); // prevent navigation
-      Swal.fire({
-        icon: 'warning',
-        title: 'Out of Stock',
-        text: 'Some products are out of stock. Please update your cart before proceeding to checkout.',
-        confirmButtonText: 'OK'
-      });
-    }
-  });
-</script>
-<script>
-  function viewShippingCharge() {
-    Swal.fire({
-      title: 'Shipping Charge',
-      text: 'Shipping charge is ₹ 50.00 for all orders below 500.',
-      icon: 'info',
-      confirmButtonText: 'OK'
-    });
-  }
-
- 
-  function changeQuantity(productId, count, productPrice, index, maxStock, size, color) {
-    maxStock = parseInt(maxStock);
-    const quantityInput = document.getElementById(`cartProductQuantity${index}`);
-    const subtotalElement = document.getElementById(`subTotal${index}`);
-    const totalElement = document.getElementById('total');
-    const shippingChargeElement = document.getElementById('shippingCharge');
-    const totalPayableElement = document.getElementById('totalPayable');
-  
-    const currentQuantity = parseInt(quantityInput.value);
-    const attemptedQuantity = currentQuantity + count;
-  
-    if (attemptedQuantity < 1) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Oops!',
-        text: 'You could not decrease quantity below 1.'
-      });
-      return;
-    }
-  
-    if (attemptedQuantity > 3) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Oops!',
-        text: 'You could not increase quantity. Maximum 3 units allowed.'
-      });
-      return;
-    }
-  
-    if (attemptedQuantity > maxStock) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Oops!',
-        text: 'Not enough stock available.'
-      });
-      return;
-    }
-  
-    // ✅ Send to backend
-    $.ajax({
-      url: '/changeQuantity',
-      method: 'POST',
-      data: { productId, count, size, color },
-      success: (response) => {
-        if (response.status) {
-          const newQuantity = response.newQuantity;
-          quantityInput.value = newQuantity;
-  
-          if (subtotalElement) {
-            subtotalElement.innerText = (newQuantity * productPrice).toFixed(2);
+      if(rangeType === 'custom' && startDate && endDate){
+          matchedQuery.createdOn = {
+              $gte: new Date(startDate),
+              $lte: new Date(new Date(endDate).setHours(23,59,59,999))
           }
-          if (totalElement) {
-            totalElement.innerText = response.grandTotal.toFixed(2);
+      }else if( rangeType === 'day'){
+          const today = moment().startOf('day')
+          matchedQuery.createdOn = {
+             $lte: moment(today).endOf('day').toDate(), $gte: today.toDate()
+              
           }
-          if (shippingChargeElement) {
-            shippingChargeElement.innerText = response.shippingCharge.toFixed(2);
+      }else if(rangeType === 'week'){
+          matchedQuery.createdOn = {
+              $gte: moment().startOf('week').toDate(),
+              $lte: moment().endOf('week').toDate()
           }
-          if (totalPayableElement) {
-            totalPayableElement.innerText = response.totalPayable.toFixed(2);
+      }else if(rangeType === 'month'){
+          matchedQuery.createdOn = {
+              $gte: moment().startOf('month').toDate(),
+              $lte: moment().endOf('month').toDate()
           }
-  
-          // Disable buttons if needed
-          const btnMinus = quantityInput.previousElementSibling;
-          const btnPlus = quantityInput.nextElementSibling;
-          btnMinus.disabled = newQuantity <= 1;
-          btnPlus.disabled = newQuantity >= Math.min(3, maxStock);
-        } else {
-          Swal.fire('Error', response.error || 'Could not update quantity', 'error');
-        }
-      },
-      error: (err) => {
-        console.error(err);
-        Swal.fire('Error', 'Server error while updating quantity', 'error');
       }
-    });
-  }
-  
 
-  //Remove cart product
-  function confirmRemove(productId, size, color, index) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you want to remove this item from your cart?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, remove it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Call your backend to remove the item
-        $.ajax({
-          url: '/removeCartItem',
-          method: 'POST',
-          data: { productId, size, color },
-          success: (response) => {
-            if(response.status){
-              Swal.fire('Removed!', 'Your item has been removed.', 'success').then(() => {
-                location.reload();
-              });
-            } else {
-              Swal.fire('Error', response.message || 'Failed to remove item', 'error');
-            }
-          },
-          error: () => {
-            Swal.fire('Error', 'Server error while removing item', 'error');
-          }
-        });
+      
+      
+      let orderQuery = Order.find(matchedQuery)
+            .populate('userId')
+            .populate('orderedItems.product')
+            .sort({createdOn: -1});
+
+
+          if(!format){
+          orderQuery = orderQuery.skip(skip).limit(limit)
       }
-    });
+      const orders = await orderQuery
+      let totalSale = orders.length
+      let totalAmount = 0
+      let totalDiscount = 0
+      let totalOffer = 0
+
+      const salesData = orders.map(order => {
+           let orderTotal = order.finalAmount || 0
+           let discount = order.discount || 0
+           let offer = 0
+
+           order.orderedItems.forEach(item =>{
+              const product = item.product
+              const quantity = item.quantity
+              if(product?.price && product?.finalPrice){
+                  const offerAmount = (product.price - product.finalPrice) * quantity
+                  offer += offerAmount
+              }
+           })
+
+           totalAmount += orderTotal
+           totalDiscount += discount
+           totalOffer += offer
+
+           return {
+              orderId: order.orderId,
+              user: order.userId.name,
+              date: moment(order.createdOn).format('YYYY-MM-DD'),
+              totalAmount: orderTotal,
+              discount: discount,
+              payment: order.paymentMethod,
+              offer: offer
+           }
+      })
+
+      // download logic
+      if(format === 'pdf'){
+          return generatePDF(res, salesData, totalSale, totalAmount, totalDiscount, totalOffer)
+      }else if(format === 'excel'){
+          return generateExcel(res, salesData, totalSale, totalAmount, totalDiscount, totalOffer)
+      }
+
+      //pagination
+      const count = await Order.find(matchedQuery).countDocuments()
+      const totalPages = Math.ceil( count / limit )
+
+      res.render('salesReport',{
+          salesData,
+          totalSale,
+          totalAmount,
+          totalDiscount,
+          totalOffer,
+          currentPage: page,
+          totalPages,
+          search,
+          rangeType,
+          startDate,
+          endDate
+      })
+  } catch (error) {
+      console.error('Error while loading sales report page', error)
+      res.redirect('/admin/pageerror')
   }
-  
-
-</script>
-
-
+}
 
 

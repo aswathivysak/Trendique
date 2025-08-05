@@ -36,7 +36,7 @@ function generatePDF(res, salesData, totalSale, totalAmount, totalDiscount, tota
           .fillColor('#000')
           .text(`${i + 1}`, 50, y)
           .text(`${item.orderId.slice(0, 6)}`, 90, y)
-          .text(`${item.user}`, 200, y)
+          .text(`${item.user}`, 150, y)
           .text(`${item.date}`, 280, y)
           .text(`${item.totalAmount}`, 370, y)
           .text(`${item.discount}`, 440, y)

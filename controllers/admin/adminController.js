@@ -97,19 +97,53 @@ const loadSalesPage = async (req, res) => {
               $lte: moment().endOf('month').toDate()
           }
       }
+      
 
+      // ✅ Full orders for stats
+    const allOrders = await Order.find(matchedQuery)
+    .populate('userId')
+    .populate('orderedItems.product')
+    .sort({ createdOn: -1 });
+
+  let totalSale = allOrders.length;
+  let totalAmount = 0;
+  let totalDiscount = 0;
+  let totalOffer = 0;
+
+  allOrders.forEach(order => {
+    const orderTotal = order.finalAmount || 0;
+    const discount = order.discount || 0;
+    let offer = 0;
+
+    order.orderedItems.forEach(item => {
+      const product = item.product;
+      const quantity = item.quantity;
+      if (product?.price && product?.finalPrice) {
+        offer += (product.price - product.finalPrice) * quantity;
+      }
+    });
+
+    totalAmount += orderTotal;
+    totalDiscount += discount;
+    totalOffer += offer;
+  });
+
+      
+      
       let orderQuery = Order.find(matchedQuery)
             .populate('userId')
             .populate('orderedItems.product')
-            .sort({createdOn: -1})
-      if(!format){
+            .sort({createdOn: -1});
+
+
+          if(!format){
           orderQuery = orderQuery.skip(skip).limit(limit)
       }
       const orders = await orderQuery
-      let totalSale = orders.length
-      let totalAmount = 0
-      let totalDiscount = 0
-      let totalOffer = 0
+      // let totalSale = orders.length
+      // let totalAmount = 0
+      // let totalDiscount = 0
+      // let totalOffer = 0
 
       const salesData = orders.map(order => {
            let orderTotal = order.finalAmount || 0
@@ -125,9 +159,9 @@ const loadSalesPage = async (req, res) => {
               }
            })
 
-           totalAmount += orderTotal
-           totalDiscount += discount
-           totalOffer += offer
+          //  totalAmount += orderTotal
+          //  totalDiscount += discount
+          //  totalOffer += offer
 
            return {
               orderId: order.orderId,
