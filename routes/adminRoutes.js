@@ -104,5 +104,8 @@ router.get('/report/generate', adminAuth, adminController.loadSalesPage)
 
 //Dash Board
  router.get('/dashboard-data', adminController.getDashboardData)
+//returned products
+
+router.get('/returns', adminAuth, orderController.loadReturnedProducts);
 
 module.exports = router;

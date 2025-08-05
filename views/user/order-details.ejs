@@ -440,6 +440,7 @@
                           item.status !== 'delivered' &&
                           item.status !== 'return_requested'&&
                           item.status !== 'returned'&&
+                          item.status !== 'rejected'&&
                           orderObj.status !== 'cancelled'
                         ) { %>
                           
@@ -447,8 +448,10 @@
 
                     <% } else if(item.status === 'cancelled') { %>
                       <button disabled class="btn-cancel" style="opacity: 0.6; cursor: not-allowed;">Item Cancelled</button>
-                    <% } else if(item.status === 'delivered') { %>
+                    <% } else if(item.status === 'delivered' ) { %>
                       <button disabled class="btn-cancel" style="opacity: 0.6; cursor: not-allowed;">Item Delivered</button>
+                      <% } else if(item.status === 'rejected' ) { %>
+                        <button disabled class="btn-cancel" style="opacity: 0.6; cursor: not-allowed;">Return rejected</button>
                     <% } %>
 
                       <!-- Return Request Button -->

@@ -158,8 +158,9 @@ const listOrders = async (req, res) => {
 
   const approveReturn = async (req, res) => {
     try {
-      const { orderId } = req.params;
-      const { productIndex } = req.body;
+      const { orderId, productIndex } = req.params;
+      console.log(" Params received:", req.params);
+      const index = parseInt(productIndex);
   
       const order = await Order.findOne({ orderId });
       if (!order) return res.status(404).send('Order not found');
@@ -168,7 +169,7 @@ const listOrders = async (req, res) => {
     //   const productItem = order.orderedItems[productIndex];
     //   console.log('Product item status:', productItem ? productItem.status : 'No product item');
   
-      const productItem = order.orderedItems[productIndex];
+      const productItem = order.orderedItems[index];
       if (!productItem || productItem.status !== 'return_requested') {
         return res.status(400).send('Invalid product or no return request found');
       }
@@ -185,7 +186,7 @@ const listOrders = async (req, res) => {
       });
   
       
-      order.orderedItems[productIndex].status = 'returned';
+      order.orderedItems[index].status = 'returned';
   
       // Step 3: Recalculate subtotal excluding returned/cancelled items
       let newSubTotal = 0;
@@ -243,7 +244,7 @@ const listOrders = async (req, res) => {
   const rejectReturn = async (req, res) => {
     try {
       const { orderId, productIndex } = req.params;
-  
+      console.log(" Params received:", req.params);
       const order = await Order.findOne({ orderId });
       if (!order) {
         return res.status(404).send('Order not found');
@@ -254,12 +255,12 @@ const listOrders = async (req, res) => {
         return res.status(400).send('Invalid product or no return request found');
       }
   
-      // Mark the product status as 'return_rejected'
-      order.orderedItems[productIndex].status = 'return_rejected';
+      // Mark the product status as 'rejected'
+      order.orderedItems[productIndex].status = 'rejected';
   
       // Check if all ordered items are handled (delivered, cancelled, or return rejected)
       const allHandled = order.orderedItems.every(p =>
-        ['delivered', 'cancelled', 'return_rejected'].includes(p.status)
+        ['delivered', 'cancelled', 'rejected'].includes(p.status)
       );
   
       // If all items handled, mark overall order as delivered
@@ -276,6 +277,53 @@ const listOrders = async (req, res) => {
     }
   };
   
+  const loadReturnedProducts = async (req, res) => {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = 10;
+      const skip = (page - 1) * limit;
+  
+      const returnedOrders = await Order.find({
+        'orderedItems.status': { $in: ['return_requested', 'returned','rejected'] }
+      })
+        .populate('userId')
+        .populate('orderedItems.product')
+        .sort({ createdOn: -1 });
+  
+      let returnedItems = [];
+  
+      returnedOrders.forEach(order => {
+        order.orderedItems.forEach((item,i) => {
+          if (['returned', 'return_requested','rejected'].includes(item.status)) {
+            returnedItems.push({
+              orderId: order.orderId,
+              user: order.userId.name,
+              product: item.product.name,
+              quantity: item.quantity,
+              status: item.status,
+              date: order.createdOn.toISOString().split('T')[0],
+              total: item.finalPrice * item.quantity,
+              productIndex: i
+            });
+          }
+        });
+      });
+  
+      const totalReturned = returnedItems.length;
+      const totalPages = Math.ceil(totalReturned / limit);
+      returnedItems = returnedItems.slice(skip, skip + limit); // Paginate array
+  
+      res.render('returnedProducts', {
+        returnedItems,
+        currentPage: page,
+        totalPages
+      });
+  
+    } catch (err) {
+      console.error("Error loading returned products:", err);
+      res.redirect('/pageerror');
+    }
+  };
   
 
   module.exports={
@@ -283,6 +331,7 @@ const listOrders = async (req, res) => {
     getOrderDetails,
     updateItemStatus ,
     approveReturn,
-    rejectReturn 
+    rejectReturn,
+    loadReturnedProducts 
 
   }
