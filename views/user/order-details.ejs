@@ -231,6 +231,24 @@
   .pagination button:hover:not(.active) {
     background-color: #ddd;
   }
+  .swal2-html-container.swal-no-scroll {
+    overflow: visible !important;
+  }
+ .swal2-select, .swal2-textarea, .swal2-input {
+    box-sizing: border-box;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .swal2-popup {
+    overflow-x: hidden;
+  }
+  .swal-fit {
+    width: min(90vw, 520px) !important;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+    overflow-x: hidden !important;
+  }
+
   /* Responsive */
   @media (max-width: 600px) {
     .order-card {
@@ -263,10 +281,6 @@
     <nav class="nav">
       <a class="nav-link text-primary" href="/">Home</a>
       <a class="nav-link text-dark" href="/shop">Shop</a>
-      <a class="nav-link text-dark position-relative" href="/new-arrivals">
-        New arrivals
-        <span class="badge bg-danger position-absolute top-0 start-10 translate-middle rounded-pill" style="font-size: 10px;">HOT</span>
-      </a>
       <a class="nav-link text-dark" href="/about">About</a>
       <a class="nav-link text-primary" href="/contact">Contact</a>
     </nav>
@@ -380,8 +394,8 @@
         </div>
 
         <div class="center-info">
-          <strong>₹$<%= item.finalPrice.toFixed(2) %></strong>
-          <strong style="color: #0baf5d;">Total :  $<%=(parseInt(item.finalPrice) * parseInt(item.quantity)).toLocaleString()%></strong>
+          <strong>₹<%= item.finalPrice.toFixed(2) %></strong>
+          <strong style="color: #0baf5d;">Total :   ₹<%=(parseInt(item.finalPrice) * parseInt(item.quantity)).toLocaleString()%></strong>
           <div>
             <% if(item.status === 'delivered') { %>
               Delivered On<br><%= new Date(item.deliveredOn || orderObj.deliveredOn).toLocaleDateString() %>
@@ -558,15 +572,38 @@
   function confirmCancelOrder(orderId, itemIndex) {
     Swal.fire({
       title: 'Cancel Order Item',
-      input: 'textarea',
-      inputLabel: 'Reason for cancellation (optional):',
-      inputPlaceholder: 'Write your reason here...',
-      showCancelButton: true,
-      confirmButtonText: 'Cancel Item',
-      cancelButtonText: 'Keep Item',
+      html: `
+      <label class="form-label">Cancellation Reason</label>
+      <select id="cancelReason" class="swal2-select" style="width:70%">
+        <option value="">Select a reason</option>
+        <option value="Changed my mind">Changed my mind</option>
+        <option value="Found cheaper elsewhere">Found cheaper elsewhere</option>
+        <option value="Ordered by mistake">Ordered by mistake</option>
+        <option value="Delivery taking too long">Delivery taking too long</option>
+        <option value="Other">Other</option>
+      </select>
+      
+    `,
+    customClass: {
+      popup: 'swal-fit',
+      htmlContainer: 'swal-no-scroll'
+    },
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Cancel Item',
+    cancelButtonText: 'Keep Item',
+    preConfirm: () => {
+      const reason = document.getElementById('cancelReason').value;
+     
+      if (!reason) {
+        Swal.showValidationMessage('Please select a reason');
+        return false;
+      }
+      return { reason };
+    }
     }).then((result) => {
       if (result.isConfirmed) {
-        cancelOrderItem(orderId, itemIndex, result.value);
+        cancelOrderItem(orderId, itemIndex, result.value.reason);
       }
     });
   }
@@ -595,24 +632,41 @@
     function requestReturn(orderId, itemIndex) {
       Swal.fire({
         title: 'Request Return',
-        input: 'textarea',
-        inputLabel: 'Reason for return (required):',
-        inputPlaceholder: 'Please provide the reason for return',
-        showCancelButton: true,
-        confirmButtonText: 'Submit Return Request',
-        cancelButtonText: 'Cancel',
-        inputValidator: (value) => {
-          if (!value) {
-            return 'You must provide a return reason!'
-          }
+        html: `
+        <label class="form-label">Return Reason Category</label>
+        <select id="returnReason" class="swal2-select">
+          <option value="">Select a reason</option>
+          <option value="Wrong size">Wrong size</option>
+          <option value="Damaged product">Damaged product</option>
+          <option value="Not as described">Not as described</option>
+          <option value="Quality issues">Quality issues</option>
+          <option value="Other">Other</option>
+        </select>
+      `,
+      customClass: {
+        popup: 'swal-fit',
+        htmlContainer: 'swal-no-scroll'
+      },
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Submit Return Request',
+      cancelButtonText: 'Cancel',
+
+      preConfirm: () => {
+        const reason = document.getElementById('returnReason').value;
+        if (!reason) {
+          Swal.showValidationMessage('Please select a return reason');
+          return false;
         }
+        return { reason };
+      }
       }).then((result) => {
         if (result.isConfirmed) {
           $.ajax({
             url: '/orders/return-request',
             method: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ orderId, itemIndex, reason: result.value }),
+            data: JSON.stringify({ orderId, itemIndex, reason: result.value.reason }),
             success: () => {
               Swal.fire('Requested!', 'Your return request has been submitted.', 'success').then(() => {
                 location.reload();

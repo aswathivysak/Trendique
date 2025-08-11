@@ -7,9 +7,7 @@
    width: 100%;
    padding-top: 100px;
  }
-
-
- .otp-container {
+.otp-container {
    max-width: 350px;
    width: 100%;
    padding: 40px;
@@ -18,25 +16,19 @@
    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
    text-align: center;
  }
-
-
- .otp-container h3 {
+.otp-container h3 {
    font-size: 24px;
    font-weight: bold;
    color: #333;
    margin-bottom: 20px;
  }
-
-
- .form-group label {
+.form-group label {
    display: block;
    font-weight: 500;
    color: #555;
    margin-bottom: 8px;
  }
-
-
- .otp-input {
+.otp-input {
    width: 100%;
    padding: 10px;
    font-size: 18px;
@@ -45,15 +37,11 @@
    border: 1px solid #ced4da;
    transition: all 0.3s;
  }
-
-
- .otp-input:focus {
+.otp-input:focus {
    border-color: #007bff;
    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
  }
-
-
- .btn-primary {
+.btn-primary {
    width: 100%;
    font-weight: bold;
    background-color: #007bff;
@@ -62,16 +50,12 @@
    border-radius: 5px;
    padding: 10px;
  }
-
-
- .otp-timer, .resend-btn {
+.otp-timer, .resend-btn {
    display: inline-block;
    font-size: 14px;
    color: #555;
    margin-top: 15px;
  }
-
-
  .text-muted {
    font-size: 14px;
    color: #6c757d;
@@ -124,7 +108,7 @@
    }, 1000);
  }
 
-
+//resend otp
  function resendOTP() {
    $.ajax({
      type: 'POST',
@@ -143,7 +127,4 @@
  }
  startOTPTimer(60);
 </script>
-
-
-
 <%- include('../partials/user/footer') %>

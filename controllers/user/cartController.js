@@ -4,7 +4,7 @@ const Cart = require('../../models/cartSchema');
 const User = require("../../models/userSchema");
 const Category = require("../../models/categorySchema");
 const mongodb = require("mongodb");
-
+//Add to cart
 const addToCart = async (req, res) => {
   try {
     const userId = req.session.user?._id || req.session.user;
@@ -12,11 +12,8 @@ const addToCart = async (req, res) => {
       console.log('User not logged in - sending 401');
       return res.status(401).json({ status: false, message: 'User not logged in' });
     }
-
     const { productId, size, color, quantity } = req.body;
     const qty = parseInt(quantity) || 1;
-   
-
     if (!productId || !size || !color || !qty) 
         {
       return res.json({ status: false, message: 'Product, size, color and quantity are required' });
@@ -30,27 +27,18 @@ const addToCart = async (req, res) => {
     if (product.isBlocked) {
       return res.json({ status: false, message: 'This product is currently unavailable.' });
     }
-    // if (!product.category || !product.category.isListed) {
-    //   return res.json({ status: false, message: 'This product category is currently unavailable.' });
-
-    // }
     const category = await Category.findById(product.category._id || product.category).lean();
-if (!category || !category.isListed) {
-  return res.json({ status: false, message: 'This product category is currently unavailable.' });
-}
-console.log(category)
+    if (!category || !category.isListed) {
+    return res.json({ status: false, message: 'This product category is currently unavailable.' });
+   }
     const subcategory = category.subcategories.find(sc =>
       sc._id.toString() === product.subcategory.toString() &&
       sc.isListed === true &&
       !sc.isDeleted
     );
-    console.log("subcategory:",subcategory)
-    
     if (!subcategory) {
       return res.json({ status: false, message: 'This product subcategory is currently unavailable.' });
     }
-    
-   
     const variant = product.variants.find(v => v.size === size && v.color === color);
     if (!variant) {
       return res.json({ status: false, message: 'Selected color and size are not available' });
@@ -62,8 +50,6 @@ console.log(category)
 
     // Find user's cart
     let cart = await Cart.findOne({ userId });
-
-
     if (!cart) {
       // Create new cart with this item
       const newItem = {
@@ -131,7 +117,7 @@ console.log(category)
 };
 
 
-
+//Loac Cart page
 const getCartPage = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -190,18 +176,7 @@ const getCartPage = async (req, res) => {
           }
         }
       },
-
-      // Filter out blocked products, unlisted categories, and out-of-stock variants
-      // {
-      //   $match: {
-      //     "productDetails.isBlocked": false,
-      //     "categoryDetails.isListed": true,
-      //     // "productDetails.variants.quantity": { $gt: 0 }
-      //   }
-      // },
-
-      // Project the fields needed for the cart page
-      {
+       {
         $addFields: {
           isBlocked: "$productDetails.isBlocked",
           isCategoryListed: "$categoryDetails.isListed",
@@ -265,9 +240,8 @@ const getCartPage = async (req, res) => {
     res.status(500).send('An error occurred while loading the cart');
   }
 };
- 
 
-
+//cart validation 
 const validateCartBeforeCheckout = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -311,6 +285,7 @@ const validateCartBeforeCheckout = async (req, res) => {
   }
 };
 
+//Change quantity
 
 const changeQuantity = async (req, res) => {
   try {
@@ -360,12 +335,7 @@ const changeQuantity = async (req, res) => {
     if (!variant) {
       return res.json({ status: false, error: "Product variant not found." });
     }
-
-    // if (count > 0 && newQuantity > variant.quantity) {
-    //   return res.json({ status: false, error: "Product stock limit exceeded for selected variant." });
-    // }
-
-    if (newQuantity > variant.quantity) {
+   if (newQuantity > variant.quantity) {
       return res.json({ status: false, error: "Product stock limit exceeded for selected variant." });
     }
 
@@ -404,7 +374,7 @@ const changeQuantity = async (req, res) => {
     res.status(500).json({ status: false, error: "Server error occurred." });
   }
 };
-
+//Product delete
 const deleteProduct = async (req, res) => {
   try{
     const userId = req.session.user?._id || req.session.user;
@@ -436,9 +406,6 @@ const deleteProduct = async (req, res) => {
     res.status(500).json({ status: false, message: "Internal server error" });
   }
 }
-
-
-
 
 module.exports = {
   addToCart,

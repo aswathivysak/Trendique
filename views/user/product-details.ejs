@@ -1,5 +1,17 @@
 <%- include('../partials/user/header') %>
+<!-- EasyZoom CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easyzoom@2.5.0/css/easyzoom.css" />
+
+<!-- EasyZoom JS -->
+<script src="https://cdn.jsdelivr.net/npm/easyzoom@2.5.0/dist/easyzoom.js"></script>
+
 <style>
+  .easyzoom img {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 6px;
+    border: 1px solid #eee;
+  }
   .custom-qty-wrap {
     display: inline-flex;
     border: 1px solid #ccc;
@@ -42,19 +54,36 @@
           <div class="wrap-slick3 flex-sb flex-w">
             <div class="wrap-slick3-dots"></div>
             <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
-
             <div class="slick3 gallery-lb">
-              <% for(let i = 0; i < product.images.length; i++) { %>
-                <div class="item-slick3" data-thumb="<%= product.images[i] %>">
-                  <div class="wrap-pic-w pos-relative">
-                    <img src="/<%= product.images[i] %>" alt="IMG-PRODUCT">
-
-                    <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="/<%= product.images[i] %>">
-                      <i class="fa fa-expand"></i>
-                    </a>
-                  </div>
+            <!-- MAIN ZOOMABLE IMAGE (first image only) -->
+            <div class="item-slick3" data-thumb="<%= product.images[0] %>">
+              <div class="wrap-pic-w pos-relative">
+                <div class="easyzoom easyzoom--overlay">
+                  <a href="/<%= product.images[0] %>" id="zoomLink">
+                    <img id="previewImage" src="/<%= product.images[0] %>" style="width: 100%;" />
+                  </a>
                 </div>
-              <% } %>
+              </div>
+            </div>
+
+            <!-- THUMBNAILS (remaining images) -->
+            <% for(let i = 1; i < product.images.length; i++) { %>
+              <div class="item-slick3" data-thumb="<%= product.images[i] %>">
+                <div class="wrap-pic-w pos-relative">
+                  <img 
+                    src="/<%= product.images[i] %>" 
+                    style="cursor:pointer" 
+                    onclick="changePreview('/<%= product.images[i] %>')" 
+                  />
+
+                  <a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" 
+                    href="/<%= product.images[i] %>">
+                    <i class="fa fa-expand"></i>
+                  </a>
+                </div>
+              </div>
+            <% } %>
+  
             </div>
           </div>
         </div>
@@ -63,16 +92,16 @@
       <!-- Product Info -->
       <div class="col-md-6 col-lg-5 p-b-30">
         <div class="p-r-50 p-t-5 p-lr-0-lg">
-          <h1 class="mtext-105 cl2 js-name-detail p-b-14">
+          <h1 class="mtext-105 cl2 js-name-detail p-b-14 ms-5">
             <%= product.name %>
           </h1>
 
-          <span class="mtext-106 cl2">
+          <span class="mtext-106 cl2 ms-5">
             ₹ <%= Math.round(product.finalPrice) %>.00
           </span>
 
-          <p class="stext-102 cl3 p-t-23">
-           <b>Brand:<%= product.brand.brandName %></b> 
+          <p class="stext-102 cl3 p-t-23 ms-5">
+           <b>Brand  :   <span style="color: red;"><%= product.brand.brandName %></span></b> 
           </p>
 
           <!-- Variants (Size and Color) -->
@@ -145,33 +174,12 @@
 
             <!-- Quantity selector and Add to cart -->
             <div class="flex-w flex-r-m p-b-10">
-              <!-- <div class="wrap-num-product flex-w m-r-20 m-tb-10">
-                <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m">
-                  <i class="fs-16 zmdi zmdi-minus"></i>
-                </div>
-
-                <input class="mtext-104 cl3 txt-center num-product" type="number" name="quantity" value="1" min="1" max="<%= totalQuantity %>">
-
-                <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
-                  <i class="fs-16 zmdi zmdi-plus"></i>
-                </div>
-              </div> -->
-
-              <div class="custom-qty-wrap d-flex align-items-center mt-3">
+             <div class="custom-qty-wrap d-flex align-items-center mt-3">
                 <button type="button" class="btn btn-outline-secondary px-3 py-1 fw-bold btn-decrease">−</button>
                 <input type="number" name="quantity" class="form-control text-center mx-2 quantity-input" value="1" min="1" max="3" style="width: 60px;" readonly>
                 <button type="button" class="btn btn-outline-secondary px-3 py-1 fw-bold btn-increase">+</button>
               </div>
-              
-              
-              
-              
-              
-              
-              <!-- <button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail" onclick="addToCart('<%= product._id %>')">
-                Add to cart
-              </button> -->
-              <button 
+               <button 
                 type="button" 
                 class="btn btn-primary btn-lg px-4 py-2 ms-3" 
                  onclick="addToCart('<%= product._id %>')"
@@ -179,16 +187,12 @@
                  >
                     Add to Cart
                 </button>
-
+             </div>
             </div>
-			
-          </div>
 
           <div class="flex-w flex-m p-l-100 p-t-40 respon7">
             <div class="flex-m bor9 p-r-10 m-r-11">
-              <!-- <a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
-                <i class="zmdi zmdi-favorite"></i>
-              </a> -->
+             
               <a href="#"
               onclick="addToWishlist('<%= product._id %>', event)"
               class="btn-addwish-b2 <%= wishlistIds.includes(product._id.toString()) ? 'wishlisted' : '' %>"
@@ -255,18 +259,6 @@
             <div class="row">
               <div class="col-sm-10 col-md-8 col-lg-6 m-lr-auto">
                 <ul class="p-lr-28 p-lr-15-sm">
-                  
-<!-- 
-                  <li class="flex-w flex-t p-b-7">
-                    <span class="stext-102 cl3 size-205">
-                      Dimensions
-                    </span>
-
-                    <span class="stext-102 cl6 size-206">
-                      110 x 33 x 100 cm
-                    </span>
-                  </li> -->
-
                   <li class="flex-w flex-t p-b-7">
                     <span class="stext-102 cl3 size-205">
                       Materials
@@ -326,7 +318,12 @@
                     <% product.ratings.forEach(rating => { %>
                       <div class="flex-w flex-t p-b-68">
                         <div class="wrap-pic-s size-109 bor0 of-hidden m-r-18 m-t-6">
-                          <img src="images/avatar-01.jpg" alt="AVATAR">
+                        <img
+                          src="<%= (rating.userId && rating.userId.profilePicture) 
+                                ? '/uploads/profile/' + rating.userId.profilePicture 
+                                : '/images/default-avatar.jpg' %>"
+                          alt="User Profile"
+                          style="width:60px;height:60px;object-fit:cover;border-radius:50%;">
                         </div>
 
                         <div class="size-207">
@@ -349,15 +346,26 @@
                           <p class="stext-102 cl6">
                             <%= rating.review %>
                           </p>
+                          <% if (user && rating.userId && (user._id.toString() === rating.userId._id?.toString())) { %>
+                            <button
+                              class="btn btn-sm btn-outline-danger btn-delete-review"
+                              data-product-id="<%= product._id %>"
+                              data-rating-id="<%= rating._id %>">
+                              Delete
+                            </button>
+                          <% } %>
                         </div>
                       </div>
                     <% }) %>
                   <% } else { %>
-                    <p>No reviews yet.</p>
+                    <p id="no-reviews-msg" class="text-muted" style="<%= (product.ratings && product.ratings.length) ? 'display:none' : '' %>">
+                      No reviews yet.
+                    </p>
                   <% } %>
-
-                  <!-- Add review form -->
-                  <form class="w-full">
+                  <!-- Optional: a span to show total count -->
+                 <span id="reviews-count" style="display:none;"><%= ratingsCount || 0 %></span>
+                <!-- Add review form -->
+                  <form class="w-full" method="POST" action="/product/<%= product._id %>/review">
                     <h5 class="mtext-108 cl2 p-b-7">
                       Add a review
                     </h5>
@@ -377,7 +385,7 @@
                         <i class="item-rating pointer zmdi zmdi-star-outline"></i>
                         <i class="item-rating pointer zmdi zmdi-star-outline"></i>
                         <i class="item-rating pointer zmdi zmdi-star-outline"></i>
-                        <input class="dis-none" type="number" name="rating" min="1" max="5">
+                        <input class="dis-none" type="number" name="rating" min="1" max="5" required>
                       </span>
                     </div>
 
@@ -410,9 +418,7 @@
       </div>
 
       <div class="bg6 flex-c-m flex-w size-302 m-t-73 p-tb-15">
-        <!-- <span class="stext-107 cl6 p-lr-25">
-          SKU: JAK-01
-        </span> -->
+        
 
         <span class="stext-107 cl6 p-lr-25">
           Categories: <%= product.category ? product.category.name : 'N/A' %>
@@ -457,10 +463,7 @@
                   </div>
 
                   <div class="block2-txt-child2 flex-r p-t-3">
-                    <!-- <a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-                      <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON">
-                      <img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON">
-                    </a> -->
+                  
                     <a href="#"
                     onclick="addToWishlist('<%= related._id %>', event)"
                     class="btn-addwish-b2 <%= wishlistIds.includes(related._id.toString()) ? 'wishlisted' : '' %>"
@@ -599,19 +602,22 @@
 
   
 </script>
-<!-- Quantity increment -->
-
-
-
 
 <script>
-  $(".js-select2").each(function(){
-    $(this).select2({
-      minimumResultsForSearch: 20,
-      dropdownParent: $(this).next('.dropDownSelect2')
+  document.addEventListener('DOMContentLoaded', function () {
+    $('.js-select2').each(function () {
+      if ($(this).data('select2')) {
+        $(this).select2('destroy');     // clean any previous init
+      }
+      $(this).select2({
+        minimumResultsForSearch: 20,
+        dropdownParent: $(this).next('.dropDownSelect2'),
+        width: '100%'                   // keeps layout tidy
+      });
     });
-  })
+  });
 </script>
+
 <script src="vendor/daterangepicker/moment.min.js"></script>
 <script src="vendor/daterangepicker/daterangepicker.js"></script>
 <!-- <script src="vendor/slick/slick.min.js"></script> -->
@@ -621,15 +627,17 @@
   /*$('.parallax100').parallax100(); */
 </script>
 <script src="vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magnific-popup.js/1.1.0/magnific-popup.min.css" />
+
 <script>
- /* $('.gallery-lb').each(function() { 
+ $('.gallery-lb').each(function() { 
     $(this).magnificPopup({
       delegate: 'a',
       type: 'image',
       gallery: { enabled:true },
       mainClass: 'mfp-fade'
     });
-  }); */
+  }); 
  
   
 </script>
@@ -639,30 +647,7 @@
 <!-- <script src="js/main.js"></script>  -->
 
 <%- include('../partials/user/footer') %>
-<!-- <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const incBtn = document.querySelector('.btn-increase');
-    const decBtn = document.querySelector('.btn-decrease');
-    const input = document.querySelector('.quantity-input');
 
-    if (!incBtn || !decBtn || !input) {
-      console.warn("Quantity buttons not found");
-      return;
-    }
-
-    incBtn.addEventListener('click', () => {
-      let value = parseInt(input.value) || 1;
-      const max = parseInt(input.max) || 10;
-      if (value < max) input.value = value + 1;
-    });
-
-    decBtn.addEventListener('click', () => {
-      let value = parseInt(input.value) || 1;
-      const min = parseInt(input.min) || 1;
-      if (value > min) input.value = value - 1;
-    });
-  });
-</script> -->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const incBtn = document.querySelector('.btn-increase');
@@ -706,3 +691,112 @@
   });
   
 </script>
+
+<script>
+  $(window).on('load', function () {
+    const $easyzoom = $('.easyzoom').easyZoom();
+    const api = $easyzoom.data('easyZoom');
+    window.easyZoomInstance = api;
+  });
+
+  function changePreview(newSrc) {
+    const $link = document.getElementById('zoomLink');
+    const $img = document.getElementById('previewImage');
+
+    if ($link && $img) {
+      $link.href = newSrc;
+      $img.src = newSrc;
+
+      
+      if (window.easyZoomInstance) {
+        window.easyZoomInstance.swap(newSrc, newSrc);
+      }
+    }
+  }
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const ratingContainers = document.querySelectorAll('.wrap-rating');
+    ratingContainers.forEach(container => {
+      const stars = container.querySelectorAll('.item-rating');
+      const input = container.querySelector('input[name="rating"]');
+
+      stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+          input.value = index + 1;
+          stars.forEach((s, i) => {
+            s.classList.toggle('zmdi-star', i <= index);
+            s.classList.toggle('zmdi-star-outline', i > index);
+          });
+        });
+      });
+    });
+  });
+</script>
+
+<script>
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.btn-delete-review');
+    if (!btn) return;
+  
+    const productId = btn.getAttribute('data-product-id');
+    const ratingId  = btn.getAttribute('data-rating-id');
+  
+    // Confirm (SweetAlert2 if available; fallback to confirm)
+    let confirmed = true;
+    if (window.Swal) {
+      const res = await Swal.fire({
+        title: 'Delete this review?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel'
+      });
+      confirmed = res.isConfirmed;
+    } else {
+      confirmed = window.confirm('Delete this review?');
+    }
+    if (!confirmed) return;
+  
+    try {
+      const resp = await fetch(`/product/${productId}/review/${ratingId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+       
+      });
+  
+      const data = await resp.json();
+      if (!resp.ok || !data.success) {
+        throw new Error(data.error || 'Delete failed');
+      }
+  
+      // Remove from DOM
+      const row = document.getElementById(`review-${ratingId}`);
+      if (row) row.remove();
+  
+      // Update count & empty state
+      const countEl = document.getElementById('reviews-count');
+      if (countEl) {
+        const newCount = data.ratingsCount ?? Math.max(0, (parseInt(countEl.textContent || '1', 10) - 1));
+        countEl.textContent = String(newCount);
+      }
+      const container = document.getElementById('reviews-container') || document; // adjust if needed
+      const noMsg = document.getElementById('no-reviews-msg');
+      const anyLeft = !!document.querySelector('[id^="review-"]');
+      if (!anyLeft && noMsg) noMsg.style.display = '';
+  
+      if (window.Swal) {
+        Swal.fire({ icon: 'success', title: 'Deleted', timer: 900, showConfirmButton: false });
+      }
+    } catch (err) {
+      console.error(err);
+      if (window.Swal) {
+        Swal.fire({ icon: 'error', title: 'Error', text: err.message || 'Delete failed' });
+      } else {
+        alert('Delete failed');
+      }
+    }
+  });
+  </script>
+  

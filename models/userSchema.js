@@ -63,32 +63,29 @@ const userSchema = new Schema({
     history: [
         {
             amount: Number,
-            status: String, // 'credit' or 'debit'
+            status: String,
             date: Date
         }
         ],
-        referalCode: {
+    referalCode: {
             type: String,
             unique: true,
             sparse: true
           },
-          redeemed: {
+    redeemed: {
             type: Boolean,
             default: false
           },
-          redeemedUsers: [{
+    redeemedUsers: [{
             type: Schema.Types.ObjectId,
             ref: "User"
-          }],
-          referredBy: {
+        }],
+    referredBy: {
             type: Schema.Types.ObjectId,
             ref: "User",
             default: null
           },    
-    // wishlist:[{
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'Product'
-    // }],
+    
     orderHistory:[{
         type: Schema.Types.ObjectId,
         ref: 'Order'

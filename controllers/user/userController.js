@@ -3,36 +3,32 @@ const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema")
 const Brand = require("../../models/brandSchema")
 const Order = require("../../models/orderSchema")
+const Banner = require('../../models/bannerSchema')
 const env = require('dotenv').config();
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
+const { Types } = require('mongoose');
 
+//for effective offer
 const calculateEffectiveOffer = async (product) => {
  
     const category = await Category.findById(product.category).lean();
-  
     const categoryOffer = category?.categoryOffer || 0;
-  
-  
     const subcat = category?.subcategories?.find(sc => sc._id.toString() === product.subcategory.toString());
     const subcategoryOffer = subcat?.offer || 0;
-  
     const productOffer = product.offer || 0; 
-  
-    
     return Math.max(categoryOffer, subcategoryOffer, productOffer);
   };
   
   //generate referral code
 function generateReferralCodeFromName(name){
-    const clearName = name.replace(/\s+/g, '').toUpperCase() // remove spaces 
-    const namePart = clearName.substring(0, 5).padEnd(5, 'X') //get first 5 letters, add X if it is not 5 characters
-    const randomDigits = Math.floor(100 + Math.random() * 900)  // reandom 3 digit number
-
+    const clearName = name.replace(/\s+/g, '').toUpperCase()  
+    const namePart = clearName.substring(0, 5).padEnd(5, 'X') 
+    const randomDigits = Math.floor(100 + Math.random() * 900) 
     return `YR${namePart}${randomDigits}`
 }
 
-
+//For page not found
 const pageNotFound = async (req, res) => {
     try {
         res.render('page404')
@@ -42,13 +38,11 @@ const pageNotFound = async (req, res) => {
     }
 }
 
-  const loadHomePage=async (req,res)=>{
+//Home page loading
+const loadHomePage=async (req,res)=>{
     try{
         const userId=req.session.user;
-        console.log('Session user:', req.session.user);
         let wishlistCount = 0;
-     
-
         let userData=null;
         if(userId)
         {
@@ -64,7 +58,7 @@ const pageNotFound = async (req, res) => {
               }
               return res.redirect('/login');
               })
-              //
+              
             return
             }
         }
@@ -80,57 +74,70 @@ const pageNotFound = async (req, res) => {
         })
         products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         products = products.slice(0, 12);
-        console.log(userData,products)
-         // New Arrivals - latest products
-            // const newArrivals = await Product.find({ isBlocked: false })
-            // .sort({ createdAt: -1 })
-            // .limit(12)
-            // .lean();
-            const newArrivals=products;
-
-            const orders = await Order.find({ status: 'delivered' }).lean();
-            //  Best Sellers
-            const productSalesMap = new Map();
-            orders.forEach(order => {
+        const newArrivals=products;
+        const orders = await Order.find({ status: 'delivered' }).lean();
+        
+        //  Best Sellers
+        const productSalesMap = new Map();
+         orders.forEach(order => {
               order.orderedItems.forEach(item => {
                 const productId = item.product?.toString();
                 if (!productId) return;
                 productSalesMap.set(productId, (productSalesMap.get(productId) || 0) + item.quantity);
               });
-            });
-
-            const bestSellerIds = [...productSalesMap.entries()]
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 12)
-            .map(([productId]) => productId);
+        });
+        const bestSellerIds = [...productSalesMap.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 12)
+        .map(([productId]) => productId);
             const bestSellers = products.filter(p =>
                 bestSellerIds.includes(p._id.toString())
-              );
+        );
 
-             // Top Brand Products
-             const brandSalesMap = new Map();  
-             orders.forEach(order => {
-                order.orderedItems.forEach(item => {
-                  const product = products.find(p => p._id.toString() === item.product.toString());
-                  if (!product || !product.brand) return;
-                  const brandId = product.brand.toString();
-                  brandSalesMap.set(brandId, (brandSalesMap.get(brandId) || 0) + item.quantity);
-                });
-              });
+        // Top Brand Products
+        const productsBrand = await Product.find({}, '_id name brand').lean();
+        const brandSalesMap = new Map();  
+        orders.forEach(order => {
+            order.orderedItems.forEach(item => {
+                const product = productsBrand.find(p => p._id.toString() === item.product.toString());
+                if (!product || !product.brand) return;
+                const brandId = product.brand.toString();
+                brandSalesMap.set(brandId, (brandSalesMap.get(brandId) || 0) + item.quantity);
+            });
+        });
 
-              const topBrandIds = [...brandSalesMap.entries()]
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 3)
-              .map(([brandId]) => brandId);
-              
-                const topBrandProducts = products.filter(p =>
-                    topBrandIds.includes(p.brand?.toString())
-                ).slice(0, 12);
+        const topBrandIds = [...brandSalesMap.entries()]
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([brandId]) => brandId)
+            .filter(id => Types.ObjectId.isValid(id))         
+            .map(id => new Types.ObjectId(id));
+            console.log("Top Brand IDs:", topBrandIds);
+        const topBrandProducts = await Brand.find({ _id: { $in: topBrandIds }, isBlocked: false });
+        const sortedTopBrands = topBrandIds.map(id => topBrandProducts.find(b => b._id.toString() === id.toString())); 
 
-        res.render('home', { user: userData, products ,newArrivals,bestSellers,topBrandProducts });
-      
-
-    }catch (err){
+        //Active banner
+        const now = new Date();
+        console.log('NOW =', now, now.toISOString());
+        
+        const debug = await Banner.find().sort({ createdAt: -1 }).limit(5).lean();
+        console.table(debug.map(b => ({
+          title: b.title,
+          start: b.startDate ? new Date(b.startDate).toISOString() : null,
+          end: b.endDate ? new Date(b.endDate).toISOString() : null,
+          isActive: b.isActive,
+          image: b.image
+        })));
+        
+        const activeBanner = await Banner.find({
+          isActive: true,
+          startDate: { $lte: now },
+          endDate: { $gte: now }
+        }).sort({ priority: -1, createdAt: -1 }).lean();
+        
+        console.log('activeBanner length =', activeBanner.length);
+        res.render('home', { user: userData, products ,newArrivals,bestSellers,topBrandProducts:sortedTopBrands,activeBanner });
+      }catch (err){
         console.error('Error while loading home page', err)
         res.redirect('/pagenotfound');
     }
@@ -179,7 +186,7 @@ async function sendVerificationEmail(email,otp){
     }
 }
 
-
+//signup
 
 const signup = async (req, res) => {
    
@@ -229,20 +236,15 @@ const securePassword = async (password) => {
     }
 }
 
-
+//verify otp
 const verifyOtp = async (req, res) => {
     try{
         const {otp} = req.body;
-
-        // console.log('OTP',otp)
         const otpAge = Date.now () - req.session.otpCreatedAt 
         if(otpAge > 1 * 60 * 1000){
             return res.status(400).json({ success: false, message: "OTP Expired, please request new one" });
-
-
         }
-
-        if(otp===req.session.userOtp){
+       if(otp===req.session.userOtp){
             const user = req.session.userData;
             let referralcode 
             let referredBy = null
@@ -309,6 +311,7 @@ const verifyOtp = async (req, res) => {
     }
 }
 
+//Otp resend
 const resendOtp = async (req, res) => {
     try {
         
@@ -316,16 +319,10 @@ const resendOtp = async (req, res) => {
         if(!email){
             return res.status(400).json({success:false,message:'Email not found in session'})
         }
-
         const otp = generateOTP();
-
         req.session.userOtp = otp;
-
         const emailSent = await sendVerificationEmail(email,otp);
-
-        
-
-        if(emailSent){
+       if(emailSent){
             
             res.status(200).json({success:true,message:'OTP Resend Successfully'})
             
@@ -340,6 +337,7 @@ const resendOtp = async (req, res) => {
         
     }
 }
+//Login page load
 const loadLoginPage = async (req, res) => {
     try {
         if(!req.session.user){
@@ -351,6 +349,7 @@ const loadLoginPage = async (req, res) => {
         res.redirect('/pagenotfound')
     }
 }
+//About page
 const about = async (req, res) => {
     try {
     
@@ -361,7 +360,7 @@ const about = async (req, res) => {
     }
 };
 
-
+//Login
 const login = async (req, res) => {
     try {
         
@@ -372,9 +371,7 @@ const login = async (req, res) => {
         if(!findUser){
             return res.render('login',{message:'User not found', user: req.session.user || null })
         }
-        // if(findUser.isBlocked){
-        //     return res.render('login',{message:'You are Blocked by Admin'})
-        // }
+        
         if (!findUser || findUser.isBlocked) {
             return res.render('login', {
               message: findUser?.isBlocked
@@ -385,11 +382,9 @@ const login = async (req, res) => {
           }
 
         const passwordMatch = await bcrypt.compare(password,findUser.password);
-
         if(!passwordMatch){
             return res.render('login',{message:'Invalid Password',user:null})
         }
-
         req.session.user = findUser._id;
         res.redirect('/')
 
@@ -397,42 +392,14 @@ const login = async (req, res) => {
 
         console.error('Login Error',error);
         res.render('login',{message:'Login Failed Try again', user: null})
-        
-        
     }
 }
 
+
+//Shoping page
 const loadShoppingPage = async (req, res) => {
     try {
-        // const sort = req.query.sort || 'default';
-        // let sortCriteria = {};
-        // switch (sort) {
-        //     case 'popularity':
-        //       sortCriteria = { popularity: -1 }; // Adjust field accordingly
-        //       break;
-        //     case 'rating':
-        //       sortCriteria = { averageRating: -1 }; // Adjust field accordingly
-        //       break;
-        //     case 'newest':
-        //       sortCriteria = { createdAt: -1 };
-        //       break;
-        //     case 'price_asc':
-        //       sortCriteria = { finalPrice: 1 };
-        //       break;
-        //     case 'price_desc':
-        //       sortCriteria = { finalPrice: -1 };
-        //       break;
-        //     case 'name_asc':
-        //       sortCriteria = { name: 1 };
-        //       break;
-        //     case 'name_desc':
-        //       sortCriteria = { name: -1 };
-        //       break;
-        //     default:
-        //       sortCriteria = { createdAt: -1 };
-        //   }
-
-        const user = req.session.user;
+         const user = req.session.user;
         let wishlistIds = [];
         if(user) {
             const userDoc = await User.findById(user).select('wishlist').lean();
@@ -461,41 +428,21 @@ const loadShoppingPage = async (req, res) => {
         
         products.forEach(product => {
 
-            const category = categories.find(cat => cat._id.toString() === product.category.toString());
-
-          
-            const subcategory = category?.subcategories?.find(sc => sc._id.toString() === product.subcategory);
-            console.log("Product:", product.name);
-            console.log("Subcategory match:", subcategory?.name);
-          
-           const subcategoryName= subcategory?.name || null;
-            const productOffer = product.offer || 0;
-            const categoryOffer = category?.categoryOffer || 0;
-            const subcategoryOffer = subcategory?.offer || 0;
+        const category = categories.find(cat => cat._id.toString() === product.category.toString());
+        const subcategory = category?.subcategories?.find(sc => sc._id.toString() === product.subcategory);
+        const subcategoryName= subcategory?.name || null;
+        const productOffer = product.offer || 0;
+        const categoryOffer = category?.categoryOffer || 0;
+        const subcategoryOffer = subcategory?.offer || 0;
       
-            const effectiveOffer = Math.max(productOffer, categoryOffer, subcategoryOffer);
-      
-            console.log("effective offer offer:",effectiveOffer)
-             product.effectiveOffer = effectiveOffer;
-      
-        
-            product.finalPrice = Math.round(product.price * (1 - effectiveOffer / 100) * 100) / 100;
-            // product.finalPrice = Math.round(product.finalPrice * (1 - effectiveOffer / 100) * 100) / 100;
-
-        
-            product.totalQuantity = product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0);
+        const effectiveOffer = Math.max(productOffer, categoryOffer, subcategoryOffer);
+        product.effectiveOffer = effectiveOffer;
+        product.finalPrice = Math.round(product.price * (1 - effectiveOffer / 100) * 100) / 100;
+        product.totalQuantity = product.variants.reduce((sum, v) => sum + (v.quantity || 0), 0);
           });
-
-         
-
-         // also calculate finalPrice accordingly (if you want)
-   
-          // Get total number of products for pagination
+        // Get total number of products for pagination
         const totalProducts = await Product.countDocuments({isBlocked:false,category:{$in:categoryIds} ,variants:{ $elemMatch: { quantity: { $gt: 0 } } } });
         const totalPages = Math.ceil(totalProducts / limit);
-        
-          
-           
         const brands= await Brand.find({isBlocked:false})
         const catgoriesWithIds = categories.map(category=>({_id:category._id,name:category.name,subcategories: category.subcategories || []}))
         res.render('shop', {
@@ -508,26 +455,22 @@ const loadShoppingPage = async (req, res) => {
           totalPages:totalPages,
           search,
           wishlistIds,
-
-
           selectedCategory: req.query.category || null,
-            selectedBrand: req.query.brand || null,
-            selectedSubcategory: req.query.subcategory || null,
-            selectedColor: req.query.color || null,
-            selectedSize: req.query.size || null,
-            selectedPrice: req.query.price || null,
-            selectedSort: req.query.sort || null,
-           
-            query: req.query,
-
-         
-        });
+          selectedBrand: req.query.brand || null,
+          selectedSubcategory: req.query.subcategory || null,
+          selectedColor: req.query.color || null,
+          selectedSize: req.query.size || null,
+          selectedPrice: req.query.price || null,
+          selectedSort: req.query.sort || null,
+          query: req.query,
+         });
       } catch (error) {
         console.error('Error loading shop page:', error);
         res.redirect('/pagenotfound');
       }
   }
 
+//Product filter
   const filterProduct = async (req, res) => {
     try{
         const user =req.session.user
@@ -537,8 +480,7 @@ const loadShoppingPage = async (req, res) => {
         const color = req.query.color || null;
         const size = req.query.size || null;
         let variantQuery = {};
-        // const subcategoryId = req.query.subcategory || null;
-        // console.log(subcategoryId)
+       
         console.log(" object:", category);
         console.log("  Sub categoryobject:", subcategoryId );
         const findCategory=category? await Category.findOne({_id:category},{ name: 1, subcategories: 1 }):null;
@@ -557,42 +499,41 @@ const loadShoppingPage = async (req, res) => {
             variants: { $elemMatch: { quantity: { $gt: 0 } } }
          }
          
-            if (color) variantQuery.color = color;
-            if (size) variantQuery.size = size;
+        if (color) variantQuery.color = color;
+        if (size) variantQuery.size = size;
 
-            if (Object.keys(variantQuery).length > 0) {
+         if (Object.keys(variantQuery).length > 0) {
                 query.variants = { $elemMatch: { ...variantQuery, quantity: { $gt: 0 } } };
             }
-         if (findCategory) {
+        if (findCategory) {
             query.category = findCategory._id;
         }
         if (subcategoryId) {
-            // subcategory is stored as string, so query directly with string
-            query.subcategory = subcategoryId;
+          query.subcategory = subcategoryId;
           }
         if (findBrand) {
             query.brand = findBrand._id;
         }
        
-          if (req.query.price) {
+        if (req.query.price) {
             const priceRange = req.query.price;
           
-            if (priceRange === '4000+') {
+        if (priceRange === '4000+') {
               query.finalPrice = { $gte: 4000 };
-            } else {
+        } else {
               const [min, max] = priceRange.split('-').map(Number);
               query.finalPrice = { $gte: min, $lte: max };
             }
-          }
+        }
 
           const sort = req.query.sort || 'default';
         let sortCriteria = {};
         switch (sort) {
             case 'popularity':
-              sortCriteria = { popularity: -1 }; // Adjust field accordingly
+              sortCriteria = { popularity: -1 }; 
               break;
             case 'rating':
-              sortCriteria = { averageRating: -1 }; // Adjust field accordingly
+              sortCriteria = { averageRating: -1 };
               break;
             case 'newest':
               sortCriteria = { createdAt: -1 };
@@ -613,12 +554,8 @@ const loadShoppingPage = async (req, res) => {
               sortCriteria = { createdAt: -1 };
           }
           
-          // Pagination setup (MOVE THIS BEFORE PRODUCT QUERY)
-
-       
-       const allCategories = await Category.find({}, { name: 1, subcategories: 1 }).lean();
-
-       let selectedSubcategoryName = null;
+        const allCategories = await Category.find({}, { name: 1, subcategories: 1 }).lean();
+        let selectedSubcategoryName = null;
        
        for (const cat of allCategories) {
          const match = cat.subcategories?.find(sc => sc._id.toString() === subcategoryId);
@@ -626,20 +563,12 @@ const loadShoppingPage = async (req, res) => {
            selectedSubcategoryName = match.name;
            break;
          }
-       }
-
-          
- 
-          const [products, totalCount] = await Promise.all([
+        }
+        const [products, totalCount] = await Promise.all([
             Product.find(query).sort(sortCriteria).lean(),
             Product.countDocuments(query)
           ]);
-        // let findProducts = await Product.find(query).lean();
         let findProducts = products;
-
-       
-        // findProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
         const categories = await Category.find({ isListed: true });
         // Pagination setup
         let itemsPerPage = 12;
@@ -681,11 +610,7 @@ const loadShoppingPage = async (req, res) => {
         selectedSubcategoryName,
         wishlistIds,
         query: req.query,
-
-
     });
-
-
     }catch (error)
     {
         console.error('Error in filterProduct:', error);
@@ -693,7 +618,7 @@ const loadShoppingPage = async (req, res) => {
     }
   }
 
-  
+//Logout  
 const logout = async (req, res) => {
     try {
         req.session.destroy((err)=>{
@@ -708,10 +633,6 @@ const logout = async (req, res) => {
         res.redirect('/pagenotfound');
     }
 };
-
-
-
-
 
 module.exports={
     loadHomePage,

@@ -8,6 +8,7 @@ const productController = require("../controllers/user/productController")
 const orderController = require("../controllers/user/orderController")
 const wishlistController = require("../controllers/user/wishlistController")
 const walletController = require("../controllers/user/walletController")
+const commentController = require("../controllers/user/commentController")
 const {userAuth} = require("../middlewares/auth")
 
 const multer = require("multer");
@@ -120,6 +121,9 @@ router.post("/wishlist/addToCart", userAuth, wishlistController.addToCartWish);
 router.post("/createWalletOrder", userAuth, walletController.addMoneyToWallet);
 router.post("/verifyWalletPayment", userAuth, walletController.verify_payment)
 
+// review to a product
+router.post('/product/:productId/review',userAuth,commentController.addReview);
+router.delete('/product/:productId/review/:ratingId', commentController.deleteReview);
 
 
 module.exports=router

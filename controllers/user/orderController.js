@@ -14,18 +14,20 @@ const puppeteer = require('puppeteer');
 const env = require("dotenv").config();
 const razorpay = require("razorpay");
 const crypto = require("crypto");
+
 const razorpayInstance = new razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 const {sendOrderConfirmation,sendOrderCancellation} = require("../../helpers/mailer")
+
 const generateOrderRazorpay = async (orderId, totalAmount) => {
   try {
     const razorpayOrder = await razorpayInstance.orders.create({
-      amount: totalAmount * 100, // Razorpay expects amount in paise
+      amount: totalAmount * 100, 
       currency: "INR",
       receipt: `order_rcptid_${orderId}`,
-      payment_capture: 1, // Auto-capture payment
+      payment_capture: 1, 
     });
     return razorpayOrder;
   } catch (error) {
@@ -33,7 +35,7 @@ const generateOrderRazorpay = async (orderId, totalAmount) => {
     throw error;
   }
 };
-
+//checkout
 const getCheckoutPage = async (req, res) => {
     try {
       const userId = req.session.user;
@@ -72,10 +74,7 @@ const getCheckoutPage = async (req, res) => {
       req.flash('error', 'Your cart contains invalid or unavailable items. Please update your cart.');
       return res.redirect('/cart');
     }
-
-
-
-      //Calculate total
+     //Calculate total
       let totalPrice = 0;
      
       cartData.items.forEach(item => {
@@ -85,19 +84,13 @@ const getCheckoutPage = async (req, res) => {
        if (totalPrice > 0 && totalPrice < 500) {
          shippingCharge = 50;
         } else {
-        shippingCharge = 0; // free shipping for 500 and above
+        shippingCharge = 0; 
         }
-
-         
         const appliedCoupon = req.session.appliedCoupon;
         const discount = appliedCoupon ? appliedCoupon.discount || 0 : 0;
         const totalPayable = (totalPrice + shippingCharge) - discount;
-
-       
-       console.log(totalPayable,shippingCharge)
-      
-  
-      res.render('checkout', {
+        
+        res.render('checkout', {
         user: findUser,
         userAddress: addressData,
         cartItems: cartData.items,
@@ -112,6 +105,7 @@ const getCheckoutPage = async (req, res) => {
       res.redirect('/pageNotFound');
     }
   };
+
   const checkoutPage = async (req,res)=>{
     try
     {
@@ -161,7 +155,6 @@ const getCheckoutPage = async (req, res) => {
           color: cartItem.color
         };
       });
-     
       const cartItemQuantities = userCart.items.map(item => ({
         productId: item.productId._id,
         quantity: item.quantity,
@@ -182,8 +175,6 @@ const getCheckoutPage = async (req, res) => {
             // discount = req.session.appliedCoupon.discount || 0
             appliedCoupon = req.session.appliedCoupon.couponId
             const objectUserId =new mongoose.Types.ObjectId(userId)
-
-           
             const coupon = await Coupon.findById(appliedCoupon)
             if(coupon){
                 coupon.usedCount += 1
@@ -199,13 +190,8 @@ const getCheckoutPage = async (req, res) => {
                 await coupon.save()
             }
         }
-
-      
-       const finalAmount = subTotal + deliveryCharge - discount;
-  
-     
-
-      if (payment === "wallet" && finalAmount > findUser.wallet) {
+        const finalAmount = subTotal + deliveryCharge - discount;
+        if (payment === "wallet" && finalAmount > findUser.wallet) {
         return res.json({ payment: false, method: "wallet", success: false });
 
       }
@@ -235,9 +221,7 @@ const getCheckoutPage = async (req, res) => {
       status: "confirmed",
       appliedCoupon,
     });
-     
-  
-      const orderDone = await newOrder.save();
+    const orderDone = await newOrder.save();
       try {
         await sendOrderConfirmation(findUser.email, orderDone);
       } catch (mailErr) {
@@ -309,22 +293,7 @@ const getCheckoutPage = async (req, res) => {
         return res.json({ payment: false, method: "wallet", success: false });
       }
     }
-
-    // if (payment === "razorpay") {
-    //   // Generate Razorpay order
-    //   const razorPayGeneratedOrder = await generateOrderRazorpay(orderDone._id, finalAmount);
-    //   return res.json({
-    //     payment: false,
-    //     method: "razorpay",
-    //     razorPayOrder: razorPayGeneratedOrder,
-    //     order: orderDone,
-    //     quantity: cartItemQuantities,
-    //     orderId: orderDone._id,
-    //     status: "pending"
-    //   });
-    // }
-
-    // Default fallback
+   // Default fallback
     return res.status(400).json({ error: "Invalid payment method" });
   
       // res.json({ status: true, orderId: newOrder.orderId });
@@ -336,7 +305,7 @@ const getCheckoutPage = async (req, res) => {
 
 
   //Razorpay 
-  // POST /confirmOrderAfterRazorpay
+  // confirmOrderAfterRazorpay
 const confirmOrderAfterRazorpay = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -405,52 +374,7 @@ const confirmOrderAfterRazorpay = async (req, res) => {
 };
 
 
-
-  // const verifyPayment = async (req, res) => {
-  //   try {
-  //     const { order, payment } = req.body;
-  
-  
-  //     const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
-  //     hmac.update(order.id + "|" + payment.razorpay_payment_id);
-  //     const generatedSignature = hmac.digest("hex");
-  
-  //     const orderId = order.receipt.split("_")[2]; // Extract your actual DB _id
-  
-       
-  
-  //     if (generatedSignature === payment.razorpay_signature) {
-  
-        
-  //       // Payment successful
-  //       const paidOrder = await Order.findById(orderId);
-  //       if (paidOrder) {
-  //         paidOrder.paymentStatus = "completed";
-  //         paidOrder.status = "confirmed";
-  //         paidOrder.orderedItems.forEach(item => {
-  //           item.status = "confirmed";
-  //         });
-  //         await paidOrder.save();
-  //       }
-  //       res.json({ status: true });
-  //     } else {
-  
-  //       // Payment failed
-  //       const failedOrder = await Order.findById(orderId);
-  //       if (failedOrder) {
-  //         failedOrder.status = "failed";
-  //         failedOrder.orderedItems.forEach(item => {
-  //           item.status = "failed";
-  //         });
-  //         await failedOrder.save();
-  //       }
-  //       res.json({ status: false });
-  //     }
-  //   } catch (err) {
-  //     console.error("Payment verification error:", err);
-  //     res.json({ status: false });
-  //   }
-  // };
+//payment verify
   const verifyPayment = async (req, res) => {
     try {
       const { payment } = req.body;
@@ -499,7 +423,7 @@ const paymentConfirm = async (req, res) => {
   
   
   
-// Controller functionconst 
+//order success page
 const getOrderSuccessPage = async (req, res) => {
     const orderId = req.params.orderId;
     const userId = req.session.user;
@@ -519,28 +443,8 @@ const getOrderSuccessPage = async (req, res) => {
     }
   };
 
-  // const viewOrderDetails = async (req,res)=>{
-  //   try{
-  //     const { orderId } = req.params;
-  //     const orders = await Order.findById(orderId)
-  //     .populate({
-  //       path: 'orderedItems.product', 
-  //       select: 'name images price '   
-  //     })
-  //     .lean();
-
-  //   if (!orders) {
-  //     return res.status(404).render('404', { message: 'Order not found' });
-  //   }
-  //   res.render('order-details', {orders});
-
-  //   }catch (error){
-  //     console.error('Error fetching order details:', error);
-  //     res.status(500).render('error', { message: 'Server error while fetching order details' });
-
-  //   }
-  // }
  
+ //order details page
   const viewOrderDetails = async (req, res) => {
     try {
       const orderId = req.params.orderId;
@@ -681,18 +585,7 @@ const getOrderSuccessPage = async (req, res) => {
    } 
 
    await order.save();
-
-
-   // Update product stock
-
-
-
-    // Cancel the specific item
-    // item.status = 'cancelled';
-    // item.cancellationReason = reason || '';
-
-     // Increment stock for the cancelled product variant
-     await Product.findByIdAndUpdate(
+  await Product.findByIdAndUpdate(
       item.product,
       {
         $inc: { 'variants.$[elem].quantity': item.quantity }
@@ -969,38 +862,6 @@ const retryPayment = async (req, res) => {
 };
 
 
-//remove item
-// const removeItem = async (req, res) => {
-//   try {
-//       const productId = req.params.id 
-//       const userId = req.session.user
-//       const user = await User.findById(userId).populate({
-//           path: 'cart',
-//           populate: {
-//               path: 'items.productId items.variantId'
-//           }
-//       })
-
-//       if(!user || !user.cart.length){
-//           return res.status(STATUS.NOT_FOUND).json({success: false, message: 'Cart not found!'})
-//       }
-
-//       let cartDoc = user.cart[0]
-//       const itemIndex = cartDoc.items.findIndex(item => item._id.toString() === productId)
-
-//       if(itemIndex === -1){
-//           return res.status(STATUS.NOT_FOUND).json({success: false, message: 'Item not found in the cart'})
-//       }
-
-//       cartDoc.items.splice(itemIndex, 1)
-//       await cartDoc.save()
-
-//       return res.status(STATUS.OK).json({success: true, message : 'Item removed from the cart'})
-//   } catch (error) {
-//       console.error('Error while removing item from cart', error)
-//       return res.status(STATUS.INTERNAL_SERVER_ERROR).json({success: false, message: 'Internal server error'})
-//   }
-// }
 const checkStock = async (req, res) => {
   try {
     const userId = req.session.user;

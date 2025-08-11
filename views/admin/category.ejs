@@ -121,36 +121,7 @@
             
           </td>
         </tr>
-        <!-- <tr>
-          <td>2</td>
-          <td>Saree</td>
-          <td>
-            <img
-              src="https://via.placeholder.com/50x50.png?text=Saree"
-              alt="Saree"
-              width="50"
-              height="50"
-              onclick="openImageModal(this.src)"
-            />
-          </td>
-          <td>Traditional sarees for special occasions</td>
-          <td><span class="badge bg-success">Listed</span></td>
-          <td>30%</td>
-          <td>11/07/2025</td>
-          <td>
-            <button class="btn btn-sm btn-info me-1" title="Edit" data-bs-toggle="modal" data-bs-target="#editCategoryModal" onclick="populateEditModal('2','Saree','Traditional sarees for special occasions','https://via.placeholder.com/150x150.png?text=Saree')">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn btn-sm btn-danger me-1" title="Delete" onclick="alert('Delete category 2')">
-              <i class="fas fa-trash-alt"></i>
-            </button>
-            <button class="btn btn-sm btn-warning me-1" title="Remove Offer">Remove Offer</button>
-            <button class="btn btn-sm btn-success me-1" title="List">List</button>
-            <button class="btn btn-sm btn-dark" title="Subcategories" onclick="alert('Go to subcategories for Saree')">
-              <i class="fas fa-layer-group"></i>
-            </button>
-          </td>
-        </tr> -->
+       
         <% }) %>
         <% } %>
       </tbody>
@@ -302,33 +273,6 @@
     modal.show();
   }
 
-  //function populateEditModal(id, name, description, image) {
-  /*  document.getElementById("edit-category-id").value = id;
-    document.getElementById("edit-category-name").value = name;
-    document.getElementById("edit-category-description").value = description;
-    document.getElementById("existing-category-image").src = image;
-    document.getElementById("editCategoryForm").action = `/admin/editCategory/${id}`;
-  } */
-
-  // Show/hide Clear button based on search input value
-  /*const searchInput = document.getElementById('searchInput');
-  const clearBtn = document.getElementById('clearSearchBtn');
-
-  function toggleClearButton() {
-    clearBtn.style.display = searchInput.value.trim() ? 'inline-block' : 'none';
-  }
-
-  searchInput.addEventListener('input', toggleClearButton);
-
-  clearBtn.addEventListener('click', () => {
-    searchInput.value = '';
-    toggleClearButton();
-    // You can also submit the form or redirect to clear the search results
-    document.getElementById('searchForm').submit();
-  });
-
-  // Initialize button on page load (for demo purpose, no real search query)
-  toggleClearButton();*/
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

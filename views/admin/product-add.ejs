@@ -176,28 +176,7 @@ input.is-invalid, select.is-invalid, textarea.is-invalid {
         <% } %>
       </div>
     </div>
-    
-
-    <!-- <div class="col-md-6">
-      <h4>Product Images</h4>
-
-      <% for (let i = 1; i <= 4; i++) { %>
-        <div class="form-group mb-3">
-          <label for="image<%= i %>">Image <%= i %></label>
-          <% const index = i %>
-          <input type="file" id="image<%= i %>" name="image<%= i %>" class="form-control" accept="image/*" required onchange="previewImage(event, <%= index %>)">
-          <div class="preview-container">
-            <img id="preview<%= i %>" class="image-preview" src="#" alt="Preview">
-          </div>
-          <div id="image<%= i %>-error" class="text-danger"></div>
-         
-          <input type="hidden" id="croppedImage<%= i %>" name="croppedImage<%= i %>">
-        </div>
-      <% } %>
-
-    </div> -->
-
-    <div class="col-12 d-flex justify-content-end">
+     <div class="col-12 d-flex justify-content-end">
       <button type="reset" class="btn btn-outline-secondary me-2" id="resetBtn">Cancel</button>
       <button type="submit" class="btn btn-dark">Save</button>
     </div>
@@ -311,42 +290,10 @@ input.is-invalid, select.is-invalid, textarea.is-invalid {
         if (input) input.classList.add('is-invalid');
       }
     });
-    
-
-    // Clear previous error messages
-    /*requiredFields.forEach(field => {
-      const errorElem = document.getElementById(`${field}-error`);
-      if (errorElem) errorElem.textContent = '';
-    });*/
-
-    // Validate required fields
-    /*requiredFields.forEach(field => {
-      const input = document.getElementById(field);
-      if (!input || !input.value.trim()) {
-        isValid = false;
-        const errorElem = document.getElementById(`${field}-error`);
-        if (errorElem) errorElem.textContent = 'This field is required.';
-      }
-    });*/
-
     // Get numeric values
     /*const quantity = parseInt(document.getElementById('quantity').value);*/
     const regularPrice = parseFloat(document.getElementById('regularPrice').value);
     const finalPrice = parseFloat(document.getElementById('finalPrice').value);
-
-    // Validate quantity
-   /* if (quantity < 0) {
-      isValid = false;
-      Swal.fire({
-        title: 'Invalid Quantity!',
-        text: 'Quantity cannot be less than zero',
-        icon: 'error',
-        confirmButtonText: 'OK'
-      });
-      const errorElem = document.getElementById('quantity-error');
-      if (errorElem) errorElem.textContent = 'Quantity cannot be less than zero';
-      return;
-    }*/
 
     // Validate regular price
     if (regularPrice <= 0) {

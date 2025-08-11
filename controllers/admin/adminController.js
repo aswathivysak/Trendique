@@ -6,9 +6,6 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const moment = require('moment')
 
-
-
-
 const pageError = async (req, res) => {
     res.render('pageerror')
 }
@@ -19,7 +16,7 @@ const loadLogin =async (req, res) => {
     }
     res.render('admin-login',{message:null})
 }
-
+//login
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -206,7 +203,7 @@ const loadSalesPage = async (req, res) => {
 
 
 
-
+//Dashboard
 const getDashboardData = async (req, res) => {
   try {
     const { filter, start, end } = req.query;
@@ -321,34 +318,7 @@ const getDashboardData = async (req, res) => {
       }
     ]);
 
-    // Top 3 Categories
-    // const bestCategories = await Product.aggregate([
-    //   {
-    //     $group: {
-    //       _id: '$category',
-    //       totalQty: { $sum: '$totalSold' }
-    //     }
-    //   },
-    //   { $sort: { totalQty: -1 } },
-    //   { $limit: 3 },
-    //   {
-    //     $lookup: {
-    //       from: 'categories',
-    //       localField: '_id',
-    //       foreignField: '_id',
-    //       as: 'category'
-    //     }
-    //   },
-    //   { $unwind: '$category' },
-    //   {
-    //     $project: {
-    //       name: '$category.name',
-    //       totalQty: 1
-    //     }
-    //   }
-    // ]);
-  
-const bestCategories = await Order.aggregate([
+   const bestCategories = await Order.aggregate([
     { $match: { status: { $nin: ['cancelled', 'returned'] } } },
     { $unwind: "$orderedItems" },
     {
@@ -404,32 +374,6 @@ const bestCategories = await Order.aggregate([
     { $limit: 3 }
   ]);
 
-    // Top 3 Brands
-    // const bestBrands = await Product.aggregate([
-    //   {
-    //     $group: {
-    //       _id: '$brand',
-    //       totalQty: { $sum: '$totalSold' }
-    //     }
-    //   },
-    //   { $sort: { totalQty: -1 } },
-    //   { $limit: 3 },
-    //   {
-    //     $lookup: {
-    //       from: 'brands',
-    //       localField: '_id',
-    //       foreignField: '_id',
-    //       as: 'brand'
-    //     }
-    //   },
-    //   { $unwind: '$brand' },
-    //   {
-    //     $project: {
-    //       name: '$brand.brandName',
-    //       totalQty: 1
-    //     }
-    //   }
-    // ]);
     const bestBrands = await Order.aggregate([
         { 
           $match: { 

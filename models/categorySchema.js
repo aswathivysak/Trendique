@@ -13,12 +13,12 @@ const subcategorySchema = new Schema({
     trim: true
   },
   image: {
-    type: String, // store filename or full image path
+    type: String, 
     required: false,
     trim: true
   },
   offer: {
-    type: Number, // percentage (e.g., 10 for 10% off)
+    type: Number, 
     min: 0,
     max: 100,
     default: 0
@@ -55,13 +55,13 @@ const categorySchema = new Schema({
   },
   gender: {
     type: String,
-    enum: ['Women'], // Change to ['Women', 'Men'] if needed
+    enum: ['Women'], 
     required: true
   },
  
   categoryImage: {
     type: String,
-    required: true, // ensures image is uploaded
+    required: true, 
     trim: true
   },
   subcategories: [subcategorySchema],
