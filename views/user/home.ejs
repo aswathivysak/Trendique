@@ -118,37 +118,6 @@
     </div>
   </div>
 </section>
-<!-- banner section -->
-
-<% if (activeBanner && activeBanner.length) { %>
-  <section class="hero-banner swiper heroSwiper">
-    <div class="swiper-wrapper">
-      <% activeBanner.forEach(b => { %>
-        <div class="swiper-slide">
-          <img src="<%= b.image %>" alt="<%= b.title %>" class="hero-img">
-          <div class="hero-caption">
-            <div class="hero-card">
-              <h2 class="hero-title"><%= b.title %></h2>
-              <p class="hero-sub"><%= b.description %></p>
-              <% if (b.link) { %>
-                <a href="<%= b.link %>" class="btn-hero">Explore</a>
-              <% } %>
-            </div>
-          </div>
-        </div>
-      <% }) %>
-    </div>
-
-    <div class="swiper-button-prev hero-prev"></div>
-    <div class="swiper-button-next hero-next"></div>
-    <div class="swiper-pagination hero-pagination"></div>
-  </section>
-<% } %>
-
-
-
-
-<!-- Banner -->
 
 <section class="py-5" style="background: linear-gradient(135deg, #fff7f7, #ffecec);">
   <div class="container">
@@ -193,7 +162,34 @@
   </div>
 </section>
 
+<!-- banner section -->
 
+<% if (activeBanner && activeBanner.length) { %>
+  <section class="hero-banner swiper heroSwiper">
+    <div class="swiper-wrapper">
+      <% activeBanner.forEach(b => { %>
+        <div class="swiper-slide">
+          <img src="<%= b.image %>" alt="<%= b.title %>" class="hero-img">
+          <div class="hero-caption">
+            <div class="hero-card">
+              <h2 class="hero-title"><%= b.title %></h2>
+              <p class="hero-sub"><%= b.description %></p>
+              <% if (b.link) { %>
+                <a href="<%= b.link %>" class="btn-hero">Explore</a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <div class="swiper-button-prev hero-prev"></div>
+    <div class="swiper-button-next hero-next"></div>
+    <div class="swiper-pagination hero-pagination"></div>
+  </section>
+<% } %>
+
+<!-- Banner -->
 
 <div class="sec-banner bg0 p-t-80 p-b-50">
   <div class="container">

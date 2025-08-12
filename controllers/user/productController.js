@@ -31,20 +31,41 @@ const productDetails = async (req,res) => {
         const categories = await Category.find({ isListed: true });
         const categoryIds = categories.map(category => category._id.toString());
 
-        const products = await Product.find({
+        // const products = await Product.find({
+        //     isBlocked: false,
+        //     category: { $in: categoryIds },
+        //     _id: { $ne: productId },
+        // })
+        // .sort({ createdAt: -1 })
+        // .skip(0)
+        // .limit(9)
+        // .lean()
+        let relatedProducts = await Product.find({
             isBlocked: false,
-            category: { $in: categoryIds },
-            _id: { $ne: productId },
-        })
-        .sort({ createdAt: -1 })
-        .skip(0)
-        .limit(9)
-        .lean()
+            category: product.category,
+            subcategory: product.subcategory,
+            _id: { $ne: product._id }
+          })
+          .sort({ createdAt: -1 })
+          .limit(9)
+          .lean();
+          
+          if (!relatedProducts.length) {
+            relatedProducts = await Product.find({
+              isBlocked: false,
+              category: product.category,
+              _id: { $ne: product._id }
+            })
+            .sort({ createdAt: -1 })
+            .limit(9)
+            .lean();
+          }
+          
 
         res.render("product-details",{
             user:userData,
             product:product,
-            products: products,
+            products: relatedProducts,
             totalQuantity:totalQuantity,
             category:findCategory,
             wishlistIds,

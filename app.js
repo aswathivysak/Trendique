@@ -10,15 +10,10 @@ const adminRouter = require('./routes/adminRoutes');
 const wishlistCountMiddleware = require('./middlewares/wishlistCount');
 const cartItem = require('./middlewares/cartitems');
 require('./utils/offerCron');
-
-
+require('./utils/bannerCron')
 connectDB()
-
-
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
-
-
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
