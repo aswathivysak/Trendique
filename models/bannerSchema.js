@@ -16,7 +16,7 @@ const bannerSchema = new Schema({
   },
   link: {
     type: String,
-    required: true
+   
   },
   startDate: {
     type: Date,

@@ -18,7 +18,7 @@ cron.schedule('0 0 * * *', async () => {
 });
 
 
-
+//load page
 const loadCouponPage = async (req, res) => {
     try {
         const coupons = await Coupon.find({}).sort({ startingDate : -1 }).lean()
@@ -32,7 +32,7 @@ const loadCouponPage = async (req, res) => {
         res.redirect("/pageerror");
     }
 }
-
+//add coupon page
 const loadAddCouponPage = async (req, res) => {
     try {
         res.render('add-coupon')
@@ -42,7 +42,7 @@ const loadAddCouponPage = async (req, res) => {
     }
 }
 
-
+//add coupon
 
 const addCoupon = async (req, res) => {
     try {
@@ -83,6 +83,8 @@ const addCoupon = async (req, res) => {
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
   };
+
+  //edit coupon page
   
 const getEditPage =async (req,res)=>{
     try{
@@ -100,7 +102,7 @@ const getEditPage =async (req,res)=>{
 
     }
 }
-
+//edit page
 const editCoupon = async (req, res) => {
     try {
       const couponId = req.params.id;
@@ -112,22 +114,12 @@ const editCoupon = async (req, res) => {
       if (!coupon) {
         return res.status(404).json({ success: false, message: 'Coupon not found!' });
       }
-  
-      const normalizedCode = code.trim().toUpperCase();
-  
-     
+       const normalizedCode = code.trim().toUpperCase();
       const existingCode = await Coupon.findOne({ code: normalizedCode, _id: { $ne: couponId } });
       if (existingCode) {
         return res.status(400).json({ success: false, message: 'Coupon code already exists' });
       }
-  
-     
-    //   const existingName = await Coupon.findOne({ name, _id: { $ne: couponId } });
-    //   if (existingName) {
-    //     return res.status(400).json({ success: false, message: 'Coupon name already exists' });
-    //   }
-  
-      // Update fields
+    // Update fields
       coupon.name = name;
       coupon.code = normalizedCode;
       coupon.type = type;
@@ -154,6 +146,7 @@ const editCoupon = async (req, res) => {
     }
   };
 
+  //delete coupon
   const deleteCoupon = async (req, res) => {
     try {
         const couponId = req.params.id 

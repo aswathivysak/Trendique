@@ -35,22 +35,10 @@
             text-align: center;
           }
           
-      
-      
 </style>
 <div><br><br><br><br><br><br><br></div>
 <main class="main">
-  <!-- <div class="page-header breadcrumb-wrap">
-    <div class="container">
-      <div class="breadcrumb">
-        <a href="/" rel="nofollow">Home</a>
-        <a href="/shop"><span></span> Shop</a>
-        <span></span> My Wishlist
-      </div>
-    </div>
-  </div> -->
-
-  <section class="mt-50 mb-50">
+<section class="mt-5 mb-5">
     <div class="container">
       <div class="row">
         <div class="col-12">
@@ -159,6 +147,7 @@
       </div>
     </div>
   </section>
+
 </main>
 
 <!-- SweetAlert2 CDN -->
@@ -178,35 +167,6 @@
   }
 
   
-
-/*  function addToCartFromWishlist(productId) {
-    const size = selectedSizes[productId];
-    const quantity = 1;
-
-    if (!size) {
-      Swal.fire("Please select size", "", "warning");
-      return;
-    }
-
-    $.ajax({
-      url: '/wishlist/addToCart',
-      method: 'POST',
-      data: { productId, size, quantity },
-      success: (response) => {
-        if (response.status) {
-          Swal.fire("Added to Cart", "", "success").then(() => {
-            location.reload(); // reload page to reflect changes
-          });
-        } else {
-          Swal.fire("Error", response.message || "Something went wrong", "error");
-        }
-      },
-      error: () => {
-        Swal.fire("Server Error", "Try again later", "error");
-      }
-    });
-  }*/
-
   function confirmRemove(productId) {
     Swal.fire({
       title: 'Are you sure?',
@@ -283,9 +243,7 @@ function addToCartFromWishlist(productId) {
     });
   }
  
-  
-
-</script>
-
+  </script>
+<div><br><br><br></div>
 <%- include('../partials/user/footer') %>
 

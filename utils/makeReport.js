@@ -3,64 +3,95 @@ const PDFDocument = require('pdfkit')
 const ExcelJS = require('exceljs')
 
 
-function generatePDF(res, salesData, totalSale, totalAmount, totalDiscount, totalOffer){
-    const doc = new PDFDocument({ margin: 40, size: 'A4'})
-
-    res.setHeader('content-type', 'application/pdf')
-    res.setHeader('conten-disposition', 'attachement; filename="sales_report.pdf"')
-
-    doc.pipe(res)
-    doc.fontSize(22).fillColor('#333366').text('TRENDIQUE Sales Report', {align: 'center'}).moveDown(2)
-
-    let y = doc.y
-    doc
-      .fontSize(12)
-      .fillColor('#000')
-      .text('SL', 50, y)
-      .text('Order ID', 90, y)
-      .text('User', 200, y)
-      .text('Date', 280, y)
-      .text('Amount', 370, y)
-      .text('Dicount', 440, y)
-      .text('Offer', 510, y)
-      .moveDown(0.5)
-
-      y += 20
-    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke()
-
-
-    y += 10
-    salesData.forEach((item, i) =>{
-        doc
-          .fontSize(10)
-          .fillColor('#000')
-          .text(`${i + 1}`, 50, y)
-          .text(`${item.orderId.slice(0, 6)}`, 90, y)
-          .text(`${item.user}`, 150, y)
-          .text(`${item.date}`, 280, y)
-          .text(`${item.totalAmount}`, 370, y)
-          .text(`${item.discount}`, 440, y)
-          .text(`${item.offer}`, 510, y)
-          .moveDown(0.5)
-     y += 20
-     if(y > 750){
-        doc.addPage()
-        y = 50
-     }
-    })
-
-    y += 30
-    doc.moveDown(1)
-    doc
-        .fontSize(12)
-        .fillColor('#000')
-        .text(`Total Orders: ${totalSale}`, 50, y)
-        .text(`Total Amount: ₹${totalAmount}`, 50, y+20)
-        .text(`Total Discount: ₹${totalDiscount}`, 50, y+40)
-        .text(`Total Offer: ₹${totalOffer}`,50, y+60)
-    doc.end()
-}
-
+function generatePDF(res, salesData, totalSale, totalAmount, totalDiscount, totalOffer) {
+    const doc = new PDFDocument({ margin: 40, size: 'A4' });
+  
+    // Correct headers + filename
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="sales_report.pdf"');
+  
+    doc.pipe(res);
+  
+    // Title
+    doc.fontSize(22).fillColor('#333366')
+      .text('TRENDIQUE Sales Report', { align: 'center' })
+      .moveDown(2);
+  
+    // Column X positions (no User column)
+    const X = {
+      sl: 50,
+      orderId: 90,
+      date: 200,
+      amount: 300,
+      discount: 370,
+      offer: 430,
+      payment: 500,
+    };
+  
+    // Draw table header
+    const drawHeader = () => {
+      const y = doc.y;
+      doc.fontSize(12).fillColor('#000')
+        .text('SL', X.sl, y)
+        .text('Order ID', X.orderId, y)
+        .text('Date', X.date, y)
+        .text('Amount', X.amount, y)
+        .text('Discount', X.discount, y)
+        .text('Offer', X.offer, y)
+        .text('Payment', X.payment, y);
+  
+      doc.moveDown(0.5);
+      doc.moveTo(X.sl, doc.y).lineTo(570, doc.y).stroke();
+    };
+  
+    drawHeader();
+    let y = doc.y + 8;
+  
+    const fmtAmt = v => (typeof v === 'number' ? `₹${v.toFixed(2)}` : (v ?? ''));
+    const fmtDate = d => {
+      const dt = new Date(d);
+      return isNaN(dt) ? (d ?? '') : dt.toLocaleDateString('en-IN');
+    };
+  
+    salesData.forEach((item, i) => {
+      // Map common payment keys
+      const payment =
+        item.payment ??
+        item.paymentMethod ??
+        item.payment_mode ??
+        item.payment_type ??
+        item.paymentType ??
+        '';
+  
+      doc.fontSize(10).fillColor('#000')
+        .text(String(i + 1), X.sl, y)
+        .text(String(item.orderId || '').slice(0, 10), X.orderId, y)
+        .text(fmtDate(item.date), X.date, y)
+        .text(fmtAmt(item.totalAmount), X.amount, y)
+        .text(fmtAmt(item.discount), X.discount, y)
+        .text(fmtAmt(item.offer), X.offer, y)
+        .text(String(payment), X.payment, y, { width: 40, ellipsis: true });
+  
+      y += 18;
+  
+      // New page
+      if (y > 770) {
+        doc.addPage();
+        drawHeader();
+        y = doc.y + 8;
+      }
+    });
+  
+    // Totals
+    y += 18;
+    doc.fontSize(12).fillColor('#000')
+      .text(`Total Orders: ${totalSale}`, X.sl, y)
+      .text(`Total Amount: ₹${Number(totalAmount || 0).toFixed(2)}`, X.sl, y + 18)
+      .text(`Total Discount: ₹${Number(totalDiscount || 0).toFixed(2)}`, X.sl, y + 36)
+      .text(`Total Offer: ₹${Number(totalOffer || 0).toFixed(2)}`, X.sl, y + 54);
+  
+    doc.end();
+  }
 async function generateExcel(res, salesData, totalSale, totalAmount, totalDiscount, totalOffer) {
     const workbook = new ExcelJS.Workbook()
     const worksheet = workbook.addWorksheet('Sales Report')

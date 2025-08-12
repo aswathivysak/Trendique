@@ -9,6 +9,7 @@ const upload = require('../middlewares/multerConfig');
 const productController = require('../controllers/admin/productController');
 const orderController = require("../controllers/admin/orderController")
 const couponController = require("../controllers/admin/couponController")
+const bannerController = require("../controllers/admin/bannerController")
 const { adminAuth } = require('../middlewares/auth');
 
 router.get('/pageerror', adminController.pageError);
@@ -105,7 +106,11 @@ router.get('/report/generate', adminAuth, adminController.loadSalesPage)
 //Dash Board
  router.get('/dashboard-data', adminController.getDashboardData)
 //returned products
-
 router.get('/returns', adminAuth, orderController.loadReturnedProducts);
+//banner management
+router.get('/banner', adminAuth, bannerController.loadBnnerPage )
+router.get('/add-banner', adminAuth, bannerController.getAddBannerPage)
+router.post('/addBanner', adminAuth, upload.single("image"), bannerController.addBanner)
+router.get('/deleteBanner', adminAuth, bannerController.deleteBanner)
 
 module.exports = router;

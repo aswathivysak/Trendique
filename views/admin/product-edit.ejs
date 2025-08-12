@@ -96,25 +96,6 @@
       <div id="status-error" class="text-danger"></div>
     </div>
 
-    <!-- <div class="col-md-6">
-      <h4>Product Images</h4>
-      <div class="image-upload-container">
-        <% for (let i = 0; i < 4; i++) { %>
-          <div class="image-upload-item">
-            <label for="image<%= i+1 %>">Image <%= i+1 %></label>
-            <input type="file" id="image<%= i+1 %>" name="image<%= i+1 %>" class="form-control" accept="image/*" onchange="previewImage(event, <%= i+1 %>)">
-            <div class="preview-container" style="<%= product.images[i] ? 'display:block' : 'display:none' %>">
-              <img id="preview<%= i+1 %>" class="image-preview" src="<%= product.images[i] ? '/' + product.images[i] : '#' %>" alt="Preview">
-            </div>
-            <input type="hidden" id="croppedImage<%= i+1 %>" name="croppedImage<%= i+1 %>">
-            <% if (product.images[i]) { %>
-              <input type="hidden" name="oldImage<%= i+1 %>" value="<%= product.images[i] %>">
-            <% } %>
-            <div id="image<%= i+1 %>-error" class="text-danger"></div>
-          </div>
-        <% } %>
-      </div>
-    </div> -->
     <div class="col-md-6">
       <h4>Product Images</h4>
       <div class="image-upload-container">

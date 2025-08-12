@@ -1,345 +1,377 @@
 <%- include('../partials/user/header') %>
-	
-		
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-	<!-- Slider -->
-	<section class="section-slide">
-		<div class="wrap-slick1">
-			<div class="slick1">
-				<div class="item-slick1" style="background-image: url(images/slide-01.jpg);">
-					<div class="container h-full">
-						<div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
-							<div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
-								<span class="ltext-101 cl2 respon2">
-									Women Collection 2025
-								</span>
-							</div>
-								
-							<div class="layer-slick1 animated visible-false" data-appear="fadeInUp" data-delay="800">
-								<h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">
-									NEW SEASON
-								</h2>
-							</div>
-								
-							<div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
-								<a href="/shop" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
-									Shop Now
-								</a>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="item-slick1" style="background-image: url(images/slide-04.jpg);">
-					<div class="container h-full">
-						<div class="flex-col-l-m h-full p-t-100 p-b-30">
-							<div class="layer-slick1 animated visible-false" data-appear="rotateInDownLeft" data-delay="0">
-								<span class="ltext-202 cl2 respon2">
-									Women Collection 2025
-								</span>
-							</div>
-								
-							<div class="layer-slick1 animated visible-false" data-appear="rotateInUpRight" data-delay="800">
-								<h2 class="ltext-104 cl2 p-t-19 p-b-43 respon1">
-									NEW SEASON
-								</h2>
-							</div>
-								
-							<div class="layer-slick1 animated visible-false" data-appear="rotateIn" data-delay="1600">
-								<a href="/shop" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">
-									Shop Now
-								</a>
-							</div>
-						</div>
-					</div>
-				</div>
+<style>
+ /* Hero banner sizing (keep) */
+.hero-banner{width:100%;height:clamp(320px,48vh,520px);position:relative}
+.hero-banner .swiper-wrapper,.hero-banner .swiper-slide{height:100%}
+.hero-img{width:100%;height:100%;object-fit:cover;display:block}
 
-				<div class="item-slick1 bg-overlay1" style="background-image: url(images/slide-05.jpg);" data-thumb="images/thumb-01.jpg" data-caption="Women’s Wear">
-					<div class="container h-full">
-						<div class="flex-col-c-m h-full p-t-100 p-b-60 respon5">
-							<div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
-								<span class="ltext-202 txt-center cl0 respon2">
-									Women Collection 2025
-								</span>
-							</div>
-								
-							<div class="layer-slick1 animated visible-false" data-appear="fadeInUp" data-delay="800">
-								<h2 class="ltext-104 txt-center cl0 p-t-22 p-b-40 respon1">
-									New arrivals
-								</h2>
-							</div>
-								
-							<div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
-								<a href="product.html" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn2 p-lr-15 trans-04">
-									Shop Now
-								</a>
-							</div>
-						</div>
-					</div>
-				</div>
-           </div>
-		</div>
-	</section>
+/* Card-style caption (NEW) */
+.hero-caption{
+  position:absolute; inset:0; display:flex; align-items:center;
+  /* no gradient background here */
+  color:#fff; pointer-events:none;            /* let clicks pass except on the card */
+}
+.hero-card{
+  pointer-events:auto;
+  background:rgba(0,0,0,.62);
+  border-radius:14px;
+  padding:22px 26px;
+  margin-left:clamp(12px,4vw,56px);
+  max-width:min(600px,90vw);
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+}
+.hero-title{font:700 2.4rem/1.15 "Playfair Display",serif;margin:0 0 .5rem;text-shadow:0 2px 6px rgba(0,0,0,.35)}
+.hero-sub{font-size:1.05rem;opacity:.95;margin:0 0 1rem}
+
+/* Button */
+.btn-hero{
+  display:inline-block;padding:.75rem 1.25rem;background:#9acd32;color:#111;
+  border-radius:.5rem;text-decoration:none;font-weight:600
+}
+
+/* Round arrows */
+.hero-prev,.hero-next{
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(0,0,0,.55);box-shadow:0 4px 12px rgba(0,0,0,.25)
+}
+.hero-prev::after,.hero-next::after{font-size:18px;color:#fff}
+.hero-prev{left:16px} .hero-next{right:16px}
+
+/* Pagination */
+.hero-pagination .swiper-pagination-bullet{background:rgba(255,255,255,.7);opacity:1}
+.hero-pagination .swiper-pagination-bullet-active{background:#fff}
+
+@media (max-width:768px){
+  .hero-title{font-size:1.8rem}
+  .hero-sub{font-size:.95rem}
+  .hero-card{margin-left:16px;padding:18px 20px}
+}
+
+</style>
 
 
-	<!-- Banner -->
-	<div class="sec-banner bg0 p-t-80 p-b-50">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-6 col-xl-4 p-b-30 m-lr-auto">
-					<!-- Block1 -->
-					<div class="block1 wrap-pic-w">
-						<img src="images/banner-01.jpg" alt="IMG-BANNER">
+<!-- Slider -->
+<section class="section-slide">
+  <div class="wrap-slick1">
+    <div class="slick1">
 
-						<a href="/shop" class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
-							<div class="block1-txt-child1 flex-col-l">
-								<span class="block1-name ltext-102 trans-04 p-b-8">
-									Women
-								</span>
+      <!-- Slide 1 -->
+      <div class="item-slick1" style="background-image: url(images/slide-01.jpg);">
+        <div class="container h-full">
+          <div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
+            <div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
+              <span class="ltext-101 cl2 respon2">Women Collection 2025</span>
+            </div>
 
-								<span class="block1-info stext-102 trans-04">
-									Spring 2018
-								</span>
-							</div>
+            <div class="layer-slick1 animated visible-false" data-appear="fadeInUp" data-delay="800">
+              <h2 class="ltext-201 cl2 p-t-19 p-b-43 respon1">NEW SEASON</h2>
+            </div>
 
-							<div class="block1-txt-child2 p-b-4 trans-05">
-								<div class="block1-link stext-101 cl0 trans-09">
-									Shop Now
-								</div>
-							</div>
-						</a>
-					</div>
-				</div>
+            <div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
+              <a href="/shop" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">Shop Now</a>
+            </div>
+          </div>
+        </div>
+      </div>
 
-				
-				
-			</div>
-		</div>
-	</div>
+      <!-- Slide 2 -->
+      <div class="item-slick1" style="background-image: url(images/slide-04.jpg);">
+        <div class="container h-full">
+          <div class="flex-col-l-m h-full p-t-100 p-b-30">
+            <div class="layer-slick1 animated visible-false" data-appear="rotateInDownLeft" data-delay="0">
+              <span class="ltext-202 cl2 respon2">Women Collection 2025</span>
+            </div>
+
+            <div class="layer-slick1 animated visible-false" data-appear="rotateInUpRight" data-delay="800">
+              <h2 class="ltext-104 cl2 p-t-19 p-b-43 respon1">NEW SEASON</h2>
+            </div>
+
+            <div class="layer-slick1 animated visible-false" data-appear="rotateIn" data-delay="1600">
+              <a href="/shop" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04">Shop Now</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 3 -->
+      <div class="item-slick1 bg-overlay1" style="background-image: url(images/slide-05.jpg);" data-thumb="images/thumb-01.jpg" data-caption="Women’s Wear">
+        <div class="container h-full">
+          <div class="flex-col-c-m h-full p-t-100 p-b-60 respon5">
+            <div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
+              <span class="ltext-202 txt-center cl0 respon2">Women Collection 2025</span>
+            </div>
+
+            <div class="layer-slick1 animated visible-false" data-appear="fadeInUp" data-delay="800">
+              <h2 class="ltext-104 txt-center cl0 p-t-22 p-b-40 respon1">New arrivals</h2>
+            </div>
+
+            <div class="layer-slick1 animated visible-false" data-appear="zoomIn" data-delay="1600">
+              <a href="product.html" class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn2 p-lr-15 trans-04">Shop Now</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="py-5" style="background: linear-gradient(135deg, #fff7f7, #ffecec);">
+  <div class="container">
+    <div class="text-center mb-4" data-aos="fade-up">
+      <h2 class="fw-bold">Why <span class="text-danger">TrendiQue</span>?</h2>
+      <p class="text-muted mb-0">Quality styles. Fair prices. Smooth shopping.</p>
+    </div>
+
+    <div class="row g-4 mt-1">
+      <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="0">
+        <div class="p-4 bg-white rounded-4 shadow-sm h-100 text-center">
+          <i class="fa-solid fa-shirt fa-2x mb-3 text-danger"></i>
+          <h6 class="fw-semibold mb-2">Curated Fashion</h6>
+          <p class="small text-muted mb-0">Handpicked designs for everyday & festive wear.</p>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="100">
+        <div class="p-4 bg-white rounded-4 shadow-sm h-100 text-center">
+          <i class="fa-solid fa-bolt fa-2x mb-3 text-danger"></i>
+          <h6 class="fw-semibold mb-2">Fast Delivery</h6>
+          <p class="small text-muted mb-0">Dispatch in 24–48 hrs, quick city drop.</p>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="200">
+        <div class="p-4 bg-white rounded-4 shadow-sm h-100 text-center">
+          <i class="fa-solid fa-wallet fa-2x mb-3 text-danger"></i>
+          <h6 class="fw-semibold mb-2">Wallet Rewards</h6>
+          <p class="small text-muted mb-0">Earn cashback & redeem on your next order.</p>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-6" data-aos="fade-up" data-aos-delay="300">
+        <div class="p-4 bg-white rounded-4 shadow-sm h-100 text-center">
+          <i class="fa-solid fa-rotate-left fa-2x mb-3 text-danger"></i>
+          <h6 class="fw-semibold mb-2">Easy Returns</h6>
+          <p class="small text-muted mb-0">Hassle-free return window on eligible items.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- banner section -->
+
+<% if (activeBanner && activeBanner.length) { %>
+  <section class="hero-banner swiper heroSwiper">
+    <div class="swiper-wrapper">
+      <% activeBanner.forEach(b => { %>
+        <div class="swiper-slide">
+          <img src="<%= b.image %>" alt="<%= b.title %>" class="hero-img">
+          <div class="hero-caption">
+            <div class="hero-card">
+              <h2 class="hero-title"><%= b.title %></h2>
+              <p class="hero-sub"><%= b.description %></p>
+              <% if (b.link) { %>
+                <a href="<%= b.link %>" class="btn-hero">Explore</a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <div class="swiper-button-prev hero-prev"></div>
+    <div class="swiper-button-next hero-next"></div>
+    <div class="swiper-pagination hero-pagination"></div>
+  </section>
+<% } %>
+
+<!-- Banner -->
+
+<div class="sec-banner bg0 p-t-80 p-b-50">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-xl-4 p-b-30 m-lr-auto">
+        <!-- Block1 -->
+        <div class="block1 wrap-pic-w">
+          <img src="images/banner-01.jpg" alt="IMG-BANNER">
+          <a href="/shop" class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
+            <div class="block1-txt-child1 flex-col-l">
+              <span class="block1-name ltext-102 trans-04 p-b-8">Women</span>
+              <span class="block1-info stext-102 trans-04">Spring 2018</span>
+            </div>
+            <div class="block1-txt-child2 p-b-4 trans-05">
+              <div class="block1-link stext-101 cl0 trans-09">Shop Now</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Section -->
+<section class="bg0 p-t-23 p-b-140">
+  <div class="container">
+    <div class="p-b-32">
+      <h3 class="ltext-105 cl5 txt-center respon1">Store Overview</h3>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab01">
+      <!-- Nav Tabs -->
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item p-b-10"><a class="nav-link active" data-toggle="tab" href="#best-seller" role="tab">Best Seller</a></li>
+        <li class="nav-item p-b-10"><a class="nav-link" data-toggle="tab" href="#NewArrival" role="tab">New Arrival</a></li>
+        <li class="nav-item p-b-10"><a class="nav-link" data-toggle="tab" href="#topbrand" role="tab">Top Brand</a></li>
+      </ul>
+
+      <!-- Tab Content -->
+      <div class="tab-content p-t-50">
+
+        <!-- Best Sellers -->
+        <div class="tab-pane fade show active" id="best-seller" role="tabpanel">
+          <div class="wrap-slick2">
+            <div class="slick2">
+              <% for(let i=0; i< bestSellers.length; i++) { %>
+                <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
+                  <div class="block2">
+                    <div class="block2-pic hov-img0">
+                      <img src="<%= bestSellers[i].images[0] %>" alt="IMG-PRODUCT">
+                      <a href="/productDetails?id=<%= bestSellers[i]._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">Quick View</a>
+                    </div>
+                    <div class="block2-txt flex-w flex-t p-t-14">
+                      <div class="block2-txt-child1 flex-col-l">
+                        <a href="/productDetails?id=<%= bestSellers[i]._id %>" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6"><%= bestSellers[i].name %></a>
+                        <span class="stext-105 cl3">₹<%= bestSellers[i].finalPrice %></span>
+                      </div>
+                      <div class="block2-txt-child2 flex-r p-t-3">
+                        <a href="#" onclick="addToWishlist('<%= bestSellers[i]._id %>')" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
+                          <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON">
+                          <img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON">
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Arrivals -->
+        <div class="tab-pane fade" id="NewArrival" role="tabpanel">
+          <div class="wrap-slick2">
+            <div class="slick2">
+              <% newArrivals.forEach(product => { %>
+                <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">
+                  <div class="block2">
+                    <div class="block2-pic hov-img0">
+                      <img src="<%= product.images[0] %>" alt="IMG-PRODUCT">
+                      <a href="/productDetails?id=<%= product._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">Quick View</a>
+                    </div>
+                    <div class="block2-txt flex-w flex-t p-t-14">
+                      <div class="block2-txt-child1 flex-col-l">
+                        <a href="/productDetails?id=<%= product._id %>" class="stext-104 cl4 hov-cl1 trans-04 p-b-6"><%= product.name %></a>
+                        <span class="stext-105 cl3">₹<%= product.finalPrice %></span>
+                      </div>
+                      <div class="block2-txt-child2 flex-r p-t-3">
+                        <a href="#" onclick="addToWishlist('<%= product._id %>')" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
+                          <img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON">
+                          <img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON">
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Brand -->
+        <div class="tab-pane fade" id="topbrand" role="tabpanel">
+          <div class="wrap-slick2">
+            <div class="slick2">
+              <% topBrandProducts.forEach(brand => { %>
+                <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">
+                  <div class="block2">
+                    <div class="block2-pic hov-img0">
+                      <img src="/uploads/categories/<%= brand.brandImage %>" alt="IMG-PRODUCT">
+                    </div>
+                    <div class="block2-txt flex-w flex-t p-t-14">
+                      <div class="block2-txt-child1 flex-col-l">
+                        <%= brand.brandName %>
+                        <% if (brand.offer) { %>
+                          <span class="stext-105 cl3">Offer: <%= brand.offer %>% OFF</span>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Load More Button -->
+    
+
+    
+  </div>
+</section>
+
+<!-- Wishlist JS -->
+<script>
+  function addToWishlist(productId) {
+    $.ajax({
+      url: '/addToWishlist',
+      method: 'POST',
+      data: { productId: productId },
+      success: (response) => {
+        if (response.status) {
+          Swal.fire({
+            title: 'Added to wishlist',
+            text: 'The product has been added to your wishlist',
+            icon: 'success',
+            timer: 2000
+          });
+        } else {
+          Swal.fire({
+            title: 'Already in wishlist',
+            text: response.message,
+            icon: 'info',
+            timer: 2000
+          });
+        }
+      },
+      error: () => {
+        Swal.fire({
+          title: 'Error',
+          text: 'There was an error adding the product to your wishlist',
+          icon: 'error',
+          timer: 2000
+        });
+      }
+    });
+  }
+</script>
+
+<%- include('../partials/user/footer') %>
 
 
-	<!-- Product -->
-	<section class="bg0 p-t-23 p-b-140">
-		<div class="container">
-			<!-- <div class="p-b-10">
-				<h3 class="ltext-103 cl5">
-					Product Overview
-				</h3>
-			</div> -->
-			<div class="p-b-32">
-				<h3 class="ltext-105 cl5 txt-center respon1">
-					Store Overview
-				</h3>
-			</div>	
-
-		
-
-			<!-- Tab01 -->
-			<div class="tab01">
-				<!-- Nav tabs -->
-				<ul class="nav nav-tabs" role="tablist">
-					<li class="nav-item p-b-10">
-						<a class="nav-link active" data-toggle="tab" href="#best-seller" role="tab">Best Seller</a>
-					</li>
-
-					<li class="nav-item p-b-10">
-						<a class="nav-link" data-toggle="tab" href="#NewArrival" role="tab">New Arrival </a>
-					</li>
-
-					<!-- <li class="nav-item p-b-10">
-						<a class="nav-link" data-toggle="tab" href="#sale" role="tab">Sale</a>
-					</li> -->
-
-					<li class="nav-item p-b-10">
-						<a class="nav-link" data-toggle="tab" href="#topbrand" role="tab">Top Brand</a>
-					</li>
-				</ul>
-
-				<!-- Tab panes -->
-				<div class="tab-content p-t-50">
-					<!-- - -->
-					<div class="tab-pane fade show active" id="best-seller" role="tabpanel">
-						<!-- Slide2 -->
-						<div class="wrap-slick2">
-							<div class="slick2">
-								<%for(let i=0;i< bestSellers.length; i++){%>
-									<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
-										
-										<div class="block2">
-											<div class="block2-pic hov-img0">
-												<img src="<%= bestSellers[i].images[0] %>" alt="IMG-PRODUCT">
-								
-												<a href="/productDetails?id=<%=bestSellers[i]._id%>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">
-													Quick View
-												</a>
-											</div>
-								
-											<div class="block2-txt flex-w flex-t p-t-14">
-												<div class="block2-txt-child1 flex-col-l ">
-													<a href="/productDetails?id=<%=bestSellers[i]._id%>" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-														<%=bestSellers[i].name%>
-													</a>
-								
-													<span class="stext-105 cl3">
-														₹<%=bestSellers[i].finalPrice%>
-													</span>
-												</div>
-								
-												<div class="block2-txt-child2 flex-r p-t-3">
-													<a href="#" onclick="addToWishlist('<%=bestSellers[i]._id%>')" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-														<img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON">
-														<img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON">
-													</a>
-												</div>
-											</div>
-										</div>
-									</div>
-									<%}%>
-
-								
-								
-								
-							</div>
-						</div>
-					</div>
-
-					<!-- - -->
-					<div class="tab-pane fade" id="NewArrival" role="tabpanel">
-						<div class="wrap-slick2">
-						  <div class="slick2">
-							<% newArrivals.forEach(product => { %>
-							  <div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">
-								<div class="block2">
-								  <div class="block2-pic hov-img0">
-									<img src="<%= product.images[0] %>" alt="IMG-PRODUCT">
-									<a href="/productDetails?id=<%= product._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
-									  Quick View
-									</a>
-								  </div>
-								  <div class="block2-txt flex-w flex-t p-t-14">
-									<div class="block2-txt-child1 flex-col-l ">
-									  <a href="/productDetails?id=<%= product._id %>" class="stext-104 cl4 hov-cl1 trans-04 p-b-6">
-										<%= product.name %>
-									  </a>
-									  <span class="stext-105 cl3">
-										₹<%= product.finalPrice %>
-									  </span>
-									</div>
-									<div class="block2-txt-child2 flex-r p-t-3">
-									  <a href="#"  onclick="addToWishlist('<%=product._id%>')" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-										<img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON">
-										<img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON">
-									  </a>
-									</div>
-								  </div>
-								</div>
-							  </div>
-							<% }) %>
-						  </div>
-						</div>
-					  </div>
-					  
-					
-					<!-- - -->
-					<div class="tab-pane fade" id="topbrand" role="tabpanel">
-						<!-- Slide2 -->
-						<div class="wrap-slick2">
-							<div class="slick2">
-								<% topBrandProducts.forEach(product => { %>
-								<div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">
-									<!-- Block2 -->
-									<div class="block2">
-										<div class="block2-pic hov-img0">
-											<img src="<%= product.images[0] %>" alt="IMG-PRODUCT">
-
-											<a href="/productDetails?id=<%= product._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">
-												Quick View
-											</a>
-										</div>
-
-										<div class="block2-txt flex-w flex-t p-t-14">
-											<div class="block2-txt-child1 flex-col-l ">
-												<a href="/productDetails?id=<%= product._id %>" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-													<%= product.name %>
-												</a>
-
-												<span class="stext-105 cl3">
-													₹<%= product.finalPrice %>
-												</span>
-											</div>
-
-											<div class="block2-txt-child2 flex-r p-t-3">
-												<a href="#" onclick="addToWishlist('<%=product._id%>')" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-													<img class="icon-heart1 dis-block trans-04" src="images/icons/icon-heart-01.png" alt="ICON">
-													<img class="icon-heart2 dis-block trans-04 ab-t-l" src="images/icons/icon-heart-02.png" alt="ICON">
-												</a>
-											</div>
-										</div>
-									</div>
-								</div>
-
-								
-
-								<% }) %>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-			<!-- Load more -->
-			<div class="flex-c-m flex-w w-full p-t-45">
-				<a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
-					Load More
-				</a>
-			</div>
-		</div>
-	</section>
-	<script>
-		  //Add to Wishlist
-
-		  function addToWishlist(productId) {
-			$.ajax({
-			  url: '/addToWishlist',
-			  method: 'POST',
-			  data: { productId: productId },
-			  success: (response) => {
-				if (response.status) {
-				  Swal.fire({
-					title: 'Added to wishlist',
-					text: 'The product has been added to your wishlist',
-					icon: 'success',
-					timer: 2000
-				  });
-		
-				  // Toggle icon to filled red heart
-				  const icon = document.querySelector(`.wishlist-btn[onclick="addToWishlist('${productId}')"] i`);
-				  if (icon) {
-					icon.classList.remove('far');
-					icon.classList.add('fas');
-					icon.style.color = 'red';
-				  }
-		
-				} else {
-				  Swal.fire({
-					title: 'Already in wishlist',
-					text: response.message,
-					icon: 'info',
-					timer: 2000
-				  });
-				}
-			  },
-			  error: (error) => {
-				Swal.fire({
-				  title: 'Error',
-				  text: 'There was an error adding the product to your wishlist',
-				  icon: 'error',
-				  timer: 2000
-				});
-			  }
-			});
-		  }
-	</script>
-	<%- include('../partials/user/footer') %>
-
-
+<script>
+  const heroSwiper = new Swiper('.heroSwiper', {
+    loop: true,
+    speed: 700,
+    autoplay: { delay: 3500, disableOnInteraction: false },
+    navigation: { nextEl: '.hero-next', prevEl: '.hero-prev' },
+    pagination: { el: '.hero-pagination', clickable: true }
+  });
+</script>

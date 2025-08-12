@@ -1,17 +1,6 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Checkout with Bootstrap</title> -->
-     <!-- Bootstrap CSS CDN -->
+<%- include('../partials/user/header') %>
+<div class="pt-5 mt-4">
 
-
-     <%- include('../partials/user/header') %>
-     <div class="pt-5 mt-4">
-
-
-   <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" /> -->
   <style>
     .address-card {
       cursor: pointer;
@@ -269,28 +258,7 @@
             <p>No addresses found. <a href="/addAddress">Add one now.</a></p>
           <% } %>
         </div>
-
-        <!-- Payment method -->
-        <!-- <div class="payment-method mt-4">
-          <h3 class="fw-semibold mb-3">Payment Method</h3>
-          <label class="d-flex align-items-center gap-2 mb-3" for="online">
-            <input type="radio" id="online" name="paymentMethod" value="wallet" />
-            <span>Wallet </span>
-          </label>
-          <label class="d-flex align-items-center gap-2 mb-3" for="razorpay">
-            <input type="radio" id="razorpay" name="paymentMethod" value="razorpay" />
-            <span> Razorpay</span>
-          </label>
-          <label class="d-flex align-items-center gap-2" for="cod">
-            <input type="radio" id="cod" name="paymentMethod" value="cod" checked />
-            <span>Cash on Delivery</span>
-          </label>
-        </div>
-
-        <button type="button" id="placeOrderBtn" class="btn-place-order">Place Order</button> -->
-      <!-- </form> -->
     </div>
-
     <!-- Right: Order Summary -->
     <div class="col-lg-5 bg-white p-4 rounded shadow-sm">
       <h2>Your Order</h2>
@@ -366,43 +334,8 @@
             Available Coupons
           </button>
         </div>
-      
-       
       </div>
-      
-      
-      
-      <!-- <div class="available-coupons mt-4">
-        <h5 class="mb-3">Available Coupons</h5>
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <div class="card shadow-sm border-0 h-100">
-              <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="card-title mb-1">
-                    <span class="badge bg-success me-2">COUPON_NAME</span>
-                    <span class="badge bg-warning text-dark">Gifted</span>
-                  </h6>
-                  <p class="card-text mb-0 small text-muted">
-                    Save ₹OFFER_PRICE on min order of ₹MINIMUM_PRICE
-                  </p>
-                  <p class="card-text mb-0 small text-muted">
-                    Valid till: EXPIRY_DATE
-                  </p>
-                </div>
-                <button class="btn btn-outline-primary btn-sm copy-btn" data-coupon="COUPON_NAME">
-                  Copy
-                </button>
-              </div>
-            </div>
-          </div>
-          
-        </div>
-      </div> -->
-      
-
-
-    <!-- place order -->
+     <!-- place order -->
     <div><br></div>
     <div class="payment-method mt-4">
       <h3 class="fw-semibold mb-3">Payment Method</h3>
@@ -424,7 +357,7 @@
   
     </div>
      <!-- Coupons Modal -->
-<div class="modal couponModal fade" id="couponsModal" tabindex="-1" aria-labelledby="couponsModalLabel" aria-hidden="true">
+  <div class="modal couponModal fade" id="couponsModal" tabindex="-1" aria-labelledby="couponsModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
@@ -441,9 +374,7 @@
     </div>
   </div>
 </div>
-
-
-  </div>
+</div>
 </div>
 
 <script>
@@ -507,177 +438,7 @@
  }
 </script>
 <script>
- 
- 
- //place order
- /* document.getElementById('placeOrderBtn').addEventListener('click', function (e) {
-    e.preventDefault();
-  
-    let address = document.querySelector('input[name="shippingAddress"]:checked')?.value;
-    let payment = document.querySelector('input[name="paymentMethod"]:checked')?.value;
-    const discountText = document.getElementById('discountAmount').textContent;
-    let discount = parseFloat(discountText.replace(/[^\d.]/g, '')) || 0;
-  
-    const totalText = document.querySelector('#totalAmount')?.textContent || '<%= parseFloat(totalPayable).toFixed(2) %>';
-    const numericValue = parseFloat(totalText.replace(/[^\d.]/g, ''));
-  
-    if (!payment) {
-      Swal.fire({ title: 'NO PAYMENT FOUND!', text: 'Please select your payment method.', icon: 'error', timer: 3000 });
-      return;
-    }
-  
-    if (!address) {
-      Swal.fire({ title: 'NO ADDRESS FOUND!', text: 'Please select a shipping address.', icon: 'error', timer: 3000 });
-      return;
-    }
-  
-    if (payment === "cod" && numericValue > 10000) {
-      Swal.fire({ title: 'COD Not Allowed!', text: 'Orders above ₹10000 are not allowed for COD.', icon: 'error', timer: 3000 });
-      return;
-    }
-  
-    $.ajax({
-      url: '/placeOrder',
-      method: 'POST',
-      contentType: "application/json",
-      data: JSON.stringify({
-        totalPrice: numericValue,
-        addressId: address,
-        payment: payment,
-        discount:discount
-      }),
-      success: function (response) {
-        let orderId = response.order?._id;
-  
-        if (response.method === "cod") {
-          Swal.fire({
-            title: "Order success",
-            text: "Order placed successfully",
-            icon: "success",
-            showCancelButton: true,
-            confirmButtonText: "View orders",
-            cancelButtonText: "Continue shopping",
-            reverseButtons: true
-          }).then(function (result) {
-            if (result.value) {
-              window.location.href = `/viewOrderDetails/${orderId}`
-             /* location.href = `/order-success/${orderId}`;*/
-          /*  } else if (result.dismiss === "cancel") {
-              location.href = '/';
-            }
-          });
-  
-        } else if (response.method === "wallet") {
-          if (response.payment === true) {
-            Swal.fire({
-              title: "Order success",
-              text: "Order placed successfully",
-              icon: "success",
-              showCancelButton: true,
-              confirmButtonText: "View orders",
-              cancelButtonText: "Continue shopping",
-              reverseButtons: true
-            }).then(function (result) {
-              if (result.value) {
-                window.location.href = `/viewOrderDetails/${orderId}`
-              } else if (result.dismiss === "cancel") {
-                location.href = '/';
-              }
-            });
-          } else {
-            Swal.fire({
-              title: "Order failed",
-              text: "Wallet amount is not enough",
-              icon: "error",
-              showConfirmButton: true,
-            }).then(function (result) {
-              if (result.value) {
-                location.href = '/checkout';
-              }
-            });
-          }
-  
-        } else if (response.method === "razorpay") {
-          let orderAmount = Math.round(numericValue * 100);
-          var options = {
-            "key": "rzp_test_ClMWweWS70Dbkd",
-            "amount": orderAmount,
-            "currency": "INR",
-            "name": "TrendiQue",
-            "description": "Test Transaction",
-            "order_id": response.razorPayOrder.id,
-            "handler": function (status) {
-              verifyPayment(response.razorPayOrder, status, orderId);
-            },
-            "prefill": {
-              "name": "Customer Name",
-              "email": "customer@example.com",
-              "contact": "9961618585"
-            },
-            "theme": {
-              "color": "#3399cc"
-            }
-          };
-          var rzp1 = new Razorpay(options);
-          rzp1.on('payment.failed', function (response) {
-            verifyPayment({
-              id: response.error.metadata.order_id,
-              receipt: `order_receipt_${orderId}`
-            }, response.error, orderId);
-          });
-          rzp1.open();
-  
-        } else {
-          Swal.fire({
-            title: 'Error Occurred',
-            text: "Can't process order, error occurred",
-            icon: 'error',
-            timer: 5000
-          });
-        }
-      }
-    });
-  });
-  function verifyPayment(order, payment, orderId) {
-    $.ajax({
-      url: '/verifyPayment',
-      method: 'POST',
-      data: {
-        order,
-        payment
-      },
-      success: function(response) {
-        if (response.status) {
-          Swal.fire({
-            title: "Order success",
-            text: "Order placed successfully",
-            icon: "success",
-            showCancelButton: true,
-            confirmButtonText: "View orders",
-            cancelButtonText: "Continue shopping",
-            reverseButtons: true
-          }).then(function(result) {
-            if (result.isConfirmed) {
-              window.location.href = `/viewOrderDetails/${orderId}`
-            } else {
-              location.href = '/';
-            }
-          });
-        } else {
-          Swal.fire({
-            title: "Payment Failed",
-            text: "Transaction failed. Please try again.Go to order detail page",
-            icon: "error",
-            confirmButtonText: "Retry"
-          });
-        }
-      }
-    });
-  }*/
-  
-
-
-  // place order 2
+ // place order 2
   
   function checkStockAvailability() {
     return fetch('/check-stock')
@@ -687,9 +448,7 @@
         return data;
       });
   }
-  
-    
-    document.getElementById('placeOrderBtn').addEventListener('click', async function (e) {
+  document.getElementById('placeOrderBtn').addEventListener('click', async function (e) {
       e.preventDefault();
     
       try {
@@ -793,9 +552,6 @@
               "description": "Test Transaction",
               "order_id": response.razorPayOrder.id,
               "handler": function (payment) {
-                //verifyPayment(response.razorPayOrder, status, orderId);
-                //verifyAndPlaceOrder(status, address, numericValue, discount);
-                //verifyAndPlaceOrder(response, address, totalPrice, discount);
                 verifyAndPlaceOrder(payment, address, numericValue, discount);
               },
               "prefill": {
@@ -808,10 +564,7 @@
             const rzp = new Razorpay(options);
             rzp.on('payment.failed', function (resp) {
               console.log("Payment failed", resp); 
-             /* verifyPayment({
-                id: resp.error.metadata.order_id,
-                receipt: `order_receipt_${orderId}`
-              }, resp.error, orderId);*/
+             
               Swal.fire({
                 title: "Payment Failed",
                 text: resp.error.description || 'Transaction was unsuccessful.',
@@ -897,11 +650,7 @@
         }
       });
     }
-    
-    
-    
-  
-</script>
+  </script>
 
 <script>
 
@@ -950,22 +699,15 @@
       codeInput.value = ''
       message.innerText = ''
       document.getElementById('discountAmount').innerText = '-₹0'
-      //const base = <%= grandTotal %> + <%= shippingCharge %> ;
-      //document.getElementById('grandTotal').innerText = `₹${base}`
-      //document.getElementById('totalAmount').value = base;
       const originalGrandTotal = parseFloat(document.getElementById('originalGrandTotal').value);
-  const originalShipping = parseFloat(document.getElementById('originalShippingCharge').value);
-  const total = (originalGrandTotal + originalShipping).toFixed(2);
-
-  document.getElementById('totalAmount').innerText = `₹${total}`;
-  document.getElementById('totalPayable').value = total;
+      const originalShipping = parseFloat(document.getElementById('originalShippingCharge').value);
+      const total = (originalGrandTotal + originalShipping).toFixed(2);
+      document.getElementById('totalAmount').innerText = `₹${total}`;
+      document.getElementById('totalPayable').value = total;
 
     }
   }
-   
-
-
-  <!-- Available Coupon -->
+    //Available Coupon
   document.getElementById('showCouponsBtn').addEventListener('click', async () => {
     const modalBody = document.getElementById('couponsModalBody');
     modalBody.innerHTML = '<p>Loading coupons...</p>';
@@ -1000,6 +742,16 @@
             const code = button.getAttribute('data-code');
             navigator.clipboard.writeText(code).then(() => {
               //alert(`Copied coupon code: ${code}`);
+              Swal.fire({
+                toast: true,
+                position: 'bottom',
+                icon: 'success',
+                title: `Copied: ${code}`,
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true
+              });
+              
             });
           });
         });
@@ -1015,13 +767,8 @@
     const couponsModal = new bootstrap.Modal(document.getElementById('couponsModal'));
     couponsModal.show();
   });
-  
+  </script>
 
-</script>
-
-<!-- Bootstrap JS Bundle CDN -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
 <%- include('../partials/user/footer') %>
-<!-- </body>
-</html> -->
+
 

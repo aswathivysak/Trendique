@@ -116,18 +116,15 @@
               <td>
                 <% if (product.isBlocked) { %>
                   <span class="badge bg-dark">Not Available</span>
-                <% } else if (product.status === 'available') { %>
+                <% } else if (product.status && product.status.toLowerCase() === 'available') { %>
                   <span class="badge badge-available">Available</span>
-                <% } else if (product.status === 'out of stock') { %>
+                <% } else if (product.status && product.status.toLowerCase() === 'out of stock') { %>
                   <span class="badge badge-outofstock">Out of Stock</span>
                 <% } else { %>
                   <span class="badge badge-discontinued">Discontinued</span>
                 <% } %>
               </td>
-
-             
-              
-              <td><%= product.offer ? product.offer + "%" : "-" %></td>
+               <td><%= product.offer ? product.offer + "%" : "-" %></td>
               <% let formattedDate = product.offerValidUntil
                   ? new Date(product.offerValidUntil).toLocaleDateString('en-GB')
                   : "-"; %>

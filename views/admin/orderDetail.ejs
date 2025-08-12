@@ -209,39 +209,9 @@
                         <% } else { %>
                           <span class="badge bg-success"><%= item.status %></span>
                         <% } %>
-
-                        <!-- <% if (item.status === 'return_requested') { %>
-                            <form action="/admin/approveReturn/<%= order.orderId %>/<%= index %>" method="POST" class="d-inline-block me-2" onsubmit="return confirm('Approve this return request?');">
-                              <input type="hidden" name="productIndex" value="<%= index %>">
-                              <button type="submit" class="btn btn-success">Approve</button>
-                            </form>
-                            
-                            <form action="/admin/rejectReturn/<%= order.orderId %>/<%= index %>" method="POST" class="d-inline-block" onsubmit="return confirm('Reject this return request?');">
-                              <input type="hidden" name="productIndex" value="<%= index %>">
-                              <button type="submit" class="btn btn-danger">Reject</button>
-                            </form>
-                          <% } %> -->
-                          
-                      
                 </td>
                 <td>
-                    <!-- <form action="/admin/order/<%= order.orderId %>/status" method="POST">
-                        
-                        <select name="status" id="status" onchange="this.form.submit()" class="form-select form-select-sm mt-1">
-                          <% ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].forEach((option) => { %>
-                            <% 
-                              const currentIndex = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].indexOf(order.status);
-                              const optionIndex = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].indexOf(option);
-                            %>
-                            <% if (optionIndex >= currentIndex) { %>
-                              <option value="<%= option %>" <%= order.status === option ? 'selected' : '' %>>
-                                <%= option %>
-                              </option>
-                            <% } %>
-                          <% }) %>
-                        </select>
-                      </form> -->
-                      <select 
+                   <select 
                       onchange="updateItemStatus('<%= order.orderId %>', <%= index %>, this.value)"
                       <%= item.status === 'cancelled' ? 'disabled' : '' %>
                     >
@@ -269,10 +239,7 @@
         <p><strong>Final Amount:</strong> ₹<%= order.finalAmount %></p>
       </div>
     </div>
-
-
-  
-  </section>
+</section>
 </main>
 
 <!-- Scripts -->

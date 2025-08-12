@@ -107,38 +107,8 @@ const addCategory = async (req, res) => {
       res.redirect("/pageerror");
     }
   };
-
-  // const removeCategoryOffer = async (req, res) => {
-  //   try {
-  //     const categoryId = req.body.categoryId;
-  //     const category =  await Category.findById(categoryId);
-  //     if (!category) {
-  //       return res.status(404).json({ status: false, message: "Category not found" });
-  //     }
-   
-  //     await Category.updateOne(
-  //       { _id: categoryId },
-  //       {
-  //         $set: {
-  //           categoryOffer: null,
-  //           offerValidUntil: null // Reset the offer end date
-  //         }
-  //       }
-  //     );
-    
-  //     const products = await Product.find({ category: categoryId });
-  //     for (const product of products) {
-  //       product.finalPrice = await calculateEffectivePrice(product);
-  //       await product.save();
-  //     }
-  
-  //     res.json({ status: true, message: "Offer removed successfully" });
-  //   } catch (error) {
-  //     console.error("Error in removeCategoryOffer:", error);
-  //     return res.status(500).json({ status: false, message: "Internal Server Error" });
-  //   }
-  // };
-  const removeCategoryOffer = async (req, res) => {
+//remove offer
+const removeCategoryOffer = async (req, res) => {
     try {
       const categoryId = req.body.categoryId;
   

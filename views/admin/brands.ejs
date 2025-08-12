@@ -352,72 +352,7 @@
       }
     });
     
-
-   /* document.querySelector('form[action="/admin/brands"]').addEventListener('submit', async function (e) {
-      e.preventDefault();
-    
-      const form = e.target;
-      const formData = new FormData(form);
-    
-      const name = formData.get('name').trim();
-      const image = formData.get('image'); 
-    
-      if (!name || !image.name) {
-        return Swal.fire({
-          icon: 'warning',
-          title: 'All fields are required!',
-          text: 'Please fill in all the details before submitting.',
-          confirmButtonColor: '#ffc107'
-        });
-      }
-    
-      
-      if (!['image/png', 'image/jpeg'].includes(image.type)) {
-        return Swal.fire({
-          icon: 'error',
-          title: 'Invalid Image Type',
-          text: 'Only PNG or JPEG files are allowed.',
-          confirmButtonColor: '#dc3545'
-        });
-      }
-    
-
-      try {
-        const response = await fetch('/admin/brands', {
-          method: 'POST',
-          body: formData
-        });
-    
-        const result = await response.json();
-    
-        if (result.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: result.message,
-            confirmButtonColor: '#198754'
-          }).then(() => {
-            window.location.reload();
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: result.message,
-            confirmButtonColor: '#dc3545'
-          });
-        }
-      } catch (err) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Server Error',
-          text: 'Something went wrong!',
-          confirmButtonColor: '#dc3545'
-        });
-      }
-    });*/
-    
-    //Delete brand
+//Delete brand
     function deleteBrand(brandId) {
       Swal.fire({
         title: "Are you sure?",

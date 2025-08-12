@@ -23,7 +23,6 @@ const securePassword = async (password) => {
 
     } catch (error) {
 
-        
     }
 }
 const sendVerificationEmail = async (email,otp) => {
@@ -62,8 +61,7 @@ const sendVerificationEmail = async (email,otp) => {
     }
 }
 
-
-
+//forgot password
 const getForgotPassPage = async (req,res) => {
     try {
         
@@ -75,6 +73,7 @@ const getForgotPassPage = async (req,res) => {
         
     }
 }
+
 const forgotEmailValid = async (req,res) => {
     try {
         
@@ -105,6 +104,7 @@ const forgotEmailValid = async (req,res) => {
         
     }
 }
+
 const verifyForgotPassOtp = async (req,res) => {
     try {
         
@@ -122,6 +122,7 @@ const verifyForgotPassOtp = async (req,res) => {
         
     }
 }
+
 const getResetPassPage = async (req,res) => {
     try {
         
@@ -133,6 +134,7 @@ const getResetPassPage = async (req,res) => {
         
     }
 }
+//resend otp
 const resendOtp = async (req,res) => {
     try {
         
@@ -144,8 +146,6 @@ const resendOtp = async (req,res) => {
         if(emailSent){
             console.log("Resend Otp: ",otp);
             res.status(200).json({success:true,message:"Resend OTP Successful"})
-
-            
         }
 
     } catch (error) {
@@ -168,8 +168,6 @@ const postNewPassword = async (req,res) => {
                 {email:email},
                 {$set:{password:passwordHash}}
             );
-
-
             req.session.userOtp = null;
             req.session.email = null;
             req.session.resetAllowed = null;
@@ -229,8 +227,8 @@ const userProfile = async (req,res)=>{
        }catch (err){
         res.redirect("/pageNotFound")
        }
-
-}
+    }
+//change email
 const changeEmail = async (req,res)=>{
   try{
     const user = req.session.user
@@ -239,6 +237,7 @@ const changeEmail = async (req,res)=>{
     res.redirect("/pageNotFound")
   }
 }
+//change email validation
 const changeEmailValid =async (req,res)=>{
     try{
         const {email}=req.body;
@@ -266,7 +265,7 @@ const changeEmailValid =async (req,res)=>{
     }
 }
 
-
+//otp varification
 const verifyEmailOtp = async (req,res) => {
     try {
         
@@ -334,6 +333,7 @@ const updateProfile = async (req, res) => {
       return res.status(500).send('Server error');
     }
   };
+
   //Get  change password page
   const getChangePassword = async (req,res)=>
 {
@@ -372,6 +372,7 @@ const changePassword = async (req,res)=>
         res.status(500).json({success: false, message: 'Internal server error'})
     }
 }
+//profilepic change
 const changeProfilePic = async (req, res) => {
     try {
       const userId = typeof req.session.user === 'string' ? req.session.user : req.session.user._id;
@@ -401,7 +402,8 @@ const changeProfilePic = async (req, res) => {
         res.redirect("/pagenotfound")
     }
 }
-  const addAddress = async (req,res)=>{
+//add address  
+const addAddress = async (req,res)=>{
     try{
         const userId = req.session.user
         const userData = await User.findById(userId)
