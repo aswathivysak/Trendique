@@ -94,7 +94,7 @@ router.get("/checkout", userAuth, orderController.getCheckoutPage)
 router.post('/placeOrder',userAuth, orderController.placeOrder)
 router.get('/order-success/:orderId', userAuth, orderController.getOrderSuccessPage);
 router.get('/viewOrderDetails/:orderId', userAuth, orderController.viewOrderDetails)
- router.post("/verifyPayment", userAuth, orderController.verifyPayment);
+router.post("/verifyPayment", userAuth, orderController.verifyPayment);
 router.post('/paymentConfirm',userAuth, orderController.paymentConfirm);
 router.get("/retryPayment", userAuth, orderController.retryPayment);
 
