@@ -648,9 +648,7 @@ const returnRequest = async (req, res) => {
   }
 };
 
- // Adjust path if needed
-
-// Generate and send PDF invoice for a delivered order
+ // Generate and send PDF invoice for a delivered order
 const generateInvoice = async (req, res) => {
   try {
     
@@ -660,15 +658,11 @@ const generateInvoice = async (req, res) => {
     if (!orderId) {
       return res.status(400).send('Order ID is required');
     }
-
-  
-    const order = await Order.findOne({ orderId: orderId, userId });
+   const order = await Order.findOne({ orderId: orderId, userId });
     if (!order) {
       return res.status(404).send('Order not found');
     }
-
-    
-    if (order.status !== 'delivered') {
+   if (order.status !== 'delivered') {
       return res.status(400).send('Invoice is only available for delivered orders');
     }
 
@@ -677,15 +671,14 @@ const generateInvoice = async (req, res) => {
       await order.save();
     }
 
-    
     const templatePath = path.join(__dirname, '../../views/user/invoice.ejs');
     const html = await ejs.renderFile(templatePath, { order });
 
     // Launch Puppeteer to generate PDF from rendered HTML
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: true ,args: ['--no-sandbox', '--disable-setuid-sandbox']});
     const page = await browser.newPage();
 
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.setContent(html, { waitUntil: 'domcontentloaded'  });
 
     // Ensure invoice directory exists
     const invoiceDir = path.join(__dirname, '../../public/invoices');
@@ -714,20 +707,21 @@ const generateInvoice = async (req, res) => {
 
     // Send the PDF file to client for download
     res.download(filePath, fileName, (err) => {
-      if (err) {
+
+      fs.promises.unlink(filePath)
+      .catch(e => { if (e.code !== 'ENOENT') console.error('Delete failed:', e); });
+     if (err) {
         console.error('Error sending file:', err);
         return res.status(500).send('Error generating invoice');
       }
-
-      
-    });
+     });
   } catch (error) {
     console.error('Error generating invoice:', error);
     res.status(500).send('Error generating invoice');
   }
 };
 
-
+//Available coupon
 const getAvailableCoupons = async (req, res) => {
   try {
     const userId = req.session.user;

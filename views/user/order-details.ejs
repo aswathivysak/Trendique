@@ -547,7 +547,7 @@
     modal.show();
   }
 
-  document.getElementById('confirmDownloadBtn').addEventListener('click', () => {
+ /* document.getElementById('confirmDownloadBtn').addEventListener('click', () => {
     if (!currentOrderId) return;
     const url = `/orders/download-invoice?orderId=${currentOrderId}`;
     const a = document.createElement('a');
@@ -559,6 +559,12 @@
 
     const modalEl = document.getElementById('invoiceDownloadModal');
     bootstrap.Modal.getInstance(modalEl).hide();
+  });*/
+  document.getElementById('confirmDownloadBtn').addEventListener('click', () => {
+    if (!currentOrderId) return;
+    const url = `/orders/download-invoice?orderId=${encodeURIComponent(currentOrderId)}`;
+    window.location.href = url; // ← simpler & avoids “download-invoice.htm”
+    bootstrap.Modal.getInstance(document.getElementById('invoiceDownloadModal')).hide();
   });
 </script>
 
