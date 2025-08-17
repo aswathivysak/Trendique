@@ -1,4 +1,5 @@
 const User = require("../../models/userSchema");
+const Order = require("../../models/orderSchema");
 
 const customerInfo = async (req, res) => {
     try {
@@ -29,6 +30,10 @@ const customerInfo = async (req, res) => {
                 {email:{$regex:".*"+search+".*"}},
              ]
              }).countDocuments();
+
+             await Promise.all(userData.map(async (u) => {
+                u.orderCount = await Order.countDocuments({ userId: u._id });
+                }));
 
              res.render('customers',{
                 data:userData,
