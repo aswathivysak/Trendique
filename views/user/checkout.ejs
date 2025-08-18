@@ -395,6 +395,19 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+  // returns a Promise so you can .then(...) after the Swal closes
+  let razorpayOpen = false;
+  function safeShowSwalAfterRazorpayClose(opts) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Swal.fire returns a Promise; resolve after it finishes
+        Promise.resolve(Swal.fire(opts)).then(resolve);
+      }, 150);
+    });
+  }
+  </script>
+  
+<script>
   async function removeItem(itemId){
    const confirmuser = confirm('Are you sure want to remove this item from the cart?')
    if(!confirmuser){
@@ -491,12 +504,11 @@
           const changedStock = stockStatus.some(item => item.stockChanged && !item.isBlocked);
           if (changedStock) {
             return Swal.fire('Stock Changed', 'Some quantities were adjusted due to stock limits.', 'warning')
-              .then(() => location.reload());
+            .then(() => {
+              window.location.href = '/cart';  
+            });
           }
-
-
-    
-        // All Good → Proceed
+       // All Good → Proceed
         placeOrder(address, payment, numericValue, discount);
     
       } catch (error) {
@@ -504,8 +516,7 @@
         Swal.fire('Error', error.message || 'Something went wrong!', 'error');
       }
     });
-    
-    
+   
     function placeOrder(address, payment, numericValue, discount) {
       $.ajax({
         url: '/placeOrder',
@@ -544,45 +555,88 @@
     
           } else if (response.method === "razorpay") {
             const orderAmount = Math.round(numericValue * 100);
+    
             const options = {
-              "key": "rzp_test_ClMWweWS70Dbkd",
-              "amount": orderAmount,
-              "currency": "INR",
-              "name": "TrendiQue",
-              "description": "Test Transaction",
-              "order_id": response.razorPayOrder.id,
-              "handler": function (payment) {
+              key: "rzp_test_ClMWweWS70Dbkd",
+              amount: orderAmount,
+              currency: "INR",
+              name: "TrendiQue",
+              description: "Checkout",
+              order_id: response.razorPayOrder.id,
+    
+              // SUCCESS → verify then create order
+              handler: function (payment) {
+                razorpayOpen = false;
                 verifyAndPlaceOrder(payment, address, numericValue, discount);
               },
-              "prefill": {
-                "name": "Customer Name",
-                "email": "customer@example.com",
-                "contact": "9961618585"
+    
+              // USER closed popup (ESC/close/backdrop)
+              modal: {
+                ondismiss: function () {
+                  razorpayOpen = false;
+                 // safeShowSwalAfterRazorpayClose({
+                 //   title: "Payment Cancelled",
+                 //text: "You closed the payment window.",
+                  //  icon: "info",
+                 //   confirmButtonText: "Back to checkout"
+                 // }).then(() => {
+                 //   window.location.href = '/checkout';
+                  //});
+                }
               },
-              "theme": { "color": "#3399cc" }
+    
+              prefill: {
+                name: "Customer Name",
+                email: "customer@example.com",
+                contact: "9961618585"
+              },
+              theme: { color: "#3399cc" }
             };
+    
             const rzp = new Razorpay(options);
-            rzp.on('payment.failed', function (resp) {
-              console.log("Payment failed", resp); 
-             
+    
+           
+            // GATEWAY/BANK FAILURE → show SweetAlert reliably
+          rzp.on('payment.failed', function (resp) {
+            console.log("RZP payment.failed fired:", resp);
+
+            razorpayOpen = false;
+            try { rzp.close(); } catch (_) {}
+
+            const err = resp && resp.error ? resp.error : {};
+            const msg = err.description
+              || "Your payment didn't go through as it was declined by the bank. Try another payment method or contact your bank.";
+
+            //   direct setTimeout instead of safeShowSwalAfterRazorpayClose
+            setTimeout(() => {
               Swal.fire({
                 title: "Payment Failed",
-                text: resp.error.description || 'Transaction was unsuccessful.',
+                text: msg,
                 icon: "error",
                 confirmButtonText: "Try Again"
               }).then(() => {
                 window.location.href = '/checkout';
-            });
+              });
+            }, 600); // small delay ensures Razorpay overlay is gone
           });
           try {
-            rzp.open();
-          } catch (err) {
-            console.error("Razorpay open error:", err);
-          }
+              if (!razorpayOpen) {
+                razorpayOpen = true;
+                rzp.open();
+              }
+            } catch (err) {
+              razorpayOpen = false;
+              console.error("Razorpay open error:", err);
+              Swal.fire("Payment Error", "Unable to open payment window. Please try again.", "error");
+            }
     
+            return; // stop here; don't fall through
           } else {
             Swal.fire('Error Occurred', 'Cannot process order.', 'error');
           }
+        },
+        error: function (xhr) {
+          Swal.fire("Error", (xhr.responseJSON && xhr.responseJSON.message) || "Server error while creating order.", "error");
         }
       });
     }
