@@ -187,6 +187,7 @@
           <tbody>
             <% order.orderedItems.forEach((item, index) => { %>
               <tr>
+                <% const current = (item.status || '').toLowerCase(); %>
                 <td>
                   <a href="#">
                     <img
@@ -202,30 +203,66 @@
                 <td>₹<%= item.finalPrice.toFixed(2) %></td>
                 <td><%= item.quantity %></td>
                 <td>₹<%= (item.finalPrice * item.quantity).toFixed(2) %></td>
-                <td>
+                <!-- <td>
                     
                         <% if (item.status === 'cancelled') { %>
                           <span class="badge bg-danger" ><%= item.status %></span>
                         <% } else { %>
                           <span class="badge bg-success"><%= item.status %></span>
                         <% } %>
+                </td> -->
+              <td>
+                  <% var s = (item.status || '').toLowerCase(); %>
+                  <% if (s === 'cancelled') { %>
+                    <span class="badge bg-danger">Cancelled</span>
+                  <% } else if (s === 'delivered') { %>
+                    <span class="badge bg-primary">Delivered</span>
+                  <% } else if (s === 'returned') { %>
+                    <span class="badge bg-info">Returned</span>
+                  <% } else if (s === 'return_requested') { %>
+                    <span class="badge bg-warning text-dark">Return Requested</span>
+                  <% } else if (s === 'shipped') { %>
+                    <span class="badge bg-primary">Shipped</span>
+                  <% } else if (s === 'confirmed') { %>
+                    <span class="badge bg-success">Confirmed</span>
+                  <% } else { %>
+                    <span class="badge bg-secondary">Pending</span>
+                  <% } %>
                 </td>
-                <td>
-                   <select 
-                      onchange="updateItemStatus('<%= order.orderId %>', <%= index %>, this.value)"
-                      <%= item.status === 'cancelled' ? 'disabled' : '' %>
-                    >
-                      <% const statuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returning', 'returned']; %>
-                      <% statuses.forEach(status => { %>
-                        <option value="<%= status %>" <%= item.status === status ? 'selected' : '' %>>
-                          <%= status.charAt(0).toUpperCase() + status.slice(1) %>
-                        </option>
-                      <% }) %>
-                    </select>
-                    
-                      
-                </td>
-              </tr>
+                
+            <!-- STATUS -->
+            <td>
+              <% if (['delivered','returned','return_requested'].includes((item.status || '').toLowerCase())) { %>
+                <!-- final states: no select -->
+              <% } else { %>
+                <select
+                  class="form-select"
+                  onchange="updateItemStatus('<%= order.orderId %>', <%= index %>, this.value)"
+                  <%= ((item.status || '').toLowerCase() === 'cancelled') ? 'disabled' : '' %>
+                >
+                  <% if ((item.status || '').toLowerCase() === 'confirmed') { %>
+                    <option value="confirmed" selected disabled>Confirmed</option>
+                   
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+
+                  <% } else if ((item.status || '').toLowerCase() === 'shipped') { %>
+                    <!-- When current is shiped, allow only Delivered -->
+                    <option value="shipped" selected disabled>Shipped</option>
+                    <option value="delivered">Delivered</option>
+
+                  <% } else { %>
+                    <!-- Default full list (use 'shiped' here too) -->
+                    <% ['pending','confirmed','shipped','delivered','cancelled'].forEach(function(status){ %>
+                      <option value="<%= status %>" <%= ((item.status || '').toLowerCase() === status) ? 'selected' : '' %>>
+                        <%= (status === 'shipped' ? 'Shipped' : (status.charAt(0).toUpperCase() + status.slice(1))) %>
+                      </option>
+                    <% }) %>
+                  <% } %>
+                </select>
+              <% } %>
+            </td>
+            </tr>
             <% }) %>
           </tbody>
         </table>
