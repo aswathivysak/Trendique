@@ -278,11 +278,21 @@
   //Add offer
 
   function addOffer(productId) {
+    const today = new Date().toISOString().split('T')[0];
     Swal.fire({
       title: 'Add product Offer',
       html:
-        `<input type="number" id="percentage" class="swal2-input" placeholder="Offer % (1–99)" min="1" max="99">
-         <input type="date" id="validUntil" class="swal2-input" placeholder="Valid Until">`,
+        //`<input type="number" id="percentage" class="swal2-input" placeholder="Offer % (1–99)" min="1" max="99">
+         //<input type="date" id="validUntil" class="swal2-input" placeholder="Valid Until">`,
+         `
+         <div style="text-align:left">
+           <label for="percentage"><b>Offer in Percentage</b></label>
+           <input type="number" id="percentage" class="swal2-input" placeholder="Offer % (1–99)" min="1" max="99">
+   
+           <label for="validUntil"><b>Valid Until</b></label>
+           <input type="date" id="validUntil" class="swal2-input" min="${today}">
+         </div>
+       `,
       focusConfirm: false,
       showCancelButton: true,
       confirmButtonText: 'Add',

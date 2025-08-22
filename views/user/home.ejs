@@ -8,20 +8,25 @@
 .hero-banner .swiper-wrapper,.hero-banner .swiper-slide{height:100%}
 .hero-img{width:100%;height:100%;object-fit:cover;display:block}
 
-/* Card-style caption (NEW) */
-.hero-caption{
-  position:absolute; inset:0; display:flex; align-items:center;
-  /* no gradient background here */
-  color:#fff; pointer-events:none;            /* let clicks pass except on the card */
+.hero-caption {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;     /* center vertically */
+  justify-content: center; /* center horizontally */
+  text-align: center;      /* center text inside */
+  color: #fff;
+  pointer-events: none;    /* clicks pass through except card */
 }
-.hero-card{
-  pointer-events:auto;
-  background:rgba(0,0,0,.62);
-  border-radius:14px;
-  padding:22px 26px;
-  margin-left:clamp(12px,4vw,56px);
-  max-width:min(600px,90vw);
-  box-shadow:0 8px 24px rgba(0,0,0,.25);
+
+.hero-card {
+  pointer-events: auto;
+  background: rgba(0, 0, 0, .62);
+  border-radius: 14px;
+  padding: 22px 26px;
+  max-width: min(600px, 90vw);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+  margin: 0 auto;          /* ensure centered */
 }
 .hero-title{font:700 2.4rem/1.15 "Playfair Display",serif;margin:0 0 .5rem;text-shadow:0 2px 6px rgba(0,0,0,.35)}
 .hero-sub{font-size:1.05rem;opacity:.95;margin:0 0 1rem}
@@ -59,7 +64,7 @@
     <div class="slick1">
 
       <!-- Slide 1 -->
-      <div class="item-slick1" style="background-image: url(images/slide-01.jpg);">
+      <div class="item-slick1" style="background-image: url(images/banner-bg.png);">
         <div class="container h-full">
           <div class="flex-col-l-m h-full p-t-100 p-b-30 respon5">
             <div class="layer-slick1 animated visible-false" data-appear="fadeInDown" data-delay="0">
@@ -171,7 +176,7 @@
         <div class="swiper-slide">
           <img src="<%= b.image %>" alt="<%= b.title %>" class="hero-img">
           <div class="hero-caption">
-            <div class="hero-card">
+            <div class="hero-card ">
               <h2 class="hero-title"><%= b.title %></h2>
               <p class="hero-sub"><%= b.description %></p>
               <% if (b.link) { %>
@@ -201,7 +206,7 @@
           <a href="/shop" class="block1-txt ab-t-l s-full flex-col-l-sb p-lr-38 p-tb-34 trans-03 respon3">
             <div class="block1-txt-child1 flex-col-l">
               <span class="block1-name ltext-102 trans-04 p-b-8">Women</span>
-              <span class="block1-info stext-102 trans-04">Spring 2018</span>
+              <span class="block1-info stext-102 trans-04">Spring 2025</span>
             </div>
             <div class="block1-txt-child2 p-b-4 trans-05">
               <div class="block1-link stext-101 cl0 trans-09">Shop Now</div>
@@ -241,7 +246,10 @@
                   <div class="block2">
                     <div class="block2-pic hov-img0">
                       <img src="<%= bestSellers[i].images[0] %>" alt="IMG-PRODUCT">
-                      <a href="/productDetails?id=<%= bestSellers[i]._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">Quick View</a>
+                      <a href="/productDetails?id=<%= bestSellers[i]._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                        Quick View
+                      </a>
+                      
                     </div>
                     <div class="block2-txt flex-w flex-t p-t-14">
                       <div class="block2-txt-child1 flex-col-l">
@@ -271,7 +279,9 @@
                   <div class="block2">
                     <div class="block2-pic hov-img0">
                       <img src="<%= product.images[0] %>" alt="IMG-PRODUCT">
-                      <a href="/productDetails?id=<%= product._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">Quick View</a>
+                      <a href="/productDetails?id=<%= product._id %>" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+                        Quick View
+                      </a>
                     </div>
                     <div class="block2-txt flex-w flex-t p-t-14">
                       <div class="block2-txt-child1 flex-col-l">
