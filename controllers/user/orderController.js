@@ -665,6 +665,20 @@ const generateInvoice = async (req, res) => {
    if (order.status !== 'delivered') {
       return res.status(400).send('Invoice is only available for delivered orders');
     }
+    const deliveredItems = (order.orderedItems || []).filter(
+      it => (it.status || '').toLowerCase() === 'delivered'
+    );
+
+    if (deliveredItems.length === 0) {
+     
+      return res.status(400).send('No delivered items found for this order');
+    }
+
+    
+    const subTotalDelivered = deliveredItems.reduce(
+      (sum, it) => sum + (Number(it.finalPrice || 0) * Number(it.quantity || 0)),
+      0
+    );
 
     if (!order.invoiceDate) {
       order.invoiceDate = new Date();
@@ -672,7 +686,7 @@ const generateInvoice = async (req, res) => {
     }
 
     const templatePath = path.join(__dirname, '../../views/user/invoice.ejs');
-    const html = await ejs.renderFile(templatePath, { order });
+    const html = await ejs.renderFile(templatePath, { order,deliveredItems,subTotalDelivered });
 
     // Launch Puppeteer to generate PDF from rendered HTML
     const browser = await puppeteer.launch({ headless: true ,args: ['--no-sandbox', '--disable-setuid-sandbox']});

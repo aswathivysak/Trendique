@@ -186,7 +186,7 @@
         </tr>
       </thead>
       <tbody>
-        <% order.orderedItems.forEach(item => { %>
+        <% deliveredItems.forEach(item => { %>
           <tr>
             <!-- <td><img src="<%= item.productImages[0] %>" alt="<%= item.productName %>" class="product-image" /></td> -->
             <td><%= item.productName %></td>
@@ -200,8 +200,8 @@
 
     <div class="total-section">
       <div class="total-row">
-        <div class="total-label">Subtotal:</div>
-        <div class="total-value">₹<%= order.subTotal.toFixed(2) %></div>
+        <div class="total-label">Subtotal (delivered items):</div>
+        <div class="total-value">₹<%= Number(subTotalDelivered).toFixed(2) %></div>
       </div>
       <!-- <% if (order.discount && order.discount > 0) { %>
         <div class="total-row">
